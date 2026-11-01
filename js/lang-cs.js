@@ -136,15 +136,44 @@
     "Please load some vectors from DXF (Polylines) or SVG (Paths); or Images (Traceable); or insert a Shape, Icon or some Text using the built-in tools to get started": "Načti vektory z DXF (polylinie) nebo SVG (cesty), obrázek (k vektorizaci), nebo vlož tvar, ikonu či text vestavěnými nástroji.",
     "Please select some Vectors by clicking them in the viewer or using the Documents tree above. Hold down Ctrl to select multiples, Ctrl+A for Select-All, etc.": "Vyber vektory kliknutím v náhledu nebo ve stromu dokumentů výše. Ctrl = vícenásobný výběr, Ctrl+A = vybrat vše.",
     "Add them to a toolpath using the": "Přidej je do dráhy nástroje tlačítkem", "button": "",
-    "Select All": "Vybrat vše",
+    "Alt+Left Mouse Drag": "Alt + levé tlačítko tažením", "or": "nebo", "Estimated run time:": "Odhad doby běhu:",
+    "Estimated execution time of the generated G-Code (feed moves at programmed feedrate, rapids at rapid rate, plus dwells)": "Odhad doby provedení vytvořeného G-kódu (pracovní pohyby podle posuvu, rychloposuvy, prodlevy)",
+    "Left Mouse Drag": "Levé tlačítko tažením", "Ctrl+Left Mouse Drag": "Ctrl + levé tlačítko tažením", "Left Mouse Click": "Klik levým tlačítkem", "Ctrl + Left Mouse Click": "Ctrl + klik levým tlačítkem",
+    "= Select Document to move /": "= Vybrat dokument k přesunu /", "= Select entity to move /": "= Vybrat prvek k přesunu /", "= delete Entity /": "= smazat prvek /", "= Delete entire Document /": "= smazat celý dokument /",
+    "= Select Entity to scale": "= Vybrat prvek ke změně měřítka",
+    "NB: You cannot use Offset operations on Open Vectors, you can try to use \"No Offset\" operations, or repair the file first": "Pozor: operace s korekcí (uvnitř / vně čáry) nejdou použít na otevřené vektory. Zkus operaci bez korekce (po čáře), nebo nejdřív soubor oprav.",
+    "rpm": "ot/min", "seconds": "s", "deg": "°", "calculating...": "počítám...",
+    "Empty Toolpath.": "Prázdná dráha nástroje.", "Toolpath container is empty. Would you like to remove it?": "Dráha nástroje je prázdná. Chceš ji odstranit?",
+    "Imported object extends past the workspace boundary - it was placed at the origin without overlapping existing objects.": "Importovaný objekt přesahuje pracovní plochu, proto byl umístěn do počátku bez překrytí ostatních objektů.",
+    "Add Text": "Přidat text", "Create a new set of text paths": "Vytvoří novou sadu textových drah", "Font:": "Písmo:", "Size:": "Velikost:", "Create": "Vytvořit",
+    "Add shape: Circle": "Přidat tvar: kruh", "Add shape: Rectangle": "Přidat tvar: obdélník",
+    "Segments determines the smoothness of the circle, as circles are processed as Polylines": "Počet segmentů určuje hladkost kruhu (kruh se zpracovává jako lomená čára)",
+    "Saved Settings:": "Nastavení uloženo:", "Checking for configuration :": "Kontroluji nastavení:",
+    "MISSING CONFIG: You need to configure your setup.": "CHYBÍ NASTAVENÍ: nejdřív nastav svůj stroj.",
+    "For example M4 G28 G90 M80 - supports multi line commands": "Např. M4 G28 G90 M80 – lze zadat víc řádků",
+    "For example M5 M81 G28 - supports multi line commands": "Např. M5 M81 G28 – lze zadat víc řádků",
+    "RoutER11 with IoT Relay": "RoutER11 s IoT relé", "LEAD 1010 Plasma Add-On": "LEAD 1010 plazma (doplněk)", "SCRIBE": "SCRIBE", "Pen Lifter": "Zvedák pera",
+    "Select All": "Vybrat vše", "Edit": "Upravit", "(hidden)": "(skrytá)",
     "Documents": "Dokumenty", "Toolpaths": "Dráhy", "GCODE": "G-kód", "Dark Mode": "Tmavý režim", "Light Mode": "Světlý režim",
     "Left Mouse": "Levé tlačítko", "Middle Mouse": "Prostřední tlačítko", "Right Mouse": "Pravé tlačítko", "Wheel": "Kolečko"
   };
   var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/;
+  // texts with numbers or operation names inside (built at run time by the app)
+  var RULES = [
+    [/^Create Toolpath using \((\d+)\) selected vectors$/, "Vytvořit dráhu nástroje z vybraných vektorů ($1)"],
+    [/Toolpath-(\d+)/g, "Dráha-$1"],
+    [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
+  ];
+  var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })
+    .sort(function (a, b) { return b.length - a.length; });
   function tr(s) {
     var t = s.replace(/\s+/g, " ").trim();
-    if (!t || !D.hasOwnProperty(t)) return null;
-    return s.replace(t, D[t]);
+    if (!t) return null;
+    if (D.hasOwnProperty(t)) return s.replace(t, D[t]);
+    var o = t;
+    RULES.forEach(function (r) { o = o.replace(r[0], r[1]); });
+    OPS.forEach(function (k) { if (o.indexOf(k) >= 0) o = o.split(k).join(D[k]); });
+    return o !== t ? s.replace(t, o) : null;
   }
   function walk(root) {
     if (!root || root.nodeType === 8) return;
