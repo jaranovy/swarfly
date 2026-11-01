@@ -169,7 +169,8 @@
   function tr(s) {
     var t = s.replace(/\s+/g, " ").trim();
     if (!t) return null;
-    if (D.hasOwnProperty(t)) return s.replace(t, D[t]);
+    // Return null when nothing changes: writing an identical nodeValue still fires the MutationObserver -> endless loop
+    if (D.hasOwnProperty(t)) return D[t] === t ? null : s.replace(t, D[t]);
     var o = t;
     RULES.forEach(function (r) { o = o.replace(r[0], r[1]); });
     OPS.forEach(function (k) { if (o.indexOf(k) >= 0) o = o.split(k).join(D[k]); });
@@ -179,7 +180,7 @@
     if (!root || root.nodeType === 8) return;
     if (root.nodeType === 3) {
       var p = root.parentNode;
-      if (p && !SKIP.test(p.nodeName)) { var r = tr(root.nodeValue); if (r !== null) root.nodeValue = r; }
+      if (p && !SKIP.test(p.nodeName)) { var r = tr(root.nodeValue); if (r !== null && r !== root.nodeValue) root.nodeValue = r; }
       return;
     }
     if (root.nodeType !== 1 || SKIP.test(root.nodeName)) return;
