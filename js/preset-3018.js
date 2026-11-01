@@ -4,7 +4,7 @@
 // 3. Every change of a tracked setting is written back through POST /api/config (only the package server offers it; elsewhere it is skipped).
 // Defaults follow the programs known to run on this machine (docs/gcode-template.md). Edit here, bump PRESET_VERSION.
 (function () {
-  var PRESET_VERSION = "1";
+  var PRESET_VERSION = "2";
   var DEFAULTS = {
     machinetype: "custom",
     sizexmax: 270, sizeymax: 175, sizezmax: 40,                      // bed marks "270"/"175"; Z unmeasured
@@ -15,9 +15,15 @@
     ihsgcode: "", laseron: "", laseroff: "", performanceLimit: false,
     hasSpindle: true, hasRouter: false, hasPlasma: false, hasLaser: false, hasPenPlotter: false, hasDust: false,
     // OpenBuilds reuses the last operation as the template for the next one
+    // Must list EVERY field the app reads from it (advanced-cam-modal.js, "lastused" block): a missing key is written into the form
+    // as "" by jQuery .val(undefined) -> empty Passes / Start height / Direction -> the generated G-code has no cutting moves.
+    // Values not about milling are the form's own HTML defaults.
     lastCamOperation: {
       camToolDia: 3.175, camStepover: 40, camZClearance: 3, camDragOffset: 1, camSpotSize: 0.1, camFillAngle: 0,
-      camLaserPower: 100, camSpindleRpm: 10000, camZStep: 0.5, camZDepth: 2, camFeedrate: 500, camPlungerate: 200
+      camLaserPower: 100, camSpindleRpm: 10000, camZStep: 0.5, camZDepth: 2, camFeedrate: 500, camPlungerate: 200,
+      camZStart: 0, camPasses: 1, camDirection: "Climb",
+      camPlasmaKerf: 1.2, camPlasmaZHeight: 1.5, camPlasmaPierceHeight: 4, camPlasmaPierceDelay: 1.5, camPlasmaLeadinDist: 5, camPlasmaIHS: "No",
+      plotterType: "Z-Axis", camPenUp: 255, camPenDown: 0, camPenTime: 500, camPenUpZ: 5, camPenDownZ: 0
     }
   };
   var KEYS = Object.keys(DEFAULTS);
