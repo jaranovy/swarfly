@@ -168,22 +168,6 @@
 														<li class="btn-file"><a href="#">Open Project (.JSON, .OBC)</a><input type="file" id="workspaceImport" accept=".json,.obc" multiple style="height: 26px;" /></li>
 													</ul>
 												</div>
-												<div>
-													<button class="ribbon-icon-button dropdown-toggle">
-														<span class="icon">
-															<span class="fas fa-cog"></span>
-														</span>
-														<span class="caption">Load Example Project</span>
-													</button>
-													<ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
-														<li onclick="helloWorld()"><a href="#">CNC Hello World</a></li>
-														<li onclick="helloWorldLaser()"><a href="#">Laser Hello World</a></li>
-														<li onclick="helloWorldPlasma()"><a href="#">Plasma Hello World</a></li>
-														<li onclick="helloWorldPen()"><a href="#">Pen Plotter Hello World (RC Servo)</a></li>
-														<li onclick="helloWorldPenZ()"><a href="#">Pen Plotter Hello World (Z Axis)</a></li>
-														<li onclick="helloWorldDragKnife()"><a href="#">Dragknife Hello World</a></li>
-													</ul>
-												</div>
 											</div>
 											<span class="title">Project</span>
 										</div>
@@ -213,16 +197,6 @@
 
 
 
-												<div class="ribbon-group">
-
-													<button class="ribbon-icon-button" onclick="Metro.dialog.open(' #iconslibModal ');">
-														<span class="icon">
-															<span class="far fa-images"></span>
-														</span>
-														<span class="caption">Icons</span>
-													</button>
-
-												</div>
 
 											</div>
 											<span class="title">Insert</span>
@@ -561,30 +535,6 @@
 				</div>
 			</div>
 
-			<div class="dialog dark" data-overlay-click-close="true" data-role="dialog" id="iconslibModal" data-width="800" data-to-top="true">
-				<div class="dialog-title">Icons Library</div>
-				<div class="dialog-content" style="max-height: calc(100vh - 200px);overflow-y: auto; overflow-x: hidden;">
-					Click Icon below to load it into CAM project:
-					<hr>
-					<div id="iconslibrary">
-
-					</div>
-				</div>
-				<div class="dialog-actions row" style="white-space: nowrap;">
-					<button class="button float-right js-dialog-close cell-3">Cancel</button>
-
-					<input id="iconlib_filter" onchange="iconlib_Page()" class="float-left" style="max-width:150px;" data-role="input" data-search-button="true" placeholder="Filter" autofocus type="text" value="">
-
-					<div style="display:inline-block;white-space: normal;">
-						<button class="button float-left" onclick="iconlib_Page(-1)"><span class="fa fa-fw fa-arrow-left"></span></button>
-
-						<input data-role="input" id="iconlib_PageOf" onchange="iconlib_Page()" autofocus type="number" min="1" step="1" data-prepend="Page:" data-append="Of #" class="float-left" value="1" style="width:175px;">
-
-						<button class="button float-left" onclick="iconlib_Page(1)"><span class="fa fa-fw fa-arrow-right"></span></button>
-					</div>
-				</div>
-			</div>
-
 			<div class="dialog dark" data-overlay-click-close="true" data-role="dialog" id="splashModal" data-width="800" data-to-top="true">
 				<div class="dialog-title"><i class="fas fa-fw fa-history"></i> Changelog</div>
 				<div class="dialog-content" style="max-height: calc(100vh - 200px);overflow-y: auto; overflow-x: hidden;">
@@ -631,7 +581,6 @@
 	<!-- SimpleCAD -->
 	<script type="text/javascript" src="js/basic-cad-shapes.js"></script>
 	<script type="text/javascript" src="js/basic-cad-text.js"></script>
-	<script type="text/javascript" src="js/basic-cad-iconslib.js"></script>
 
 	<!-- ThreeJS -->
 	<script type="text/javascript" src="lib/threejs/three.min.js"></script>
@@ -692,8 +641,6 @@
 	<!-- Gcode Viewer -->
 	<script type="text/javascript" src="lib/3dview/3dview.js"></script>
 
-	<!-- Hello World Job -->
-	<script type="text/javascript" src="js/basic-cad-helloworld.js"></script>
 
 	<!-- Gerber Parser -->
 	<script type="text/javascript" src="lib/gerber/parser.js"></script>
