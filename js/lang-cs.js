@@ -1,0 +1,172 @@
+// Czech UI for OpenBuilds CAM (the app has no i18n). Injected by serve.py; vendor/ stays untouched.
+// Replaces exact visible strings only (text nodes, title/placeholder, <option> labels - option VALUES stay English because the app
+// reads them, e.g. "CNC: Pocket"). Generated G-code and its comments stay English on purpose. Open with ?en to see the original.
+// Terms: sousledne/nesousledne frezovani = climb/conventional (checked in Czech sources); the rest is common Czech shop usage -
+// fix wording in the table below, no other change needed.
+(function () {
+  if (/[?&]en\b/.test(location.search)) return;
+  var D = {
+    // operations (option values stay English)
+    "... Select Operation ...": "... Vyber operaci ...",
+    "Drill: Peck (Centered)": "Vrtání: s vybíráním třísek (do středu)",
+    "Drill: Continuous (Centered)": "Vrtání: plynulé (do středu)",
+    "CNC: Vector (no offset)": "Fréza: vektor (po čáře, bez korekce)",
+    "CNC: Vector (path inside)": "Fréza: vektor (uvnitř čáry)",
+    "CNC: Vector (path outside)": "Fréza: vektor (vně čáry)",
+    "CNC: Pocket": "Fréza: kapsa",
+    "CNC: V-Engrave": "Fréza: V-gravírování",
+    "Laser: Vector (no path offset)": "Laser: vektor (po čáře, bez korekce)",
+    "Laser: Vector (path inside)": "Laser: vektor (uvnitř čáry)",
+    "Laser: Vector (path outside)": "Laser: vektor (vně čáry)",
+    "Laser: Vector (raster fill) (Beta)": "Laser: vektor (rastrová výplň) (beta)",
+    "Plasma: Vector (path outside)": "Plazma: vektor (vně čáry)",
+    "Plasma: Vector (path inside)": "Plazma: vektor (uvnitř čáry)",
+    "Plasma: Vector (no path offset)": "Plazma: vektor (po čáře, bez korekce)",
+    "Drag Knife: Cutout": "Tažný nůž: výřez",
+    "Pen Plotter: (no offset)": "Plotr s perem: (po čáře, bez korekce)",
+    "Pen Plotter: (path inside)": "Plotr s perem: (uvnitř čáry)",
+    "Pen Plotter: (path outside)": "Plotr s perem: (vně čáry)",
+    "Pen Plotter: (lines fill)": "Plotr s perem: (čárová výplň)",
+    // operation form
+    "Configure toolpath": "Nastavení dráhy nástroje",
+    "Configure Toolpath": "Nastavení dráhy nástroje",
+    "Name:": "Název:",
+    "Type of cut:": "Typ operace:",
+    "Endmill / Pen Diameter": "Průměr frézy / pera",
+    "Stepover": "Boční přesah (krok mezi drahami)",
+    "Z Safe Height": "Bezpečná výška Z",
+    "Spindle: RPM": "Vřeteno: otáčky",
+    "Cut Depth: Start": "Hloubka řezu: začátek",
+    "Cut Depth: Final": "Hloubka řezu: konečná",
+    "Cut Depth: per Pass": "Hloubka řezu: na jeden průchod (přísuv)",
+    "Feedrate (X/Y)": "Posuv (X/Y)",
+    "Feedrate: Plunge": "Posuv: zanořování (osa Z)",
+    "Cutting Direction:": "Směr frézování:",
+    "Climb": "Sousledně",
+    "Conventional": "Nesousledně",
+    "Clockwise": "Po směru hodin",
+    "Anticlockwise": "Proti směru hodin",
+    "Geometry: Merge": "Geometrie: sloučit",
+    "Muliple passes:": "Více průchodů:",
+    "Plunge: Ramp In": "Zanořování: šikmý náběh",
+    "Tabs: Height": "Můstky: výška",
+    "Tabs: Spacing": "Můstky: rozteč",
+    "Tabs: Width": "Můstky: šířka",
+    "Drag Knife: Center Offset": "Tažný nůž: posun středu",
+    "Laser: Power": "Laser: výkon",
+    "Laser: Kerf / Line Spacing": "Laser: šířka řezu / rozteč čar",
+    "Fill: Angle": "Výplň: úhel",
+    "Plasma: Cut Height": "Plazma: výška řezu",
+    "Plasma: Kerf": "Plazma: šířka řezu",
+    "Plasma: Lead-In Distance": "Plazma: délka nájezdu",
+    "Plasma: Pierce Delay": "Plazma: prodleva při propalu",
+    "Plasma: Pierce Height": "Plazma: výška propalu",
+    "Plasma: Touch-Off Zero": "Plazma: nulování dotykem",
+    "Plotter: Type": "Plotr: typ",
+    "Pen Up S-Value": "Pero nahoře: hodnota S",
+    "Pen Down S-Value": "Pero dole: hodnota S",
+    "Pen Up Z-position": "Pero nahoře: poloha Z",
+    "Pen Down Z-position": "Pero dole: poloha Z",
+    "Pen Move Time": "Doba zvednutí/spuštění pera",
+    "Z-Axis": "Osa Z", "RC Servo": "RC servo",
+    "Yes": "Ano", "No": "Ne",
+    "[beta] Experimental!": "[beta] Experimentální!",
+    "Apply": "Použít", "Apply and Preview Toolpath": "Použít a zobrazit dráhu nástroje",
+    "Create Toolpath": "Vytvořit dráhu nástroje", "Delete toolpath": "Smazat dráhu nástroje",
+    "Reselect toolpaths": "Znovu vybrat dráhy nástroje",
+    "Create a new operation...": "Vytvořit novou operaci...",
+    "Move up": "Posunout nahoru", "Move down": "Posunout dolů",
+    "Hide toolpath and exclude from G-Code generation": "Skrýt dráhu a vynechat z G-kódu",
+    "Show toolpath and include in G-Code generation": "Zobrazit dráhu a zahrnout do G-kódu",
+    "Toolpath:": "Dráha nástroje:",
+    // settings dialog
+    "Application Settings": "Nastavení aplikace",
+    "Welcome to OpenBuilds CAM": "Vítej v OpenBuilds CAM",
+    "Let us help you get set up!": "Pomůžeme ti to nastavit!",
+    "Select your Machine": "Vyber svůj stroj",
+    "Tell us what machine you have?": "Jaký máš stroj?",
+    "Select Machine": "Vyber stroj",
+    "Custom Machine": "Vlastní stroj",
+    "Add-Ons Installed": "Nainstalované doplňky",
+    "Telling us what kind of attachments the machine has, allows us to setup the G-Code to control these devices correctly from within the job": "Podle doplňků se do G-kódu správně doplní ovládání těchto zařízení.",
+    "Variable Speed Spindle": "Vřeteno s regulací otáček",
+    "Laser Diode Module": "Laserový diodový modul",
+    "Dust Shoe with Extractor": "Odsávací kartáč s odsavačem",
+    "Advanced Settings": "Pokročilá nastavení",
+    "Show Advanced Settings": "Zobrazit pokročilá nastavení",
+    "If you have any custom requirements, please customise the settings in the Advanced Settings section": "Vlastní požadavky nastav v pokročilých nastaveních.",
+    "X-Axis Length": "Délka osy X", "Y-Axis Length": "Délka osy Y", "Z-Axis Length": "Délka osy Z",
+    "Spindle / Laser / Plasma Command": "Příkaz pro vřeteno / laser / plazmu",
+    "Power/Speed Scale": "Rozsah výkonu / otáček (max. hodnota S)",
+    "Power/Speed on new-line": "Výkon / otáčky na novém řádku",
+    "Rapid Move Command": "Příkaz rychloposuvu",
+    "Linear Move Command": "Příkaz lineárního posuvu",
+    "Start G-Code": "Úvodní G-kód", "End G-Code": "Závěrečný G-kód",
+    "Plasma: Touch Off Sequence": "Plazma: sekvence nulování dotykem",
+    "Performance: Disable Tool-Width Preview": "Výkon: vypnout náhled šířky nástroje",
+    "Save": "Uložit", "Cancel": "Zrušit", "Close": "Zavřít", "Delete": "Smazat", "Agree": "Souhlasím", "Disagree": "Nesouhlasím",
+    "Factory Reset": "Obnovit tovární nastavení", "Reset all settings to default": "Vrátit všechna nastavení na výchozí",
+    "Backup Settings": "Záloha nastavení", "Take a backup": "Vytvořit zálohu", "Restore from file": "Obnovit ze souboru",
+    "Open a backup settings file": "Otevřít soubor se zálohou nastavení",
+    // main screen
+    "Generate G-Code": "Vytvořit G-kód", "Preview G-Code": "Náhled G-kódu", "Save G-Code": "Uložit G-kód", "Clear G-Code": "Vymazat G-kód",
+    "Save GCODE": "Uložit G-kód", "Preview GCODE": "Náhled G-kódu", "Filename:": "Název souboru:",
+    "What would you like to name the gcode export?": "Jak se má exportovaný G-kód jmenovat?",
+    "1. Documents": "1. Dokumenty", "2. Configure Toolpaths": "2. Dráhy nástroje", "3. Create G-code": "3. Vytvoření G-kódu", "4. Export G-code": "4. Export G-kódu",
+    "File": "Soubor", "Open": "Otevřít", "Open Drawing": "Otevřít výkres", "Open a drawing": "Otevřít výkres",
+    "Open Project (.JSON, .OBC)": "Otevřít projekt (.JSON, .OBC)", "Save Project (Export .OBC file)": "Uložit projekt (export .OBC)",
+    "Save/Open Project": "Uložit / otevřít projekt", "New (Empty) Project": "Nový (prázdný) projekt", "Load Example Project": "Načíst ukázkový projekt",
+    "Project": "Projekt", "Job": "Úloha", "Settings": "Nastavení", "Theme": "Vzhled", "Dark": "Tmavý",
+    "Documentation": "Dokumentace", "Support": "Podpora", "Community": "Komunita", "Changelog": "Seznam změn", "Fork": "Fork", "App": "Aplikace",
+    "Undo": "Zpět", "Redo": "Znovu", "Undo/Redo": "Zpět / znovu", "Reset View": "Obnovit pohled", "Zoom": "Přiblížení",
+    "Transform": "Transformace", "Position": "Poloha", "POSITION": "POLOHA", "Rotation": "Otočení", "ROTATION": "OTOČENÍ", "Scale": "Měřítko", "SCALE": "MĚŘÍTKO",
+    "Width:": "Šířka:", "Height:": "Výška:", "Angle:": "Úhel:",
+    "Shapes": "Tvary", "Rectangle": "Obdélník", "Circle": "Kruh", "Text": "Text", "Drawing": "Výkres", "Icons": "Ikony", "Icons Library": "Knihovna ikon",
+    "Simulate": "Simulace", "Run simulation": "Spustit simulaci", "Stop Sim": "Zastavit simulaci",
+    "Mode": "Režim", "Mouse Select Mode": "Myš: výběr", "Mouse Move Mode": "Myš: přesun", "Mouse Erase Mode": "Myš: mazání", "Mouse Scale/Move/Rotate Mode": "Myš: měřítko / přesun / otočení",
+    "Drop File(s) Here!": "Přetáhni soubor(y) sem!", "Please Wait": "Počkej prosím", "Parsing Documents...": "Zpracovávám dokumenty...", "Calculating Toolpaths...": "Počítám dráhy nástroje...",
+    "Please select Vector(s) to create toolpaths": "Vyber vektor(y), pro které se vytvoří dráhy nástroje",
+    "Import workspace.": "Importovat pracovní plochu.", "Would you like to Import the workspace you opened?": "Chceš importovat otevřenou pracovní plochu?",
+    "All": "Vše", "None": "Nic", "Invert": "Obrátit výběr", "Filter": "Filtr", "Insert": "Vložit", "Grid": "Mřížka",
+    "= Select /": "= Výběr /", "= Pan /": "= Posun /", "= Orbit /": "= Otáčení /", "= Zoom /": "= Zoom /", "= Multiple Select /": "= Vícenásobný výběr /", "= Delete Selected": "= Smazat vybrané",
+    "Found a recoverable Project": "Nalezen obnovitelný projekt",
+    "Would you like to recover the previously used Project, or would you like to start with a clean New Project?": "Chceš obnovit naposledy použitý projekt, nebo začít s novým prázdným?",
+    "Recover last used Project": "Obnovit poslední projekt", "Start with a New Project": "Začít nový projekt",
+    "Part Store": "Obchod s díly",
+    "Please load some vectors from DXF (Polylines) or SVG (Paths); or Images (Traceable); or insert a Shape, Icon or some Text using the built-in tools to get started": "Načti vektory z DXF (polylinie) nebo SVG (cesty), obrázek (k vektorizaci), nebo vlož tvar, ikonu či text vestavěnými nástroji.",
+    "Please select some Vectors by clicking them in the viewer or using the Documents tree above. Hold down Ctrl to select multiples, Ctrl+A for Select-All, etc.": "Vyber vektory kliknutím v náhledu nebo ve stromu dokumentů výše. Ctrl = vícenásobný výběr, Ctrl+A = vybrat vše.",
+    "Add them to a toolpath using the": "Přidej je do dráhy nástroje tlačítkem", "button": "",
+    "Select All": "Vybrat vše",
+    "Documents": "Dokumenty", "Toolpaths": "Dráhy", "GCODE": "G-kód", "Dark Mode": "Tmavý režim", "Light Mode": "Světlý režim",
+    "Left Mouse": "Levé tlačítko", "Middle Mouse": "Prostřední tlačítko", "Right Mouse": "Pravé tlačítko", "Wheel": "Kolečko"
+  };
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|CODE|PRE)$/;
+  function tr(s) {
+    var t = s.replace(/\s+/g, " ").trim();
+    if (!t || !D.hasOwnProperty(t)) return null;
+    return s.replace(t, D[t]);
+  }
+  function walk(root) {
+    if (!root || root.nodeType === 8) return;
+    if (root.nodeType === 3) {
+      var p = root.parentNode;
+      if (p && !SKIP.test(p.nodeName)) { var r = tr(root.nodeValue); if (r !== null) root.nodeValue = r; }
+      return;
+    }
+    if (root.nodeType !== 1 || SKIP.test(root.nodeName)) return;
+    // keep the English value of options: the app reads it
+    if (root.nodeName === "OPTION" && !root.hasAttribute("value")) root.setAttribute("value", root.textContent.trim());
+    ["title", "placeholder", "data-title", "data-hint-text"].forEach(function (a) {
+      if (root.hasAttribute(a)) { var r = tr(root.getAttribute(a)); if (r !== null) root.setAttribute(a, r); }
+    });
+    for (var n = root.firstChild; n; n = n.nextSibling) walk(n);
+  }
+  function start() {
+    document.documentElement.lang = "cs";
+    walk(document.body);
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) { m.addedNodes.forEach(walk); if (m.type === "characterData") walk(m.target); });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
