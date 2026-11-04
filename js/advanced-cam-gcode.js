@@ -251,7 +251,10 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
   // Calculate Correct S Value
   //laserPwr // 0-100%
 
-  var laserPwr = laserPwr / 100 * parseInt($('#scommandscale').val());
+  // 3018 fork: laser operations are written like the card laser programs (docs/gcode-template.md): no Z moves,
+  // "G0 X Y" to the start, "M3 S<power>", "G1 F.. X Y S<power>" lines, "M5" after each contour. S scale is 1000 (GRBL $30 default).
+  var isLaser = toolpathsInScene[index].userData.camOperation.indexOf('Laser') == 0;
+  var laserPwr = laserPwr / 100 * (isLaser ? 1000 : parseInt($('#scommandscale').val()));
 
 
 
@@ -426,7 +429,14 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
 
           // console.log(i, xpos, ypos, zpos)
           // First Move To
-          if (i == 0) {
+          if (i == 0 && isLaser) {
+            var lseek = isSeekrateSpecifiedAlready ? "" : " F" + rapidSpeed;
+            isSeekrateSpecifiedAlready = true;
+            if (!(lastxyz && lastxyz.x == xpos.toFixed(4) && lastxyz.y == ypos.toFixed(4))) {
+              g += g0 + lseek + " X" + xpos.toFixed(4) + " Y" + ypos.toFixed(4) + "\n";
+            }
+            g += "M3 S" + laserPwr + "\n";
+          } else if (i == 0) {
             // console.log("First Point", xpos, ypos, zpos, optimisedVertices[i]);
             // first point in line where we start lasering/milling
 
@@ -564,7 +574,12 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
               }
             }
 
-            if (toolpathsInScene[j].userData.camOperation.indexOf('Pen') == 0) {
+            if (isLaser) {
+              g += g1 + feedrate;
+              g += " X" + xpos.toFixed(4);
+              g += " Y" + ypos.toFixed(4);
+              g += " " + s + laserPwr + "\n";
+            } else if (toolpathsInScene[j].userData.camOperation.indexOf('Pen') == 0) {
               g += g1 + feedrate;
               g += " X" + xpos.toFixed(4);
               g += " Y" + ypos.toFixed(4);
@@ -585,6 +600,8 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
               if (localStorage.getItem("hasSpindle") == 'true') {
                 if (toolpathsInScene[index].userData.camOperation.indexOf('CNC') == 0 || toolpathsInScene[index].userData.camOperation.indexOf('Drill') == 0) {
                   g += " " + s + spindleRpm + "\n";
+                } else {
+                  g += "\n"; // 3018 fork: Plasma / Drag Knife with a spindle machine had no line end -> all moves on one line
                 }
               } else {
                 g += " " + s + laserPwr + "\n";
@@ -606,6 +623,9 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
         isToolOn = false;
 
         // tool off
+        if (isLaser) {
+          g += "M5\n";
+        }
         if (tooloff) {
           g += tooloff
           g += '; Tool Off\n'
@@ -614,7 +634,7 @@ function generateGcode(index, toolpathGrp, cutSpeed, plungeSpeed, spindleRpm, la
       // move to clearance height, at first points XY pos
     });
   }
-  if (!isAtClearanceHeight) {
+  if (!isAtClearanceHeight && !isLaser) {
     g += "; retracting back to z-safe";
     g += "\n" + g0 + " Z" + clearanceHeight + "\n"; // Position Before Plunge!
   }
