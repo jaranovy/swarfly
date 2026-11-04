@@ -109,7 +109,8 @@ function createWindow() {
 		width: 1600,
 		height: 960,
 		minWidth: 720,
-		title: 'OpenBuilds CAM',
+		title: 'CNC CAM 3018',
+		autoHideMenuBar: true,
 		icon: path.join(__dirname, '..', 'build', 'icon.png'),
 		webPreferences: {
 			contextIsolation: true,

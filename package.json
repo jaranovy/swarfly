@@ -54,13 +54,15 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
+          "target": "portable",
           "arch": [
             "x64"
           ]
         }
       ],
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "signAndEditExecutable": false,
+      "artifactName": "CNC-CAM-3018.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -93,6 +95,10 @@
       "category": "Graphics",
       "icon": "build/icon.png",
       "artifactName": "OpenBuildsCAM-${version}-${arch}.${ext}"
-    }
+    },
+    "portable": {
+      "artifactName": "CNC-CAM-3018.exe"
+    },
+    "compression": "normal"
   }
 }
