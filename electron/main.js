@@ -1,5 +1,5 @@
 /**
- * OpenBuilds CAM — Electron main process.
+ * Swarfly (fork of OpenBuilds CAM) — Electron main process.
  *
  * The app is a dependency-free static web app, so instead of loading it via
  * file:// (which breaks Web Workers and fetch/XHR) we serve the repo root
@@ -150,7 +150,7 @@ function createWindow() {
 		height: 960,
 		minWidth: 720,
 		show: false,
-		title: 'CNC CAM 3018',
+		title: 'Swarfly',
 		autoHideMenuBar: true,
 		icon: path.join(__dirname, 'splash-logo.png'),
 		webPreferences: {

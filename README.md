@@ -1,3 +1,9 @@
+# Swarfly
+
+Swarfly is a personal fork of [OpenBuilds CAM](https://github.com/openbuilds/OpenBuilds-CAM) (AGPL-3.0), tuned for a CNC 3018 Pro (GRBL, offline SD controller): milling and laser G-code in the style of the known-good card programs. All credit for the original software goes to the OpenBuilds authors; the original license (`LICENSE`) applies to this fork.
+
+---
+
 # cam.openbuilds.com
 OpenBuilds CAM - Cloud based software for converting DXF, SVG, Bitmap (BMP, JPG, PNG, GIF) and Gerber X274 to G-Code
 

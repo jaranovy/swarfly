@@ -474,15 +474,15 @@ function isJson(item) {
   return false;
 }
 // Rotated logo strip left of the ribbon: its vertical extent must equal the
-// full ribbon height (tabs-holder + content-holder). Logo is 400x92, so the
-// layout width of the box is ribbonHeight * 92/400.
+// full ribbon height (tabs-holder + content-holder). Logo is 360x96, so the
+// layout width of the box is ribbonHeight * 96/360.
 function initRibbonLogo() {
   var nav = document.querySelector('nav[data-role="ribbonmenu"]');
   var box = document.getElementById('ribbonLogoBox');
   var img = document.getElementById('ribbonLogoImg');
   if (!nav || !box || !img) return;
 
-  var AR = 92 / 400; // logo aspect ratio (height / width)
+  var AR = 96 / 360; // logo aspect ratio (height / width)
 
   function sizeRibbonLogo() {
     var h = nav.offsetHeight;

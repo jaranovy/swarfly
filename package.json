@@ -1,8 +1,8 @@
 {
   "name": "openbuilds-cam",
-  "productName": "OpenBuilds CAM",
-  "version": "1.0.0",
-  "description": "OpenBuilds CAM — browser CAM tool that converts DXF/SVG/bitmap/Gerber to G-Code, packaged as a desktop app with Electron",
+  "productName": "Swarfly",
+  "version": "1.1.0",
+  "description": "Swarfly, a fork of OpenBuilds CAM (AGPL-3.0) — browser CAM tool that converts DXF/SVG/bitmap/Gerber to G-Code, packaged as a desktop app with Electron",
   "license": "AGPL-3.0",
   "main": "electron/main.js",
   "author": "OpenBuilds",
@@ -26,8 +26,8 @@
     "eslint": "^9.39.2"
   },
   "build": {
-    "appId": "com.openbuilds.cam",
-    "productName": "OpenBuilds CAM",
+    "appId": "cz.novy.swarfly",
+    "productName": "Swarfly",
     "asar": true,
     "directories": {
       "output": "dist",
@@ -68,7 +68,7 @@
       ],
       "icon": "build/icon.png",
       "signAndEditExecutable": false,
-      "artifactName": "CNC-CAM-3018-${version}.${ext}"
+      "artifactName": "Swarfly-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -80,8 +80,8 @@
       ],
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "CNC CAM 3018",
-      "artifactName": "CNC-CAM-3018-Setup-${version}.exe",
+      "shortcutName": "Swarfly",
+      "artifactName": "Swarfly-Setup-${version}.exe",
       "deleteAppDataOnUninstall": false
     },
     "mac": {
@@ -112,7 +112,7 @@
       "artifactName": "OpenBuildsCAM-${version}-${arch}.${ext}"
     },
     "portable": {
-      "artifactName": "CNC-CAM-3018-${version}.exe",
+      "artifactName": "Swarfly-${version}.exe",
       "splashImage": "build/splash.bmp"
     },
     "compression": "normal"
