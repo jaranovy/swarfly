@@ -147,6 +147,7 @@ function initDragDrop() {
 
 // load file
 function loadFile(f) {
+  if (f && f.name) window.lastLoadedFileName = f.name; // 3018: saved .NC is named after the loaded drawing
   // Filereader
   storeUndo(true);
   if (f) {
@@ -282,7 +283,14 @@ function saveFile() {
   // No built-in filename prompt: go straight to the native OS "Save As"
   // dialog (via invokeSaveAsDialog), where folder and filename can be chosen.
   // 3018: the offline controller reads .nc (all working card programs are .nc); short 8.3-style name
-  saveFileGcode('PROGRAM.NC');
+  saveFileGcode(nc83Name(window.lastLoadedFileName));
+}
+
+// plan_001.svg -> PLAN_001.NC : upper case, ASCII only, max 8 characters (like the card programs)
+function nc83Name(name) {
+  var base = String(name || 'PROGRAM').replace(/\.[^.]*$/, '');
+  base = base.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase().slice(0, 8);
+  return (base || 'PROGRAM') + '.NC';
 }
 
 function saveFileGcode(filename) {
