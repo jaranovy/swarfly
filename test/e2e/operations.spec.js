@@ -20,7 +20,7 @@ const OPERATIONS = [
 	{ op: 'Laser: Vector (no path offset)', laser: true },
 	{ op: 'Laser: Vector (path inside)', laser: true },
 	{ op: 'Laser: Vector (path outside)', laser: true },
-	{ op: 'Laser: Vector (raster fill) (Beta)', laser: true },
+	{ op: 'Laser: Vector (raster fill) (Beta)', laser: true, wait: 6000 },
 	{ op: 'Plasma: Vector (path outside)' },
 	{ op: 'Plasma: Vector (path inside)' },
 	{ op: 'Plasma: Vector (no path offset)' },
