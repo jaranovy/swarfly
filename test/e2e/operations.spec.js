@@ -50,7 +50,7 @@ test.beforeAll(async ({ browser }) => {
 		const find = (re) => [...document.querySelectorAll('button,a,div,span')].filter((b) => re.test(b.textContent) && b.children.length <= 3 && b.getBoundingClientRect().width > 0).sort((a, b) => a.textContent.length - b.textContent.length)[0];
 		find(/^\s*(Vše|All)\s*$/).click();
 		await sleep(500);
-		find(/Vytvořit dráhu nástroje z vybraných|Create toolpath from selected/).click();
+		find(/Vytvořit dráhu nástroje z vybraných|Create Toolpath using/).click();
 		await sleep(900);
 	}, SVG);
 });
@@ -68,7 +68,7 @@ for (const spec of OPERATIONS) {
 			sel.value = op;
 			sel.dispatchEvent(new Event('change', { bubbles: true }));
 			await sleep(600);
-			find(/Použít a zobrazit|Apply and show/).click();
+			find(/Použít a zobrazit|Apply and Preview/).click();
 			await sleep(wait || 2500);
 			find(/^\s*(Vytvořit G-kód|Generate G-Code)\s*$/).click();
 			await sleep(3500);

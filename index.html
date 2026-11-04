@@ -3,7 +3,7 @@
 
 	<head>
 		<script src="js/preset-3018.js"></script><!-- 3018 defaults, seeds localStorage once -->
-		<script src="js/lang-cs.js"></script><!-- Czech UI, ?en for English -->
+		<script src="js/lang.js"></script><!-- UI language: English default, Czech via js/lang/cs.json (Settings -> Language) -->
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -238,21 +238,6 @@
 											</div>
 											<span class="title">Undo/Redo</span>
 										</div>
-										<div class="group">
-
-											<div id="ddThemeButton">
-												<button id="btnTheme" class="ribbon-button" onclick="Theme.toggle();">
-													<span class="icon" id="currentThemeIcon">
-														<i class="fas fa-paint-brush"></i>
-													</span>
-													<span class="caption" id="currentThemeName">Dark<br>Mode</span>
-												</button>
-											</div>
-											<span class="title">Theme</span>
-										</div>
-
-
-
 									</div>
 									<div class="section" id="section-settings">
 										<div class="group">
@@ -294,7 +279,8 @@
 
 
 
-										<div class="group" id="appVersion3018"><div class="ribbon-group" style="padding:8px 14px;text-align:center"><span class="fa fa-fw fa-cog"></span><br><b>Swarfly</b><br><span id="appVersionNo">v1.1.0</span></div><span class="title">Version</span></div>
+										<div class="group" id="languageGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="swarflySwitchLanguage()" title="Language / Jazyk"><span class="icon"><i class="fas fa-language"></i></span><span class="caption" id="languageButtonCaption">Česky</span></button></div><span class="title">Language</span></div>
+											<div class="group" id="appVersion3018"><div class="ribbon-group" style="padding:8px 14px;text-align:center"><span class="fa fa-fw fa-cog"></span><br><b>Swarfly</b><br><span id="appVersionNo">v1.2.0</span></div><span class="title">Version</span></div>
 										<div class="group" style="display:none"><!-- 3018: Changelog + Fork hidden (link to upstream web) -->
 											<div class="ribbon-group">
 												<button class="ribbon-icon-button" onclick="getChangelog()">
