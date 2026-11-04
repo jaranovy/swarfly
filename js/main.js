@@ -286,13 +286,6 @@ function saveFile() {
   saveFileGcode(nc83Name(window.lastLoadedFileName));
 }
 
-// plan_001.svg -> plan_001.nc : lower case, ASCII only, max 8 characters (like the card programs)
-function nc83Name(name) {
-  var base = String(name || 'program').replace(/\.[^.]*$/, '');
-  base = base.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase().slice(0, 8);
-  return (base || 'program') + '.nc';
-}
-
 function saveFileGcode(filename) {
   if (!filename.toLowerCase().endsWith('.nc')) {
     filename = filename += '.nc'

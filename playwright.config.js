@@ -9,6 +9,7 @@
 'use strict';
 
 const { devices } = require('@playwright/test');
+const PORT = process.env.E2E_PORT || '8123';   // 3018 fork: 8123 is taken by another local service on the dev PC
 
 module.exports = {
 	testDir: 'test/e2e',
@@ -19,13 +20,14 @@ module.exports = {
 	reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
 
 	use: {
-		baseURL: 'http://127.0.0.1:8123',
-		headless: true
+		baseURL: 'http://127.0.0.1:' + PORT,
+		headless: true,
+		channel: process.env.E2E_CHANNEL || undefined
 	},
 
 	webServer: {
-		command: 'node scripts/static-server.js 8123',
-		url: 'http://127.0.0.1:8123/index.html',
+		command: 'node scripts/static-server.js ' + PORT,
+		url: 'http://127.0.0.1:' + PORT + '/index.html',
 		reuseExistingServer: !process.env.CI,
 		timeout: 15 * 1000
 	},

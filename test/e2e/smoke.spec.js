@@ -6,6 +6,9 @@
 
 const { test, expect } = require('@playwright/test');
 const path = require('path');
+const fs = require('fs');
+// 3018 fork: the hand-over trim removed the example projects (workspace/*.obc); tests that load them are skipped then
+const HAS_EXAMPLES = fs.existsSync(path.join(__dirname, '..', '..', 'workspace', 'helloworld.obc'));
 
 // Everything $(document).ready calls from js/main.js — these must exist as
 // functions on the page after the full index.html script cascade loads.
@@ -42,6 +45,9 @@ test.beforeEach(async ({ page }) => {
   page.on('pageerror', (err) => {
     page._pageErrors.push(String(err && err.stack || err));
   });
+  // 3018 fork: js/preset-3018.js asks the server for /config.json and probes /api/config (the package server answers);
+  // the plain static test server would log 404 console errors, so answer them like the package server does without a config file
+  await page.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
   await page.goto('/index.html');
   await page.waitForLoadState('load');
   // document.ready handlers + the delayed demo-workspace loads and the
@@ -77,10 +83,11 @@ test('core app globals are initialised', async ({ page }) => {
     expect(state[name], name).toBe('object' === state[name] ? 'object' : 'function');
   }
   // No external requests at startup: the app must run fully offline
-  expect(await page.evaluate(() => window.performance.getEntriesByType('resource').some((e) => !/^http:\/\/127\.0\.0\.1:8123\//.test(e.name)))).toBe(false);
+  expect(await page.evaluate(() => window.performance.getEntriesByType('resource').some((e) => !e.name.startsWith(location.origin + '/')))).toBe(false);
 });
 
 test('all bundled workspace .obc files are served and parse as workspace JSON', async ({ page }) => {
+  test.skip(!HAS_EXAMPLES, 'example projects (workspace/*.obc) are not part of the 3018 hand-over');
   // js/basic-cad-helloworld.js $.get()s these on demand ("Hello World"
   // menu) — every one must come back as parseable JSON with objects/toolpaths
   const files = [
@@ -128,12 +135,14 @@ async function regenerateGcodeAndWait(page) {
 }
 
 test('loading a workspace .obc file parses cleanly', async ({ page }) => {
+  test.skip(!HAS_EXAMPLES, 'example projects (workspace/*.obc) are not part of the 3018 hand-over');
   await loadHelloWorldWorkspace(page);
   expect(page._pageErrors, 'uncaught page errors').toEqual([]);
   expect(page._consoleErrors, 'console.error output').toEqual([]);
 });
 
 test('makeGcode() produces a gcodeobject in the scene', async ({ page }) => {
+  test.skip(!HAS_EXAMPLES, 'example projects (workspace/*.obc) are not part of the 3018 hand-over');
   await loadHelloWorldWorkspace(page);
   await regenerateGcodeAndWait(page);
   // the fresh object was added to the scene under the name sim() looks up
@@ -143,6 +152,7 @@ test('makeGcode() produces a gcodeobject in the scene', async ({ page }) => {
 });
 
 test('simulation runs the gcode to completion without page or console errors', async ({ page }) => {
+  test.skip(!HAS_EXAMPLES, 'example projects (workspace/*.obc) are not part of the 3018 hand-over');
   // Regression for #bb32d406: sim() registers the ticker via
   // TweenLite.ticker.addEventListener (js/advanced-cam-sim.js); the broken
   // TweenLite.ticker.add() call threw right here and killed the whole path.
@@ -183,6 +193,7 @@ test('simulation runs the gcode to completion without page or console errors', a
 });
 
 test('exported gcode (prepgcodefile) contains the generated program', async ({ page }) => {
+  test.skip(!HAS_EXAMPLES, 'example projects (workspace/*.obc) are not part of the 3018 hand-over');
   await loadHelloWorldWorkspace(page);
   await regenerateGcodeAndWait(page);
   // saveFileGcode()/previewFile() both build their payload via prepgcodefile(),

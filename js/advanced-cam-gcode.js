@@ -1,6 +1,7 @@
 function trashGcode() {
   simstop()
   hideGcodeTimeEstimate()
+  if (typeof hideGcodeStats === "function") hideGcodeStats();
   if (scene.getObjectByName('gcodeobject')) {
     // console.log("Existing GCODE object: Cleaning up first")
     scene.remove(scene.getObjectByName('gcodeobject'))
@@ -143,6 +144,7 @@ function makeGcodeExec() {
 
     $('#gcodejobs').empty();
     hideGcodeTimeEstimate(); // stale estimate while regenerating
+    if (typeof hideGcodeStats === "function") hideGcodeStats();
 
     // Button on Ribbon Menu
     $("#generatetpgcode").html("<i class='fa fa-spinner fa-spin '></i> Generating, please wait");
@@ -237,6 +239,23 @@ function makeGcodeExec() {
 
       // openGCodeFromText()
       parseGcodeInWebWorker()
+
+      // 3018 fork: time estimate, path / material statistics and a sanity check of the program that will be saved
+      try {
+        var finalGcode = prepgcodefile();
+        updateGcodeTimeEstimate(finalGcode);
+        updateGcodeStats(finalGcode);
+        var check = validateGcode(finalGcode, {
+          maxX: parseFloat(localStorage.getItem("sizexmax")) || undefined,
+          maxY: parseFloat(localStorage.getItem("sizeymax")) || undefined
+        });
+        window.lastGcodeCheck = check;
+        if (!check.ok) {
+          Metro.toast.create("Kontrola G-kódu našla chyby (" + check.errors.length + "): " + formatGcodeIssues(check, 4), null, 15000, "bg-red");
+        }
+      } catch (e) {
+        console.warn("G-code check failed", e);
+      }
 
     }, 100);
 

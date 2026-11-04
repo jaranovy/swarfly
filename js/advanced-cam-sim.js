@@ -1,5 +1,5 @@
-// Simulation speed multipliers, cycled by the speed button (1x -> 2x -> 4x -> 8x -> 1x ...)
-var SIM_SPEED_STEPS = [1, 2, 4, 8];
+// Simulation speed multipliers, cycled by the speed button (1x -> 2x -> 4x -> 8x -> 12x -> 16x -> 20x -> 1x ...)
+var SIM_SPEED_STEPS = [1, 2, 4, 8, 12, 16, 20];
 var timefactor = 1,
   simstopped = true;
 var simgcodeobj;
@@ -94,7 +94,7 @@ function simstop() {
 }
 
 function simSpeed() {
-  // cycle 1x -> 2x -> 4x -> 8x -> 1x ...
+  // cycle 1x -> 2x -> 4x -> 8x -> 12x -> 16x -> 20x -> 1x ...
   var i = SIM_SPEED_STEPS.indexOf(timefactor);
   if (i < 0) i = 0;
   timefactor = SIM_SPEED_STEPS[(i + 1) % SIM_SPEED_STEPS.length];
