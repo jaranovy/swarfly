@@ -54,6 +54,12 @@
     "win": {
       "target": [
         {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
           "target": "portable",
           "arch": [
             "x64"
@@ -62,12 +68,21 @@
       ],
       "icon": "build/icon.png",
       "signAndEditExecutable": false,
-      "artifactName": "CNC-CAM-3018.${ext}"
+      "artifactName": "CNC-CAM-3018-${ext}"
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": true,
       "allowToChangeInstallationDirectory": true,
-      "artifactName": "OpenBuildsCAM-Setup-${version}.${ext}"
+      "language": "1029",
+      "installerLanguages": [
+        "cs_CZ"
+      ],
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CNC CAM 3018",
+      "artifactName": "CNC-CAM-3018-Setup.exe",
+      "deleteAppDataOnUninstall": false
     },
     "mac": {
       "target": [
