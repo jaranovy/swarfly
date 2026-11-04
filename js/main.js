@@ -281,14 +281,19 @@ function loadFile(f) {
 function saveFile() {
   // No built-in filename prompt: go straight to the native OS "Save As"
   // dialog (via invokeSaveAsDialog), where folder and filename can be chosen.
-  saveFileGcode('file-' + date.yyyymmdd() + '.gcode');
+  // 3018: the offline controller reads .nc (all working card programs are .nc); short 8.3-style name
+  saveFileGcode('PROGRAM.NC');
 }
 
 function saveFileGcode(filename) {
-  if (!filename.endsWith('.gcode')) {
-    filename = filename += '.gcode'
+  if (!filename.toLowerCase().endsWith('.nc')) {
+    filename = filename += '.NC'
   }
   var textToWrite = prepgcodefile();
+  var neg = window.gcodeNegativeExtent;
+  if (neg && (neg.x < 0 || neg.y < 0)) {
+    Metro.toast.create('Pozor: dráha jde do záporných souřadnic (X ' + neg.x.toFixed(2) + ', Y ' + neg.y.toFixed(2) + '). Posuň díl v aplikaci na X, Y ≥ 5 mm, nebo nastav nulu stroje dál od okraje.', null, 12000, 'bg-orange');
+  }
   var blob = new Blob([textToWrite], {
     type: "text/plain"
   });

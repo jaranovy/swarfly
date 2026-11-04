@@ -4,14 +4,14 @@
 // 3. Every change of a tracked setting is written back through POST /api/config (only the package server offers it; elsewhere it is skipped).
 // Defaults follow the programs known to run on this machine (docs/gcode-template.md). Edit here, bump PRESET_VERSION.
 (function () {
-  var PRESET_VERSION = "2";
+  var PRESET_VERSION = "3";
   var DEFAULTS = {
     machinetype: "custom",
     sizexmax: 270, sizeymax: 175, sizezmax: 40,                      // bed marks "270"/"175"; Z unmeasured
     scommand: "S", scommandscale: 10000, scommandnewline: false,     // S10000 like the working card programs
     g0command: "G0", g1command: "G1",
     startgcode: "; Created by OpenBuilds CAM (3018 preset)\nG21; mm-mode\nG90; Absolute Positioning\n",  // no G54 (not used by the working programs)
-    endgcode: "M5 S0; Spindle Off\n",
+    endgcode: "M5\nM2\n",                                            // like the card programs (M5, M2)
     ihsgcode: "", laseron: "", laseroff: "", performanceLimit: false,
     hasSpindle: true, hasRouter: false, hasPlasma: false, hasLaser: false, hasPenPlotter: false, hasDust: false,
     // OpenBuilds reuses the last operation as the template for the next one

@@ -652,5 +652,23 @@ function prepgcodefile() {
     g += endgcode;
   }
 
-  return g;
+  return cardStyleGcode(g);
+}
+
+// 3018 fork: output like the programs known to run on the offline controller (docs/gcode-template.md):
+// no comments, no "G4 P8" spindle wait, no blank lines, a single G21, CRLF line ends.
+// Only the saved/previewed file is changed; toolpath gcode used by the simulation stays as generated.
+function cardStyleGcode(text) {
+  var out = [], seenG21 = false, minX = 0, minY = 0;
+  text.split(/\r?\n/).forEach(function(line) {
+    line = line.replace(/;.*$/, "").replace(/\([^)]*\)/g, "").trim();
+    if (!line || /^G4\s*P8$/i.test(line.replace(/\s+/g, " "))) return;
+    if (/^G21$/i.test(line)) { if (seenG21) return; seenG21 = true; }
+    var mx = /X(-?\d*\.?\d+)/i.exec(line), my = /Y(-?\d*\.?\d+)/i.exec(line);
+    if (mx) minX = Math.min(minX, parseFloat(mx[1]));
+    if (my) minY = Math.min(minY, parseFloat(my[1]));
+    out.push(line);
+  });
+  window.gcodeNegativeExtent = { x: minX, y: minY };
+  return out.join("\r\n") + "\r\n";
 }
