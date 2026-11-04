@@ -68,7 +68,7 @@
       ],
       "icon": "build/icon.png",
       "signAndEditExecutable": false,
-      "artifactName": "CNC-CAM-3018-${ext}"
+      "artifactName": "CNC-CAM-3018-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -81,7 +81,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "CNC CAM 3018",
-      "artifactName": "CNC-CAM-3018-Setup.exe",
+      "artifactName": "CNC-CAM-3018-Setup-${version}.exe",
       "deleteAppDataOnUninstall": false
     },
     "mac": {
@@ -112,7 +112,7 @@
       "artifactName": "OpenBuildsCAM-${version}-${arch}.${ext}"
     },
     "portable": {
-      "artifactName": "CNC-CAM-3018.exe",
+      "artifactName": "CNC-CAM-3018-${version}.exe",
       "splashImage": "build/splash.bmp"
     },
     "compression": "normal"
