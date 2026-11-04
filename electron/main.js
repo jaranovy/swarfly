@@ -85,6 +85,7 @@ async function handleAppRequest(request) {
 
 	let relPath = decodeURIComponent(pathname).replace(/^\/+/, '');
 	if (relPath === '') relPath = 'index.html';
+	splashFileLoading(relPath);
 
 	const absPath = path.normalize(path.join(ROOT, relPath));
 	if (!absPath.startsWith(ROOT + path.sep) && absPath !== ROOT) {
@@ -104,14 +105,54 @@ async function handleAppRequest(request) {
 	return serveFile(absPath);
 }
 
+// ---- splash window (3018 fork): logo, spinner and a log of what is being loaded right now ----
+let splash = null;
+let splashLast = 0;
+
+function splashStatus(text) {
+	if (!splash || splash.isDestroyed()) return;
+	splash.webContents.executeJavaScript('setStatus(' + JSON.stringify(text) + ')').catch(() => {});
+}
+
+// called for every file the app protocol serves; throttled so hundreds of small files do not flood the window
+function splashFileLoading(relPath) {
+	const now = Date.now();
+	if (now - splashLast < 70) return;
+	splashLast = now;
+	splashStatus('Načítám ' + relPath);
+}
+
+function createSplash() {
+	splash = new BrowserWindow({
+		width: 520,
+		height: 300,
+		frame: false,
+		resizable: false,
+		movable: true,
+		show: false,
+		alwaysOnTop: true,
+		skipTaskbar: true,
+		backgroundColor: '#1d2530',
+		webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true },
+	});
+	splash.once('ready-to-show', () => splash && !splash.isDestroyed() && splash.show());
+	splash.loadFile(path.join(__dirname, 'splash.html'));
+}
+
+function closeSplash() {
+	if (splash && !splash.isDestroyed()) splash.close();
+	splash = null;
+}
+
 function createWindow() {
 	const win = new BrowserWindow({
 		width: 1600,
 		height: 960,
 		minWidth: 720,
+		show: false,
 		title: 'CNC CAM 3018',
 		autoHideMenuBar: true,
-		icon: path.join(__dirname, '..', 'build', 'icon.png'),
+		icon: path.join(__dirname, 'splash-logo.png'),
 		webPreferences: {
 			contextIsolation: true,
 			nodeIntegration: false,
@@ -119,6 +160,22 @@ function createWindow() {
 			spellcheck: false,
 		},
 	});
+
+	let shown = false;
+	const reveal = () => {
+		if (shown) return;
+		shown = true;
+		win.show();
+		closeSplash();
+	};
+	splashStatus('Otevírám hlavní okno…');
+	win.webContents.on('did-start-loading', () => splashStatus('Načítám rozhraní (index.html)…'));
+	win.webContents.on('dom-ready', () => splashStatus('Spouštím aplikaci, sestavuji 3D scénu a nastavení 3018…'));
+	win.webContents.on('did-finish-load', () => {
+		splashStatus('Hotovo');
+		setTimeout(reveal, 1200);          // the app finishes its own set-up (3D view, settings) shortly after the load event
+	});
+	setTimeout(reveal, 30000);            // never keep the splash forever
 
 	win.loadURL(`${SCHEME}://${HOST}/index.html`);
 	return win;
@@ -136,6 +193,7 @@ app.whenReady().then(() => {
 	protocol.handle(SCHEME, handleAppRequest);
 	blockTelemetry();
 
+	createSplash();
 	createWindow();
 
 	app.on('activate', () => {

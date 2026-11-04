@@ -97,7 +97,8 @@
       "artifactName": "OpenBuildsCAM-${version}-${arch}.${ext}"
     },
     "portable": {
-      "artifactName": "CNC-CAM-3018.exe"
+      "artifactName": "CNC-CAM-3018.exe",
+      "splashImage": "build/splash.bmp"
     },
     "compression": "normal"
   }
