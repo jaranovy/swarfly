@@ -47,6 +47,15 @@
     [/^(.+) is drawn in (.+) - scaled to millimetres \(x ([\d.]+)\)\.$/, "$1: kresba je v jednotkách „$2“ - převedeno na milimetry (x $3)."],
     [/^(.+) contains (\d+) text entit(?:y|ies), which cannot be cut\. Convert the text to curves in your CAD program, or use the Text tool\.$/, "$1 obsahuje textových prvků: $2 - ty nelze řezat. Převeď text na křivky v CAD programu nebo použij nástroj Text."],
     [/^(.+) contains text, which is not imported\. Convert it to paths first \(Inkscape: Path > Object to Path\), or use the Text tool\.$/, "$1 obsahuje text, který se nenačte. Nejdřív ho převeď na cesty (Inkscape: Cesta > Objekt na cestu) nebo použij nástroj Text."],
+    [/^Rectangle (\d[\d.]*×\d[\d.]*)$/, "Obdélník $1"],
+    [/^Circle (\d[\d.]*×\d[\d.]*)$/, "Kruh $1"],
+    [/^Ellipse (\d[\d.]*×\d[\d.]*)$/, "Elipsa $1"],
+    [/^Polygon (\d[\d.]*×\d[\d.]*)$/, "Mnohoúhelník $1"],
+    [/^Star (\d[\d.]*×\d[\d.]*)$/, "Hvězda $1"],
+    [/^Slot (\d[\d.]*×\d[\d.]*)$/, "Drážka $1"],
+    [/^Line (\d[\d.]*×\d[\d.]*)$/, "Čára $1"],
+    [/^Outline (\d[\d.]*×\d[\d.]*)$/, "Obrys $1"],
+    [/^Drawing (\d+)$/, "Výkres $1"],
     [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
   ];
   var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })

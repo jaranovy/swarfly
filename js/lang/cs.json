@@ -413,5 +413,12 @@
  "Mirror up-down: flip up-down about the centre of the selection": "Zrcadlit nahoru-dolů: překlopit okolo středu výběru",
  "Pocket": "Kapsa",
  "Mill out the whole area inside the selected closed outlines (opens the toolpath dialog with CNC: Pocket)": "Vyfrézovat celou plochu uvnitř vybraných uzavřených obrysů (otevře dialog dráhy s operací CNC: Pocket)",
- "A pocket needs closed outlines - an open line is selected": "Kapsa potřebuje uzavřené obrysy - je vybraná otevřená čára"
+ "A pocket needs closed outlines - an open line is selected": "Kapsa potřebuje uzavřené obrysy - je vybraná otevřená čára",
+ "Select all": "Vybrat vše",
+ "Select none": "Zrušit výběr",
+ "Invert selection": "Obrátit výběr",
+ "Delete selected objects": "Smazat vybrané objekty",
+ "No toolpaths yet.": "Zatím žádné dráhy nástroje.",
+ "Line": "Čára",
+ "Outline": "Obrys"
 }

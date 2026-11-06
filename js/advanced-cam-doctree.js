@@ -90,7 +90,7 @@ function filldoctree() {
     var template = '';
     for (i = 0; i < objectsInScene.length; i++) {
       // <button class='button mini flat-button' onclick='storeUndo(); objectsInScene.splice(` + i + `,1); fillTree();''><i class='far fa-fw fa-trash-alt'></i></button>
-      template += `<li><input id="checkbox_` + i + `" type="checkbox" data-role="checkbox" data-caption="<span class='far fa-file'></span> ` + objectsInScene[i].name + `" data-type="doc" data-object="` + i + `"><ul id="doc` + i + `"></ul></li>`
+      template += `<li><input id="checkbox_` + i + `" type="checkbox" data-role="checkbox" data-caption="<span class='far fa-file'></span> ` + docName(i) + `" data-type="doc" data-object="` + i + `"><ul id="doc` + i + `"></ul></li>`
     };
     $('#documenttree').append(template);
 
@@ -115,7 +115,7 @@ function filldoctree() {
       var template = '';
       for (j = 0; j < layersinthisdoc.length; j++) {
         // Layers
-        template += `<li  data-collapsed="true"><input type="checkbox" data-role="checkbox" data-caption="<span class='fas fa-layer-group'></span> ` + layersinthisdoc[j] + `" data-type="layer" data-object="` + i + `" data-layer="` + layersinthisdoc[j] + `"><ul id="doc` + i + `layer` + layersinthisdoc[j].replace(/ /g, '') + `"></ul></li>`
+        template += `<li><input type="checkbox" data-role="checkbox" data-caption="<span class='fas fa-layer-group'></span> ` + layersinthisdoc[j] + `" data-type="layer" data-object="` + i + `" data-layer="` + layersinthisdoc[j] + `"><ul id="doc` + i + `layer` + layersinthisdoc[j].replace(/ /g, '') + `"></ul></li>`
       }
       // console.log("Document " + i + "contains layers: ", layersinthisdoc, template)
       $('#doc' + i).append(template);
@@ -123,7 +123,7 @@ function filldoctree() {
       // Add Vectors to Layers
       for (j = 0; j < objectsInScene[i].children.length; j++) {
 
-        var template = ` <li><input id="checkbox_` + i + `_` + j + `" type="checkbox" data-role="checkbox" data-caption="<span class='fas fa-vector-square'></span> ` + objectsInScene[i].children[j].name + `" data-type="vector" data-object="` + i + `" data-child="` + j + `" data-layer="` + layersinthisdoc[j] + `"></li>`
+        var template = ` <li><input id="checkbox_` + i + `_` + j + `" type="checkbox" data-role="checkbox" data-caption="` + docVectorLabel(objectsInScene[i].children[j]) + `" data-type="vector" data-object="` + i + `" data-child="` + j + `" data-layer="` + layersinthisdoc[j] + `"></li>`
 
         objectsInScene[i].children[j].userData.link = "link" + i + "_" + j;
         if (objectsInScene[i].children[j].userData.layer) {
@@ -141,6 +141,35 @@ function filldoctree() {
   } else { // End of if (objectsInScene.length > 0
     $('#nodocuments').show()
   }
+}
+
+// Readable names for the Documents tree: "Rectangle 60x30" instead of the internal object names.
+function docNumber(value) { return String(Math.round(value * 10) / 10); }
+
+function docVectorLabel(line) {
+  var verts = line.geometry && line.geometry.vertices ? line.geometry.vertices : [];
+  var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  verts.forEach(function(v) { minX = Math.min(minX, v.x); maxX = Math.max(maxX, v.x); minY = Math.min(minY, v.y); maxY = Math.max(maxY, v.y); });
+  var kind = line.userData.shape && line.userData.shape.kind;
+  var icon = "fas fa-vector-square", label = line.name || "Outline";
+  var closed = verts.length > 3 && verts[0].distanceTo(verts[verts.length - 1]) < 1e-6;
+  if (kind) {
+    var kinds = { rectangle: ["far fa-square", "Rectangle"], circle: ["far fa-circle", "Circle"], ellipse: ["far fa-circle", "Ellipse"],
+      polygon: ["fas fa-draw-polygon", "Polygon"], star: ["far fa-star", "Star"], slot: ["fas fa-grip-lines", "Slot"] };
+    if (kinds[kind]) { icon = kinds[kind][0]; label = kinds[kind][1]; }
+  } else if (!closed) {
+    icon = "fas fa-minus"; label = "Line";
+  } else if (!line.name || /^(path|polyline|line|object)?\s*\d*$/i.test(line.name)) {
+    label = "Outline";
+  }
+  var size = verts.length ? " " + docNumber(maxX - minX) + "×" + docNumber(maxY - minY) : "";
+  return "<span class='" + icon + "'></span> " + label + size;
+}
+
+function docName(index) {
+  var name = objectsInScene[index].name;
+  if (/^Internal CAD[\d.]*$/.test(name)) return "Drawing" + (objectsInScene.length > 1 ? " " + (index + 1) : "");
+  return name;
 }
 
 // runs in threejs animate() loop: Sets colors and checkboxes of items based on userdata.selected=true/false

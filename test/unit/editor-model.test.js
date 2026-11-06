@@ -509,3 +509,73 @@ test('rotation snap: whole degrees, magnet to multiples of 15 within 4 degrees',
 	assert.equal(m.editorSnapAngle(89.6), 90);
 	assert.ok(Object.is(m.editorSnapAngle(-0.3), 0));
 });
+
+// ---- 1.9.0: trim between crossings, split ----
+const SQ = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]];                       // closed square
+const LINE = [[0, 0], [100, 0]];
+// arrays from the vm context have another prototype: compare as JSON
+const same = (a, b) => assert.equal(JSON.stringify(a), JSON.stringify(b));
+const round3 = (a) => a.map((t) => Math.round(t * 1000) / 1000);
+
+test('editorCrossingPositions: crossings of a line with others, sorted and merged', () => {
+	const ts = m.editorCrossingPositions(LINE, [[[30, -5], [30, 5]], [[70, -5], [70, 5]], [[70, -9], [70, 9]]]);
+	same(round3(ts), [0.3, 0.7]);
+	same(m.editorCrossingPositions(LINE, [[[0, 5], [100, 5]]]), []);                    // parallel
+});
+
+test('editorCrossingPositions: a closed outline reports its start once', () => {
+	const ts = m.editorCrossingPositions(SQ, [[[-5, 0], [5, 0]]]);                               // along the first edge, touching the start corner
+	assert.ok(ts.every((t) => t < 4));
+	const through = m.editorCrossingPositions(SQ, [[[-5, -5], [5, 5]]]);                         // diagonal through the start corner
+	same(through.filter((t) => t === 0).length, 1);
+});
+
+test('editorTrimPolyline: open line, click between two crossings keeps both outer parts', () => {
+	const p = m.editorTrimPolyline(LINE, [0.3, 0.7], 0.5);
+	assert.equal(p.length, 2);
+	same(p[0], [[0, 0], [30, 0]]);
+	same(p[1], [[70, 0], [100, 0]]);
+});
+
+test('editorTrimPolyline: open line, click on an overhang keeps the rest; no crossing removes the line', () => {
+	const keep = m.editorTrimPolyline(LINE, [0.3, 0.7], 0.1);                                     // before the first crossing
+	assert.equal(keep.length, 1);
+	same(keep[0], [[30, 0], [100, 0]]);
+	const tail = m.editorTrimPolyline(LINE, [0.3, 0.7], 0.9);
+	same(tail, [[[0, 0], [70, 0]]]);
+	same(m.editorTrimPolyline(LINE, [], 0.5), []);
+});
+
+test('editorTrimPolyline: closed outline loses the arc between the crossings, the rest is one open line', () => {
+	// a vertical line x = 20 crosses the square at (20,0) and (20,40): positions 0.5 and 2.5
+	const ts = m.editorCrossingPositions(SQ, [[[20, -5], [20, 45]]]);
+	same(round3(ts), [0.5, 2.5]);
+	const pieces = m.editorTrimPolyline(SQ, ts, 1.5);                                             // click on the right side
+	assert.equal(pieces.length, 1);
+	same(pieces[0], [[20, 40], [0, 40], [0, 0], [20, 0]]);                           // the left half stays
+	same(m.editorTrimPolyline(SQ, [0.5], 1.5), []);                                   // one crossing: all goes
+});
+
+test('editorSplitPolyline: open line is cut at positions, ends are ignored', () => {
+	const p = m.editorSplitPolyline([[0, 0], [10, 0], [10, 10]], [0, 0.5, 1.5, 2]);
+	assert.equal(p.length, 3);
+	same(p[0], [[0, 0], [5, 0]]);
+	same(p[1], [[5, 0], [10, 0], [10, 5]]);
+	same(p[2], [[10, 5], [10, 10]]);
+	assert.equal(m.editorSplitPolyline(LINE, []), null);
+});
+
+test('editorSplitPolyline: a closed outline gives arcs; one position opens it there', () => {
+	const arcs = m.editorSplitPolyline(SQ, [0.5, 2.5]);
+	assert.equal(arcs.length, 2);
+	same(arcs[0], [[20, 0], [40, 0], [40, 40], [20, 40]]);
+	same(arcs[1], [[20, 40], [0, 40], [0, 0], [20, 0]]);
+	const opened = m.editorSplitPolyline(SQ, [1]);
+	same(opened[0], [[40, 0], [40, 40], [0, 40], [0, 0], [40, 0]]);
+});
+
+test('editorNearestPosition / editorPointAt', () => {
+	const r = m.editorNearestPosition(SQ, [20, 3]);
+	near(r.t, 0.5); near(r.dist, 3);
+	same(m.editorPointAt(SQ, 2.5), [20, 40]);
+});

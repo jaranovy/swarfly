@@ -133,8 +133,7 @@ function fillTree() {
     }
 
   } else {
-    var instructions = `<p class="text-secondary text-center mt-3">Please select some Vectors by clicking them in the viewer or using the Documents tree above. Hold down Ctrl to select multiples, Ctrl+A for Select-All, etc. <br>Add them to a toolpath using the <kbd class="bg-openbuilds"> <i class="fa fa-plus" aria-hidden="true"></i> Create Toolpath</kbd> button</p>`
-    $('#toolpathtree').append(instructions);
+    $('#toolpathtree').append(`<p class="text-secondary text-center mt-3 swHint">No toolpaths yet.</p>`);
     $('#generatetpgcode').prop('disabled', true);
     $("#generatetpgcode").removeClass('success');
 

@@ -245,3 +245,17 @@ nav[data-role="ribbonmenu"] .ribbon-button.btn-file {
   background: transparent !important;
 }
 nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }
+
+/* ---- 1.8.4: right dock panels ---------------------------------------------------------------------------------------------- */
+#selectoverlay { display: flex; gap: 4px; padding: 4px 6px; justify-content: flex-start; }
+#selectoverlay .button { width: 32px; height: 28px; min-width: 0; padding: 0; margin: 0; font-size: 13px; }
+#tpathoverlay { padding: 4px 6px; }
+#tpathoverlay .split-button { width: 100%; display: flex; box-shadow: none; }
+#tpathoverlay #addJobBtn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#generatetpgcode, #gcodesavebtn2 { width: calc(100% - 12px) !important; }
+#col2 .swHint { font-size: 12px; margin-top: 8px; }
+#col2 .window-content { padding: 2px 4px; }
+/* tree: selected objects are tinted, not black */
+#left-tree-view .node-toggle, #left-tree-view .checkbox .caption { color: var(--sw-text); }
+#left-tree-view .checkbox.checked .caption, #left-tree-view .checkbox input:checked ~ .caption { color: var(--sw-accent); font-weight: 600; }
+#left-tree-view li { line-height: 1.5; }

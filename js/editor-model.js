@@ -550,3 +550,113 @@ function editorSnapAngle(deg, step, magnet, tol) {
   if (Math.abs(d - m) <= tol) d = m;
   return d === 0 ? 0 : d;
 }
+
+// ---- 1.9.0: trim between crossings, split (the SAPS "erase part of a section" and "divide a section") ------------------------------
+// A position on a polyline is a number t: the integer part is the segment, the fraction the way along it (0 .. n-1 for n points).
+
+function editorPolyClosed(points) {
+  var n = points ? points.length : 0;
+  return n > 3 && Math.hypot(points[0][0] - points[n - 1][0], points[0][1] - points[n - 1][1]) < 1e-9;
+}
+
+// Point at position t (clamped to the ends).
+function editorPointAt(points, t) {
+  var n = points.length;
+  if (t <= 0) return [points[0][0], points[0][1]];
+  if (t >= n - 1) return [points[n - 1][0], points[n - 1][1]];
+  var i = Math.floor(t), f = t - i;
+  return [points[i][0] + (points[i + 1][0] - points[i][0]) * f, points[i][1] + (points[i + 1][1] - points[i][1]) * f];
+}
+
+// The position on the polyline nearest to p: {t, dist, point}.
+function editorNearestPosition(points, p) {
+  var best = null;
+  for (var i = 0; i < points.length - 1; i++) {
+    var a = points[i], b = points[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
+    var f = len2 < 1e-18 ? 0 : Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2));
+    var q = [a[0] + dx * f, a[1] + dy * f], d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+    if (!best || d < best.dist) best = { t: i + f, dist: d, point: q };
+  }
+  return best;
+}
+
+// Positions on `points` where any of the `others` (arrays of points) crosses or touches it, sorted, duplicates merged.
+// A closed outline reports a crossing at its start only once (position 0, never n-1).
+function editorCrossingPositions(points, others) {
+  var n = points.length, eps = 1e-9, found = [];
+  for (var i = 0; i < n - 1; i++) {
+    var a = points[i], b = points[i + 1], rx = b[0] - a[0], ry = b[1] - a[1];
+    for (var k = 0; k < others.length; k++) {
+      var o = others[k];
+      for (var j = 0; j < o.length - 1; j++) {
+        var c = o[j], d = o[j + 1], sx = d[0] - c[0], sy = d[1] - c[1], den = rx * sy - ry * sx;
+        if (Math.abs(den) < 1e-12) continue;
+        var t = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den;
+        var u = ((c[0] - a[0]) * ry - (c[1] - a[1]) * rx) / den;
+        if (t < -eps || t > 1 + eps || u < -eps || u > 1 + eps) continue;
+        found.push(i + Math.max(0, Math.min(1, t)));
+      }
+    }
+  }
+  var closed = editorPolyClosed(points);
+  found = found.map(function(t) { return closed && t >= n - 1 - eps ? 0 : t; }).sort(function(x, y) { return x - y; });
+  var out = [];
+  found.forEach(function(t) { if (!out.length || t - out[out.length - 1] > 1e-7) out.push(t); });
+  return out;
+}
+
+// The part of the polyline from position t0 forward to t1. For a closed outline t1 may be smaller than t0 (the part runs through
+// the start); the result is always an open polyline without repeated points.
+function editorSubPolyline(points, t0, t1) {
+  var n = points.length, closed = editorPolyClosed(points), m = n - 1, out = [];
+  if (closed && t1 <= t0) t1 += m;
+  var at = function(t) { return editorPointAt(points, t > m ? t - m : t); };
+  var push = function(p) { var q = out[out.length - 1]; if (!q || Math.hypot(q[0] - p[0], q[1] - p[1]) > 1e-9) out.push(p); };
+  push(at(t0));
+  for (var k = Math.floor(t0 + 1e-9) + 1; k < t1 - 1e-9; k++) push(at(k));
+  push(at(t1));
+  return out;
+}
+
+// Removes the part of the line under position clickT that lies between the nearest crossings (ts, sorted). Returns the pieces that
+// stay: [] when nothing stays (the whole line goes), otherwise polylines of at least two points. Open line: the parts before the
+// previous and after the next crossing stay. Closed outline: the arc between the two crossings next to the click goes and the
+// rest stays as one open line; a closed outline with fewer than two crossings goes completely.
+function editorTrimPolyline(points, ts, clickT) {
+  var n = points.length, closed = editorPolyClosed(points), eps = 1e-9, pieces = [];
+  if (n < 2) return [];
+  if (closed) {
+    if (ts.length < 2) return [];
+    var prev = null, next = null;
+    ts.forEach(function(t) { if (t <= clickT + eps) prev = t; });
+    for (var i = 0; i < ts.length; i++) if (ts[i] > clickT + eps) { next = ts[i]; break; }
+    if (prev === null) prev = ts[ts.length - 1];
+    if (next === null) next = ts[0];
+    if (Math.abs(prev - next) < eps) return [];
+    pieces.push(editorSubPolyline(points, next, prev));
+  } else {
+    var lo = null, hi = null;
+    ts.forEach(function(t) { if (t <= clickT + eps) lo = t; });
+    for (var j = 0; j < ts.length; j++) if (ts[j] > clickT + eps) { hi = ts[j]; break; }
+    if (lo !== null && lo > eps) pieces.push(editorSubPolyline(points, 0, lo));
+    if (hi !== null && hi < n - 1 - eps) pieces.push(editorSubPolyline(points, hi, n - 1));
+  }
+  return pieces.filter(function(p) { return p.length >= 2; });
+}
+
+// Cuts the line into pieces at the positions ts (sorted). Open line: ends are not cut points. Closed outline: two or more positions
+// give that many arcs, one position opens the outline there. Returns null when there is nothing to cut.
+function editorSplitPolyline(points, ts) {
+  var n = points.length, closed = editorPolyClosed(points), eps = 1e-9, pieces = [];
+  if (closed) {
+    if (!ts.length) return null;
+    if (ts.length === 1) return Math.abs(ts[0]) < eps ? null : [editorSubPolyline(points, ts[0], ts[0] + (n - 1))];
+    for (var i = 0; i < ts.length; i++) pieces.push(editorSubPolyline(points, ts[i], ts[(i + 1) % ts.length]));
+  } else {
+    var cuts = ts.filter(function(t) { return t > eps && t < n - 1 - eps; });
+    if (!cuts.length) return null;
+    var bounds = [0].concat(cuts, [n - 1]);
+    for (var j = 0; j < bounds.length - 1; j++) pieces.push(editorSubPolyline(points, bounds[j], bounds[j + 1]));
+  }
+  return pieces.filter(function(p) { return p.length >= 2; });
+}

@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.8.4] - 2026-11-06
+### Changed
+- Right dock: Documents panel has small icon buttons (select all / none / invert / delete) with tooltips instead of four big buttons; the tree shows readable names with icons ("Rectangle 60x30", "Circle 20x20", "Drawing") and starts expanded; the panel is taller (38 %) and the toolpath hint paragraph is gone; the buttons of panels 2-4 use the full width.
+
 ## [1.8.3] - 2026-11-06
 ### Fixed
 - DXF import now honours `$INSUNITS`: drawings in inches (and feet, cm, m, ...) were imported 25.4x too small; they are scaled to millimetres with a message.

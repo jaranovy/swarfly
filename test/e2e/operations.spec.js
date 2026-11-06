@@ -40,7 +40,7 @@ test.beforeAll(async ({ browser }) => {
 		const find = (re) => [...document.querySelectorAll('button,a,div,span')].filter((b) => re.test(b.textContent) && b.children.length <= 3 && b.getBoundingClientRect().width > 0).sort((a, b) => a.textContent.length - b.textContent.length)[0];
 			// waits for the control instead of guessing a delay (the app builds its dialogs asynchronously)
 			const waitFind = async (re, ms) => { const end = Date.now() + (ms || 10000); for (;;) { const el = find(re); if (el || Date.now() > end) return el; await sleep(150); } };
-		(await waitFind(/^\s*(Vše|All)\s*$/)).click();
+		document.getElementById('selectAll').click();
 		await sleep(500);
 		(await waitFind(/Vytvořit dráhu nástroje z vybraných|Create Toolpath using/)).click();
 		await sleep(900);

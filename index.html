@@ -377,7 +377,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.8.3</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.8.4</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -457,17 +457,17 @@
 				<div id="col2">
 					<!-- <div style="height: 100%; overflow-y:hidden; padding-right:5px;"> -->
 
-					<div data-role="splitter" data-split-mode="vertical" data-split-sizes="20,45,23,12" data-min-sizes="150,180,190,100" class="h-100">
+					<div data-role="splitter" data-split-mode="vertical" data-split-sizes="38,30,16,16" data-min-sizes="150,140,90,90" class="h-100">
 						<div id="renderDocuments" class="window drop-shadow">
 							<div class="window-caption bg-black">
 								<i class="far fa-file-alt fa-fw ml-1 mr-1"></i>
 								<span class="title">1. Documents <span class="workspaceTitle"></span></span>
 							</div>
 							<div id="selectoverlay" class="text-center mt-1">
-								<button class="button drop-shadow" id="selectAll"><span class="far fa-check-square"></span> All</button>
-								<button class="button drop-shadow" id="selectNone"><span class="far fa-square"></span> None</button>
-								<button class="button drop-shadow" id="selectInv"><span class="fas fa-check"></span> Invert</button>
-								<button class="button drop-shadow" id="selectDel"><span class="fas fa-trash"></span> Delete</button>
+								<button class="button" id="selectAll" title="Select all"><span class="far fa-check-square"></span></button>
+								<button class="button" id="selectNone" title="Select none"><span class="far fa-square"></span></button>
+								<button class="button" id="selectInv" title="Invert selection"><span class="fas fa-exchange-alt"></span></button>
+								<button class="button" id="selectDel" title="Delete selected objects"><span class="fas fa-trash"></span></button>
 							</div>
 							<div class="window-content p-1" style="overflow-y:scroll;">
 								<!-- Documents Here -->
