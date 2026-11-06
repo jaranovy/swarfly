@@ -6,7 +6,15 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { placing: null, dims: false, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0 };
+var editorState = { placing: null, dims: false, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null };
+
+function editorLoadSnapSettings() {
+  try {
+    if (localStorage.getItem("swarflySnap") === "0") editorState.snap = false;
+    var g = localStorage.getItem("swarflyGrid");
+    if (g !== null && !isNaN(Number(g))) editorState.gridStep = Number(g);
+  } catch (e) { /* storage blocked: defaults */ }
+}
 
 function editorPlaceWithMouse() {
   try { return localStorage.getItem("swarflyPlaceMouse") !== "0"; } catch (e) { return true; }
@@ -208,6 +216,13 @@ function editorBuildPanel() {
   });
   hs.innerHTML = html;
   area.appendChild(hs);
+  var sm = document.createElementNS(ns, "svg");
+  sm.id = "editorSnapMark";
+  sm.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none";
+  sm.innerHTML = '<line id="editorRubber" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4" style="display:none"/>' +
+    '<circle id="editorSnapDot" r="7" fill="none" stroke="#ff4fd8" stroke-width="2.5"/>' +
+    '<text id="editorSnapText" fill="#ff4fd8" font-size="12" font-family="monospace" font-weight="bold" paint-order="stroke" stroke="#000" stroke-width="3"></text>';
+  area.appendChild(sm);
   Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
     r.addEventListener("mousedown", function(e) { editorHandleDown(e, r.getAttribute("data-h")); });
     ["mouseup", "wheel", "dblclick", "contextmenu"].forEach(function(t) { r.addEventListener(t, function(e) { e.stopPropagation(); }); });
@@ -229,7 +244,7 @@ function editorRefresh(force) {
   if (!panel) return;
   var lines = editorSelection(), box = editorSelectionBox(lines);
   editorState.count = lines.length;
-  if (!box || !editorState.panelOn) { panel.style.display = "none"; editorState.sig = ""; return; }
+  if (!box || !editorState.panelOn || editorState.mv || editorState.placing) { panel.style.display = "none"; editorState.sig = ""; return; }   // out of the way while a point is being picked
   var sig = lines.map(function(l) { return l.uuid; }).join() + [box.minX, box.minY, box.maxX, box.maxY].map(function(v) { return v.toFixed(4); }).join() + editorState.ref;
   if (sig === editorState.sig && !force) return;
   editorState.sig = sig;
@@ -315,7 +330,7 @@ var editorDrag = null;
 function editorDrawHandles() {
   var hs = document.getElementById("editorHandles");
   if (!hs) return;
-  var lines = editorState.placing ? [] : editorSelection();
+  var lines = (editorState.placing || editorState.mv) ? [] : editorSelection();      // no handles in the way while a point is being picked
   var box = lines.length ? editorSelectionBox(lines) : null;
   if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; return; }
   hs.style.display = "block";
@@ -343,7 +358,9 @@ function editorHandleDown(e, handle) {
 
 function editorHandleMove(e) {
   if (!editorDrag) return;
-  var d = editorDrag, w = mouseToWorldCoord(e), r = editorHandleFactors(d.box, d.handle, w.x, w.y, e.shiftKey);
+  var d = editorDrag, w = mouseToWorldCoord(e), sp = editorSnapPoint(w.x, w.y, d.lines);
+  editorShowSnap(sp ? sp.point : null, sp ? sp.kind : null);
+  var r = editorHandleFactors(d.box, d.handle, sp ? sp.point[0] : w.x, sp ? sp.point[1] : w.y, e.shiftKey);
   d.lines.forEach(function(line, li) {
     var g = line.geometry;
     for (var i = 0; i < g.vertices.length; i++) {
@@ -360,6 +377,7 @@ function editorHandleUp() {
   if (!editorDrag) return;
   var d = editorDrag;
   editorDrag = null;
+  editorShowSnap(null);
   d.lines.forEach(function(line) {
     if (line.geometry.computeBoundingSphere) line.geometry.computeBoundingSphere();
     if (line.geometry.computeBoundingBox) line.geometry.computeBoundingBox();
@@ -381,6 +399,157 @@ function editorArrowKey(e) {
   if (!lines.length) return;
   e.preventDefault(); e.stopImmediatePropagation();
   editorTransform(lines, function(p) { return [p[0] + d[0], p[1] + d[1]]; }, "move");
+}
+
+// ---- 1.5.1: snapping -----------------------------------------------------------------------------------------------------
+function editorMmPerPixel() {
+  var a = editorToScreen(0, 0), b = editorToScreen(1, 0), px = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  return px > 0 ? 1 / px : 1;
+}
+
+function editorSnapOpts() { return { gridStep: editorState.gridStep }; }
+
+// outlines the cursor may snap to: every line except the excluded ones (the ones being moved); cached until the scene changes
+function editorSnapPolylines(exclude) {
+  var skip = {};
+  exclude.forEach(function(l) { skip[l.uuid] = true; });
+  var lines = [], total = 0;
+  objectsInScene.forEach(function(o) { o.children.forEach(function(c) {
+    if (c.geometry && c.geometry.vertices && c.geometry.vertices.length && !skip[c.uuid]) { lines.push(c); total += c.geometry.vertices.length; }
+  }); });
+  var sig = lines.length + ":" + total + ":" + (typeof undoStore !== "undefined" ? undoStore.length + ":" + (undoStore[0] ? undoStore[0].length : 0) : "") + ":" + Object.keys(skip).join();
+  if (editorState.snapCache && editorState.snapCache.sig === sig) return editorState.snapCache.polys;
+  var polys = lines.map(editorLinePoints);
+  editorState.snapCache = { sig: sig, polys: polys };
+  return polys;
+}
+
+function editorSnapPoint(x, y, exclude) {
+  if (!editorState.snap) return null;
+  return editorSnapFind([x, y], editorSnapPolylines(exclude), 10 * editorMmPerPixel(), editorSnapOpts());
+}
+
+var EDITOR_SNAP_NAMES = { end: "End point", intersection: "Intersection", centre: "Centre", mid: "Middle", grid: "Grid" };
+
+function editorShowSnap(point, kind) {
+  var svg = document.getElementById("editorSnapMark");
+  if (!svg) return;
+  if (!point) { svg.style.display = "none"; return; }
+  var q = editorToScreen(point[0], point[1]);
+  svg.style.display = "block";
+  var c = document.getElementById("editorSnapDot"), t = document.getElementById("editorSnapText");
+  c.setAttribute("cx", q[0]); c.setAttribute("cy", q[1]);
+  t.setAttribute("x", q[0] + 12); t.setAttribute("y", q[1] - 10);
+  var name = EDITOR_SNAP_NAMES[kind] || kind;
+  if (t.getAttribute("data-en") !== name) { t.setAttribute("data-en", name); t.textContent = name; }
+}
+
+function editorToggleSnap() {
+  editorState.snap = !editorState.snap;
+  try { localStorage.setItem("swarflySnap", editorState.snap ? "1" : "0"); } catch (e) { /* storage blocked */ }
+  var b = document.getElementById("editorSnapButton");
+  if (b) b.classList.toggle("ed-on", editorState.snap);
+  if (!editorState.snap) editorShowSnap(null);
+}
+
+function editorCycleGrid() {
+  editorState.gridStep = editorNextGridStep(editorState.gridStep);
+  try { localStorage.setItem("swarflyGrid", String(editorState.gridStep)); } catch (e) { /* storage blocked */ }
+  editorShowGridButton();
+}
+
+function editorShowGridButton() {
+  var cap = document.getElementById("editorGridCaption");
+  if (cap) cap.textContent = editorState.gridStep > 0 ? editorState.gridStep + " mm" : "Off";
+}
+
+// ---- 1.5.1: move from point A to point B ---------------------------------------------------------------------------------
+function editorStartMoveAB() {
+  editorEndPlacement();
+  var lines = editorSelection();
+  if (!lines.length) { editorToast("Select the objects to move first"); return; }
+  editorCancelMoveAB(true);
+  editorState.mv = { step: 1, a: null, lines: lines, snap: lines.map(function(l) { return l.geometry.vertices.map(function(v) { return [v.x, v.y]; }); }), undoTop: null };
+  var b = document.getElementById("editorMoveButton");
+  if (b) b.classList.add("ed-on");
+  editorDrawHandles();
+  editorRefresh(true);
+  editorStatusUpdate(null);
+}
+
+function editorMoveABPoint(e) {
+  // the first point may be a corner of the selection itself; once the objects follow the pointer they must not snap to themselves
+  var w = mouseToWorldCoord(e), s = editorSnapPoint(w.x, w.y, editorState.mv.step === 1 ? [] : editorState.mv.lines);
+  editorShowSnap(s ? s.point : null, s ? s.kind : null);
+  return s ? s.point : [w.x, w.y];
+}
+
+function editorMoveABApply(dx, dy) {
+  var mv = editorState.mv;
+  mv.lines.forEach(function(line, li) {
+    var g = line.geometry;
+    for (var i = 0; i < g.vertices.length; i++) { g.vertices[i].x = mv.snap[li][i][0] + dx; g.vertices[i].y = mv.snap[li][i][1] + dy; }
+    g.verticesNeedUpdate = true;
+  });
+  clearSceneFlag = true;
+}
+
+function editorMoveABMove(e) {
+  var mv = editorState.mv;
+  if (!mv) return;
+  var p = editorMoveABPoint(e);
+  if (mv.step === 2) {
+    editorMoveABApply(p[0] - mv.a[0], p[1] - mv.a[1]);
+    var rb = document.getElementById("editorRubber"), a = editorToScreen(mv.a[0], mv.a[1]), b = editorToScreen(p[0], p[1]);
+    rb.setAttribute("x1", a[0]); rb.setAttribute("y1", a[1]); rb.setAttribute("x2", b[0]); rb.setAttribute("y2", b[1]);
+    document.getElementById("editorSnapMark").style.display = "block";
+    rb.style.display = "block";
+  }
+}
+
+function editorMoveABClick(e) {
+  var mv = editorState.mv;
+  var p = editorMoveABPoint(e);
+  if (mv.step === 1) {
+    mv.a = p;
+    mv.undoTop = typeof undoStore !== "undefined" ? undoStore[0] : null;
+    storeUndo(true);                       // the snapshot of the state before the move
+    mv.step = 2;
+  } else {
+    editorMoveABApply(p[0] - mv.a[0], p[1] - mv.a[1]);
+    mv.lines.forEach(function(l) { if (l.geometry.computeBoundingSphere) l.geometry.computeBoundingSphere(); if (l.geometry.computeBoundingBox) l.geometry.computeBoundingBox(); });
+    editorState.mv = null;
+    editorMoveABClean();
+    if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+    editorRefresh(true);
+  }
+  editorStatusUpdate(null);
+}
+
+function editorMoveABClean() {
+  var rb = document.getElementById("editorRubber");
+  if (rb) rb.style.display = "none";
+  editorShowSnap(null);
+  var b = document.getElementById("editorMoveButton");
+  if (b) b.classList.remove("ed-on");
+}
+
+// cancel: put the objects back and drop the undo snapshot that step 2 took. quiet: no status update
+function editorCancelMoveAB(quiet) {
+  var mv = editorState.mv;
+  if (!mv) return;
+  editorState.mv = null;
+  if (mv.step === 2) {
+    mv.lines.forEach(function(line, li) {
+      var g = line.geometry;
+      for (var i = 0; i < g.vertices.length; i++) { g.vertices[i].x = mv.snap[li][i][0]; g.vertices[i].y = mv.snap[li][i][1]; }
+      g.verticesNeedUpdate = true;
+    });
+    if (typeof undoStore !== "undefined" && undoStore.length) undoStore.shift();
+  }
+  editorMoveABClean();
+  clearSceneFlag = true;
+  if (!quiet) editorStatusUpdate(null);
 }
 
 // ---- dimensions ------------------------------------------------------------------------------------------------------
@@ -452,6 +621,11 @@ function editorMovePlacement(event) {
   var pl = editorState.placing;
   if (!pl) return;
   var wc = mouseToWorldCoord(event), ll = editorPlaceAtCursor(wc.x, wc.y, pl.w, pl.h);
+  if (editorState.snap) {                  // any of the 9 reference points of the ghost may snap; the closest snap wins
+    var sn = editorSnapMove({ minX: ll[0], minY: ll[1], maxX: ll[0] + pl.w, maxY: ll[1] + pl.h }, 0, 0, editorSnapPolylines([pl.line]), 10 * editorMmPerPixel(), editorSnapOpts());
+    ll = [ll[0] + sn.dx, ll[1] + sn.dy];
+    editorShowSnap(sn.point, sn.kind);
+  }
   pl.line.position.x = ll[0] - pl.baseX;
   pl.line.position.y = ll[1] - pl.baseY;
   clearSceneFlag = true;
@@ -462,6 +636,7 @@ function editorEndPlacement() {
   var pl = editorState.placing;
   if (!pl) return;
   editorState.placing = null;
+  editorShowSnap(null);
   if (typeof changePositionToGeoTranslate === "function") changePositionToGeoTranslate();
   clearSceneFlag = true;
   editorStatusUpdate(null);
@@ -471,6 +646,7 @@ function editorCancelPlacement() {
   var pl = editorState.placing;
   if (!pl) return;
   editorState.placing = null;
+  editorShowSnap(null);
   var group = pl.line.parent;
   if (group) {
     group.remove(pl.line);
@@ -495,7 +671,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0 });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }
@@ -504,19 +680,31 @@ function editorStatusUpdate(event) {
 if (typeof document !== "undefined" && typeof window !== "undefined") {
   document.addEventListener("DOMContentLoaded", function() {
     if (!document.getElementById("renderArea")) return;
+    editorLoadSnapSettings();
     editorBuildPanel();
     editorShowPlaceButton();
+    editorShowGridButton();
+    var sb = document.getElementById("editorSnapButton");
+    if (sb) sb.classList.toggle("ed-on", editorState.snap);
     var pb = document.getElementById("editorPanelButton");
     if (pb) pb.classList.add("ed-on");
     var area = document.getElementById("renderArea");
 
     area.addEventListener("mousemove", function(e) {
       if (editorState.placing) editorMovePlacement(e);
+      if (editorState.mv) editorMoveABMove(e);
       editorStatusUpdate(e);
     });
 
     // capture phase on the document: while a shape is being placed the first click / right click / Esc belongs to the placement
     document.addEventListener("mousedown", function(e) {
+      if (editorState.mv) {
+        var onCanvas2 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
+        if (!onCanvas2) { if (!(e.target.closest && e.target.closest("#editorMoveButton"))) editorCancelMoveAB(); return; }
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (e.button === 2) editorCancelMoveAB(); else if (e.button === 0) editorMoveABClick(e);
+        return;
+      }
       if (!editorState.placing) return;
       var onCanvas = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
       if (!onCanvas) { editorEndPlacement(); return; }          // a click elsewhere (ribbon ...) keeps the shape where it is
@@ -524,8 +712,9 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       if (e.button === 2) editorCancelPlacement();
       else if (e.button === 0) { editorMovePlacement(e); editorEndPlacement(); }
     }, true);
-    document.addEventListener("contextmenu", function(e) { if (editorState.placing) e.preventDefault(); }, true);
+    document.addEventListener("contextmenu", function(e) { if (editorState.placing || editorState.mv) e.preventDefault(); }, true);
     document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && editorState.mv) { e.preventDefault(); e.stopImmediatePropagation(); editorCancelMoveAB(); return; }
       if (e.key === "Escape" && editorState.placing) { e.preventDefault(); e.stopImmediatePropagation(); editorDropAtOrigin(); }
     }, true);
 

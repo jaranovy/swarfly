@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.5.1] - 2026-11-06
+### Added
+- Snapping (Edit group, on by default): end points, intersections, centres, segment middles and a grid, with a pink marker that names the point. Used by new shapes hanging on the mouse, by the selection handles and by the new tool below. Settings tab -> Snapping: grid step 1 / 5 / 10 / 0.5 / 0.1 mm or off (remembered).
+- Move A-B: click the point to move from and the point to move to; live preview, Esc / right click cancels and restores, one undo step.
+- Unit tests for segment intersections, snap priority and tolerance, object snapping and the grid-step cycle; 8 e2e tests.
+
 ## [1.5.0] - 2026-11-06
 ### Added
 - Handles on the selection box: drag a corner to scale proportionally (Shift = width and height separately), drag an edge middle to change one side; the opposite side stays; one undo step per drag, a plain click on a handle changes nothing.

@@ -12,6 +12,12 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
 
+### Přichytávání a „Přesun A-B“
+
+Při zapnutém **Přichytávání** (skupina Upravit, ve výchozím stavu zapnuto) se ukazatel přitáhne k nejbližšímu užitečnému bodu do asi 10 pixelů: **koncovému bodu** (rohu) jiného objektu, **průsečíku** dvou obrysů, **středu** objektu, **středu úsečky** nebo - když nic jiného není poblíž - bodu **mřížky**. Růžová značka bod pojmenuje. Funguje pro nový tvar na myši (přichytit se může libovolný roh, střed hrany nebo střed tvaru), pro úchyty i pro *Přesun A-B*. Krok mřížky se nastaví v záložce Nastavení (*Mřížka přichytávání*: 1, 5, 10, 0,5, 0,1 mm nebo vypnuto).
+
+**Přesun A-B**: vyber objekty, stiskni *Přesun A-B*, klikni na bod, *odkud* přesouvat (např. roh), a pak na bod, *kam* přesunout (např. roh jiného dílu). Objekty při výběru cíle sledují ukazatel; Esc nebo pravé tlačítko zruší a vrátí vše zpět.
+
 ### Úchyty a šipky
 
 Výběr obklopuje čárkovaný rámeček s osmi úchyty. Táhni za **roh** pro poměrné zvětšení (s klávesou **Shift** se šířka a výška mění zvlášť); táhni za **střed hrany** pro změnu jedné strany. Protější roh nebo hrana zůstanou na místě a panel se při tažení mění s tebou. Kliknutí na úchyt bez tažení nic neudělá.

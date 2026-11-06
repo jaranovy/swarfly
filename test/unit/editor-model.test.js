@@ -193,3 +193,67 @@ test('arrow keys: 1 mm, Shift 10 mm, Alt 0.1 mm, other keys ignored', () => {
 	assert.deepEqual(Array.from(m.editorArrowDelta('ArrowDown', false, true)), [0, -0.1]);
 	assert.equal(m.editorArrowDelta('a', false, false), null);
 });
+
+test('segment intersection: crossing, parallel, and outside the segments', () => {
+	const x = m.editorSegmentIntersection([0, 0], [10, 10], [0, 10], [10, 0]);
+	near(x[0], 5); near(x[1], 5);
+	assert.equal(m.editorSegmentIntersection([0, 0], [10, 0], [0, 5], [10, 5]), null);          // parallel
+	assert.equal(m.editorSegmentIntersection([0, 0], [4, 4], [0, 10], [10, 0]), null);          // lines cross, segments do not
+	const t = m.editorSegmentIntersection([0, 0], [10, 0], [5, -5], [5, 5]);
+	near(t[0], 5); near(t[1], 0);
+});
+
+const SQUARE = [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]];
+
+test('snap: end point beats grid, nearest wins, nothing outside the tolerance', () => {
+	let s = m.editorSnapFind([0.4, 0.3], [SQUARE], 1, { gridStep: 1 });
+	assert.equal(s.kind, 'end');
+	assert.deepEqual(Array.from(s.point), [0, 0]);
+	s = m.editorSnapFind([50, 50], [SQUARE], 1, { gridStep: 0 });
+	assert.equal(s, null);
+	s = m.editorSnapFind([50.2, 49.9], [SQUARE], 1, { gridStep: 1 });
+	assert.equal(s.kind, 'grid');
+	assert.deepEqual(Array.from(s.point), [50, 50]);
+});
+
+test('snap: centre of an object, middle of a segment, kinds can be switched off', () => {
+	let s = m.editorSnapFind([5.2, 4.8], [SQUARE], 1, {});
+	assert.equal(s.kind, 'centre');
+	assert.deepEqual(Array.from(s.point), [5, 5]);
+	s = m.editorSnapFind([0.2, 5.1], [SQUARE], 1, { centre: false });
+	assert.equal(s.kind, 'mid');
+	assert.deepEqual(Array.from(s.point), [0, 5]);
+	s = m.editorSnapFind([0.2, 5.1], [SQUARE], 1, { centre: false, mid: false });
+	assert.equal(s, null);
+});
+
+test('snap: intersection of two crossing outlines, but a vertex of one outline stays an end point', () => {
+	const cross = [[-5, 5], [15, 5]];
+	let s = m.editorSnapFind([10.3, 5.2], [SQUARE, cross], 1, {});
+	assert.equal(s.kind, 'intersection');
+	near(s.point[0], 10); near(s.point[1], 5);
+	s = m.editorSnapFind([10.2, 9.9], [SQUARE, cross], 1, {});
+	assert.equal(s.kind, 'end');
+});
+
+test('snap move: the closest reference point of the moved box lands on a target', () => {
+	const moved = { minX: 0, minY: 0, maxX: 4, maxY: 2 };
+	// move by (20.3, 10.2): the lower-left corner would be at (20.3, 10.2) - snap to the grid point (20, 10)
+	const r = m.editorSnapMove(moved, 20.3, 10.2, [], 1, { gridStep: 1 });
+	near(r.dx, 20); near(r.dy, 10);
+	assert.equal(r.kind, 'grid');
+	// the upper-right corner (4 + dx, 2 + dy) is close to an end point of SQUARE (10, 10): that wins over the grid
+	const e = m.editorSnapMove(moved, 6.3, 8.2, [SQUARE], 1, { gridStep: 1 });
+	assert.equal(e.kind, 'end');
+	near(e.dx, 6); near(e.dy, 8);
+	const none = m.editorSnapMove(moved, 20.5, 10.5, [], 0.2, { gridStep: 1 });
+	near(none.dx, 20.5); assert.equal(none.kind, null);
+});
+
+test('grid step button cycles through the steps and ends at off', () => {
+	let s = 1;
+	const seen = [];
+	for (let i = 0; i < 6; i++) { s = m.editorNextGridStep(s); seen.push(s); }
+	assert.deepEqual(seen, [5, 10, 0.5, 0.1, 0, 1]);
+	assert.equal(m.editorNextGridStep(7), 1);          // unknown value -> first step
+});

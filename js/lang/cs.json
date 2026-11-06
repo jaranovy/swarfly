@@ -326,5 +326,19 @@
  "Centre Y": "Střed Y",
  "Point the copies turn around": "Bod, kolem kterého se kopie otáčejí",
  "Copy around a point": "Kopie kolem bodu",
- "Copies rotated about the centre point": "Kopie otočené kolem středového bodu"
+ "Copies rotated about the centre point": "Kopie otočené kolem středového bodu",
+ "Move A-B": "Přesun A-B",
+ "Snap": "Přichytávání",
+ "Snapping": "Přichytávání",
+ "Snap grid:": "Mřížka přichytávání:",
+ "Off": "Vyp",
+ "End point": "Koncový bod",
+ "Intersection": "Průsečík",
+ "Middle": "Střed úsečky",
+ "Move the selection: click the point to move from, then the point to move to": "Přesun výběru: klikni na bod, odkud přesouvat, pak na bod, kam přesunout",
+ "Snap to end points, intersections, centres, middles and the grid": "Přichytávat ke koncovým bodům, průsečíkům, středům, středům úseček a k mřížce",
+ "Grid step used by snapping (click to change: 1, 5, 10, 0.5, 0.1 mm, off)": "Krok mřížky pro přichytávání (kliknutím změníš: 1, 5, 10, 0,5, 0,1 mm, vypnuto)",
+ "Click the point to move from (Esc cancels)": "Klikni na bod, odkud přesouvat (Esc zruší)",
+ "Click the point to move to (Esc cancels)": "Klikni na bod, kam přesunout (Esc zruší)",
+ "Select the objects to move first": "Nejdřív vyber objekty k přesunu"
 }

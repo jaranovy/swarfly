@@ -243,6 +243,21 @@
 													<span class="caption">Dimensions</span>
 												</button>
 											</div>
+											<div class="ribbon-group">
+												<button class="ribbon-icon-button" id="editorMoveButton" onclick="editorStartMoveAB()" title="Move the selection: click the point to move from, then the point to move to">
+													<span class="icon">
+														<span class="fas fa-arrows-alt"></span>
+													</span>
+													<span class="caption">Move A-B</span>
+												</button>
+												<br>
+												<button class="ribbon-icon-button" id="editorSnapButton" onclick="editorToggleSnap()" title="Snap to end points, intersections, centres, middles and the grid">
+													<span class="icon">
+														<span class="fas fa-magnet"></span>
+													</span>
+													<span class="caption">Snap</span>
+												</button>
+											</div>
 											<span class="title">Edit</span>
 										</div>
 										<div class="group">
@@ -306,6 +321,7 @@
 
 										<div class="group" id="languageGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="swarflySwitchLanguage()" title="Language / Jazyk"><span class="icon"><i class="fas fa-language"></i></span><span class="caption" id="languageButtonCaption">Česky</span></button></div><span class="title">Language</span></div>
 										<div class="group" id="placeGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="editorTogglePlace()" title="Where a new shape appears: under the mouse (click to drop) or at X0 Y0"><span class="icon"><i class="fas fa-crosshairs"></i></span><span class="caption">New shapes:<br><span id="editorPlaceCaption">With mouse</span></span></button></div><span class="title">Editor</span></div>
+										<div class="group" id="gridGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="editorCycleGrid()" title="Grid step used by snapping (click to change: 1, 5, 10, 0.5, 0.1 mm, off)"><span class="icon"><i class="fas fa-border-all"></i></span><span class="caption">Snap grid:<br><span id="editorGridCaption">1 mm</span></span></button></div><span class="title">Snapping</span></div>
 											
 										<div class="group" style="display:none"><!-- 3018: Changelog + Fork hidden (link to upstream web) -->
 											<div class="ribbon-group">
@@ -344,7 +360,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.5.0</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.5.1</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->

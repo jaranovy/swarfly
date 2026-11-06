@@ -146,6 +146,8 @@ function editorBuildShape(kind, params, x, y) {
 // Status line prompt for the current state.
 function editorPrompt(state) {
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
+  if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
+  if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
   if (!state.count) return "Click an object or drag a window to select";
   if (state.count === 1) return "1 object selected - change X / Y / W / H in the panel";
   return state.count + " objects selected - the panel moves, resizes and rotates them together";
@@ -212,4 +214,85 @@ function editorArrowDelta(key, shift, alt) {
   if (key === "ArrowUp") return [0, s];
   if (key === "ArrowDown") return [0, -s];
   return null;
+}
+
+// ---- 1.5.1: snapping ------------------------------------------------------------------------------------------------------
+// Intersection of segment ab with segment cd, or null (parallel, touching only the line extension, or outside).
+function editorSegmentIntersection(a, b, c, d) {
+  var rx = b[0] - a[0], ry = b[1] - a[1], sx = d[0] - c[0], sy = d[1] - c[1];
+  var den = rx * sy - ry * sx;
+  if (Math.abs(den) < 1e-12) return null;
+  var t = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den;
+  var u = ((c[0] - a[0]) * ry - (c[1] - a[1]) * rx) / den;
+  if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+  return [a[0] + t * rx, a[1] + t * ry];
+}
+
+// Rank of the snap kinds: a point that really is on the drawing beats the grid.
+var EDITOR_SNAP_RANK = { end: 0, intersection: 1, centre: 2, mid: 3, grid: 4 };
+
+// Finds the best snap point for the cursor. polylines: array of arrays of [x, y] (the objects you may snap to - the caller leaves
+// out the ones being moved). tol in mm. opts: {end, intersection, centre, mid, grid} flags (default all on) and gridStep (0 = no grid).
+// Returns {point, kind, dist} or null.
+function editorSnapFind(cursor, polylines, tol, opts) {
+  opts = opts || {};
+  var on = function(k) { return opts[k] !== false; };
+  var best = null;
+  function offer(p, kind) {
+    var dist = Math.hypot(p[0] - cursor[0], p[1] - cursor[1]);
+    if (dist > tol) return;
+    if (!best || EDITOR_SNAP_RANK[kind] < EDITOR_SNAP_RANK[best.kind] || (EDITOR_SNAP_RANK[kind] === EDITOR_SNAP_RANK[best.kind] && dist < best.dist)) best = { point: p, kind: kind, dist: dist };
+  }
+  var near = [];
+  for (var i = 0; i < polylines.length; i++) {
+    var pl = polylines[i];
+    if (!pl.length) continue;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (var j = 0; j < pl.length; j++) {
+      var p = pl[j];
+      if (p[0] < minX) minX = p[0]; if (p[1] < minY) minY = p[1]; if (p[0] > maxX) maxX = p[0]; if (p[1] > maxY) maxY = p[1];
+      if (on("end")) offer(p, "end");
+      if (j > 0) {
+        var q = pl[j - 1];
+        if (on("mid")) offer([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], "mid");
+        // segments passing close to the cursor are kept for the intersection test
+        if (on("intersection") && near.length < 80 &&
+            Math.min(p[0], q[0]) - tol <= cursor[0] && cursor[0] <= Math.max(p[0], q[0]) + tol &&
+            Math.min(p[1], q[1]) - tol <= cursor[1] && cursor[1] <= Math.max(p[1], q[1]) + tol) near.push([q, p, i]);
+      }
+    }
+    if (on("centre")) offer([(minX + maxX) / 2, (minY + maxY) / 2], "centre");
+  }
+  for (var a = 0; a < near.length; a++) {
+    for (var b = a + 1; b < near.length; b++) {
+      if (near[a][2] === near[b][2] && Math.abs(a - b) === 1) continue;       // neighbouring segments of one outline meet at a vertex anyway
+      var x = editorSegmentIntersection(near[a][0], near[a][1], near[b][0], near[b][1]);
+      if (x) offer(x, "intersection");
+    }
+  }
+  if (on("grid") && opts.gridStep > 0) {
+    var g = opts.gridStep;
+    offer([Math.round(cursor[0] / g) * g, Math.round(cursor[1] / g) * g], "grid");
+  }
+  return best;
+}
+
+// Object snap for something that is moved by (dx, dy): every one of the 9 reference points of its box is tried and the closest
+// snap wins. Returns {dx, dy, kind, point} (the adjusted move) or the unchanged move with kind null.
+function editorSnapMove(box, dx, dy, polylines, tol, opts) {
+  var best = null;
+  for (var i = 0; i < EDITOR_REFS.length; i++) {
+    var p = editorRefPoint(box, EDITOR_REFS[i]), c = [p[0] + dx, p[1] + dy];
+    var s = editorSnapFind(c, polylines, tol, opts);
+    if (s && (!best || EDITOR_SNAP_RANK[s.kind] < EDITOR_SNAP_RANK[best.s.kind] || (EDITOR_SNAP_RANK[s.kind] === EDITOR_SNAP_RANK[best.s.kind] && s.dist < best.s.dist))) best = { s: s, p: p };
+  }
+  if (!best) return { dx: dx, dy: dy, kind: null, point: null };
+  return { dx: best.s.point[0] - best.p[0], dy: best.s.point[1] - best.p[1], kind: best.s.kind, point: best.s.point };
+}
+
+// Grid steps the Settings button cycles through (0 = off).
+var EDITOR_GRID_STEPS = [1, 5, 10, 0.5, 0.1, 0];
+function editorNextGridStep(current) {
+  var i = EDITOR_GRID_STEPS.indexOf(Number(current));
+  return EDITOR_GRID_STEPS[(i + 1) % EDITOR_GRID_STEPS.length];
 }

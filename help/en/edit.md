@@ -12,6 +12,12 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 - **Copies**: *Copy in a row* makes the given total number of objects (the original included) with the step X / Y between them; *Copy around a point* turns the copies about the centre X / Y (default X0 Y0), 360 = a full circle spread evenly, any other angle ends exactly there. The copies become the selection; copies of one shape keep its parameters.
 - Every change is one undo step (Ctrl+Z).
 
+### Snapping and "Move A-B"
+
+With **Snap** on (Edit group, on by default) the pointer is pulled to the nearest useful point within about 10 pixels: an **end point** (corner) of another object, an **intersection** of two outlines, the **centre** of an object, the **middle** of a segment, or - when nothing else is near - a point of the **grid**. A pink marker names the point. It works for a new shape hanging on the mouse (any corner, edge middle or the centre of the shape can snap), for the handles and for *Move A-B*. The grid step is set in the Settings tab (*Snap grid*: 1, 5, 10, 0.5, 0.1 mm or off).
+
+**Move A-B**: select the objects, press *Move A-B*, click the point to move *from* (e.g. a corner), then the point to move *to* (e.g. a corner of another part). The objects follow the pointer while you choose; Esc or right click cancels and puts everything back.
+
 ### Handles and arrow keys
 
 The selection is framed by a dashed box with eight handles. Drag a **corner** to scale proportionally (hold **Shift** to change width and height separately); drag the **middle of an edge** to change one side. The opposite corner or edge stays where it is, and the panel follows while you drag. Click on a handle without moving does nothing.

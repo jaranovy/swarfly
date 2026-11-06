@@ -21,7 +21,7 @@ test.afterAll(async () => { await page.close(); });
 
 async function newProject() {
 	// an empty workspace (same loader that undo uses), empty undo history
-	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; });
+	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; editorState.snap = false; });
 	await page.waitForTimeout(500);
 	await page.evaluate(() => { localStorage.setItem('swarflyPlaceMouse', '0'); });   // most tests want the shape at X0 Y0
 }

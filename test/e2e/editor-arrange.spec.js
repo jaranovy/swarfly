@@ -19,7 +19,7 @@ test.beforeAll(async ({ browser }) => {
 test.afterAll(async () => { await page.close(); });
 
 async function fresh() {
-	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; editorState.panelOn = true; localStorage.setItem('swarflyPlaceMouse', '0'); });
+	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; editorState.panelOn = true; editorState.snap = false; localStorage.setItem('swarflyPlaceMouse', '0'); });
 	await page.waitForTimeout(400);
 }
 
