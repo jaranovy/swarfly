@@ -3,6 +3,14 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.10.0] - 2026-11-06
+### Added
+- **Trace picture** window for PNG / JPG / BMP / GIF: live preview (picture faint, outlines on top), automatic threshold (Otsu) with a slider, invert, smoothing (sharp / normal / smooth), speck removal, and the width of the result in mm. Cancel imports nothing.
+### Fixed
+- Transparent PNGs turned into one big black block (transparent pixels were read as black); they are paper now.
+- Large pictures are traced at most 1000 px on the longer side (faster, same result).
+- Pure helpers in `js/trace-model.js` with unit tests; Playwright test for the dialog.
+
 ## [1.9.0] - 2026-11-06
 ### Added
 - **Trim** tool (ribbon, scissors): click the part of a line between two crossings to remove it; the part that goes turns red while you point. Works on open lines and on closed outlines (a circle crossed by a line loses the arc between the crossings).

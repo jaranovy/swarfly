@@ -56,6 +56,10 @@
     [/^Line (\d[\d.]*×\d[\d.]*)$/, "Čára $1"],
     [/^Outline (\d[\d.]*×\d[\d.]*)$/, "Obrys $1"],
     [/^Drawing (\d+)$/, "Výkres $1"],
+    [/^Trace picture: (.+)$/, "Vektorizace obrázku: $1"],
+    [/^(\d+) outlines$/, "Obrysů: $1"],
+    [/^Nothing was traced from (.+)$/, "Z $1 se nic nevektorizovalo"],
+    [/^The picture (.+) could not be read$/, "Obrázek $1 se nepodařilo přečíst"],
     [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
   ];
   var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })

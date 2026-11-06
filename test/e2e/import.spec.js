@@ -91,7 +91,10 @@ test('importers: sizes, units, closed outlines and warnings', async ({ page }) =
 	const png = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 200; c.height = 100; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 200, 100); x.fillStyle = '#000'; x.fillRect(20, 10, 160, 80); x.fillStyle = '#fff'; x.beginPath(); x.arc(100, 50, 20, 0, 7); x.fill(); return c.toDataURL('image/png'); });
 	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); });
 	await page.evaluate(async (u) => { const b = await (await fetch(u)).blob(); loadFile(new File([b], 'bitmap.png', { type: 'image/png' })); }, png);
-	await page.waitForTimeout(3000);
+	await page.waitForSelector('#traceBox');                       // 1.10.0: the trace dialog opens first
+	await page.waitForTimeout(600);
+	await page.evaluate(() => [...document.querySelectorAll('.dialog button')].filter((b) => /Import|Importovat/.test(b.textContent))[0].click());
+	await page.waitForTimeout(2500);
 	const bm = await page.evaluate(() => { const o = { lines: 0 }; let box = null; objectsInScene.forEach((ob) => { ob.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(ob); box = box ? box.union(b) : b; ob.traverse((c) => { if (c.type === 'Line') o.lines++; }); }); o.w = box.max.x - box.min.x; o.h = box.max.y - box.min.y; return o; });
 	expect(bm.lines).toBe(2);
 	near(bm.w, 42.33, 0.1); near(bm.h, 21.17, 0.1);

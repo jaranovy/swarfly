@@ -430,5 +430,16 @@
  "Split: click a line where it should be cut (crossings attract) - Esc ends": "Rozdělit: klikni na čáru, kde se má přeříznout (křížení přitahují) - Esc ukončí",
  "No line under the pointer": "Pod ukazatelem není žádná čára",
  "Click inside the line, not at its end": "Klikni dovnitř čáry, ne na její konec",
- "The line has no crossing, so all of it was removed": "Čára nemá žádné křížení, proto zmizela celá"
+ "The line has no crossing, so all of it was removed": "Čára nemá žádné křížení, proto zmizela celá",
+ "Threshold": "Práh",
+ "auto": "automaticky",
+ "Invert (light is ink)": "Obrátit (světlé je kresba)",
+ "Smoothing": "Vyhlazení",
+ "Sharp corners": "Ostré rohy",
+ "Normal": "Normální",
+ "Smooth": "Hladké",
+ "Ignore specks up to": "Ignorovat tečky do",
+ "Width of the result": "Šířka výsledku",
+ "Import": "Importovat",
+ "Nothing to trace - change the threshold or tick Invert": "Není co vektorizovat - změň práh nebo zaškrtni Obrátit"
 }
