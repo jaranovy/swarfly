@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "dist:win": "electron-builder --win",
+    "dist:win": "electron-builder --win && node scripts/copy-installers.js",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
     "check": "node scripts/check-syntax.js",
