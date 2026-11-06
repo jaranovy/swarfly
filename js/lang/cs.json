@@ -340,5 +340,8 @@
  "Grid step used by snapping (click to change: 1, 5, 10, 0.5, 0.1 mm, off)": "Krok mřížky pro přichytávání (kliknutím změníš: 1, 5, 10, 0,5, 0,1 mm, vypnuto)",
  "Click the point to move from (Esc cancels)": "Klikni na bod, odkud přesouvat (Esc zruší)",
  "Click the point to move to (Esc cancels)": "Klikni na bod, kam přesunout (Esc zruší)",
- "Select the objects to move first": "Nejdřív vyber objekty k přesunu"
+ "Select the objects to move first": "Nejdřív vyber objekty k přesunu",
+ "Locked": "Zamknuto",
+ "A locked object is not changed by the panel, handles, arrow keys or Move A-B": "Zamknutý objekt panel, úchyty, šipky ani Přesun A-B nezmění",
+ "Locked objects are not changed - untick Locked first": "Zamknuté objekty se nemění - nejdřív zruš zaškrtnutí Zamknuto"
 }

@@ -148,6 +148,7 @@ function editorPrompt(state) {
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
   if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
   if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
+  if (state.pick > 1) return state.pick + " objects under the pointer - click again to pick the next one";
   if (!state.count) return "Click an object or drag a window to select";
   if (state.count === 1) return "1 object selected - change X / Y / W / H in the panel";
   return state.count + " objects selected - the panel moves, resizes and rotates them together";
@@ -295,4 +296,52 @@ var EDITOR_GRID_STEPS = [1, 5, 10, 0.5, 0.1, 0];
 function editorNextGridStep(current) {
   var i = EDITOR_GRID_STEPS.indexOf(Number(current));
   return EDITOR_GRID_STEPS[(i + 1) % EDITOR_GRID_STEPS.length];
+}
+
+// ---- 1.5.2: window selection, cycling through overlapping objects ---------------------------------------------------------
+// Rectangle from two opposite corners [x, y]. Drawn left to right = "window" (objects must lie fully inside), right to left =
+// "crossing" (objects that touch the rectangle count).
+function editorRectFromCorners(a, b) {
+  return {
+    minX: Math.min(a[0], b[0]), maxX: Math.max(a[0], b[0]), minY: Math.min(a[1], b[1]), maxY: Math.max(a[1], b[1]),
+    mode: b[0] >= a[0] ? "window" : "crossing"
+  };
+}
+
+// How the bounding box of an object lies against the rectangle: "outside" (no overlap), "inside" (fully within), "overlap".
+function editorRectRelation(box, rect) {
+  if (box.maxX < rect.minX || box.minX > rect.maxX || box.maxY < rect.minY || box.minY > rect.maxY) return "outside";
+  if (box.minX >= rect.minX && box.maxX <= rect.maxX && box.minY >= rect.minY && box.maxY <= rect.maxY) return "inside";
+  return "overlap";
+}
+
+// Does the polyline touch the rectangle? True when a point lies inside or a segment crosses an edge.
+function editorPolylineTouchesRect(points, rect) {
+  var corners = [[rect.minX, rect.minY], [rect.maxX, rect.minY], [rect.maxX, rect.maxY], [rect.minX, rect.maxY]];
+  for (var i = 0; i < points.length; i++) {
+    var p = points[i];
+    if (p[0] >= rect.minX && p[0] <= rect.maxX && p[1] >= rect.minY && p[1] <= rect.maxY) return true;
+    if (i === 0) continue;
+    for (var c = 0; c < 4; c++) {
+      if (editorSegmentIntersection(points[i - 1], p, corners[c], corners[(c + 1) % 4])) return true;
+    }
+  }
+  return false;
+}
+
+// Selection test of one object: box = its bounding box, points = lazily fetched polyline (function) to avoid copying big outlines.
+function editorMarqueeHit(box, getPoints, rect) {
+  var rel = editorRectRelation(box, rect);
+  if (rel === "outside") return false;
+  if (rel === "inside") return true;
+  return rect.mode === "crossing" ? editorPolylineTouchesRect(getPoints(), rect) : false;
+}
+
+// Clicking again on the same spot picks the next of several overlapping objects. state = {x, y, t, idx} of the previous click or null.
+// Returns {idx, state}; the click counts as "the same spot" within 4 px and 2 seconds.
+function editorCycleIndex(state, x, y, now, count) {
+  if (!(count > 0)) return { idx: 0, state: { x: x, y: y, t: now, idx: 0 } };
+  var same = state && Math.hypot(x - state.x, y - state.y) <= 4 && now - state.t <= 2000;
+  var idx = same ? (state.idx + 1) % count : 0;
+  return { idx: idx, state: { x: x, y: y, t: now, idx: idx } };
 }

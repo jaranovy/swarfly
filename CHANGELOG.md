@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.5.2] - 2026-11-06
+### Added
+- Window selection by direction: left to right (solid blue frame) = only objects fully inside, right to left (dashed green frame) = everything the window touches. Before, any object whose centre lay in the window was selected.
+- Double-click selects the whole object group under the pointer; Esc clears the selection; clicking again on the same spot picks the next of several overlapping objects (the status line shows how many).
+- Locked (tick in the properties panel): the object is not changed by the panel, handles, arrow keys or Move A-B; stays locked through undo / redo and in saved projects; copies are free.
+- Unit tests for the marquee rules and the cycling; 9 e2e tests.
+
 ## [1.5.1] - 2026-11-06
 ### Added
 - Snapping (Edit group, on by default): end points, intersections, centres, segment middles and a grid, with a pink marker that names the point. Used by new shapes hanging on the mouse, by the selection handles and by the new tool below. Settings tab -> Snapping: grid step 1 / 5 / 10 / 0.5 / 0.1 mm or off (remembered).

@@ -42,6 +42,7 @@
     [/^Properties - (\d+) objects$/, "Vlastnosti - objektů: $1"],
     [/^(\d+) objects selected - the panel moves, resizes and rotates them together$/, "Vybráno objektů: $1 - panel je posune, změní velikost a otočí společně"],
     [/^Shape: (.+)$/, "Tvar: $1"],
+    [/^(\d+) objects under the pointer - click again to pick the next one$/, "Pod ukazatelem objektů: $1 - dalším kliknutím vybereš další"],
     [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
   ];
   var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })

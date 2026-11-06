@@ -257,3 +257,62 @@ test('grid step button cycles through the steps and ends at off', () => {
 	assert.deepEqual(seen, [5, 10, 0.5, 0.1, 0, 1]);
 	assert.equal(m.editorNextGridStep(7), 1);          // unknown value -> first step
 });
+
+test('marquee rectangle: the drawing direction decides window or crossing', () => {
+	const w = m.editorRectFromCorners([0, 0], [10, 5]);
+	assert.equal(w.mode, 'window');
+	assert.equal(w.minX, 0); assert.equal(w.maxY, 5);
+	const c = m.editorRectFromCorners([10, 5], [0, 0]);
+	assert.equal(c.mode, 'crossing');
+	assert.equal(c.minX, 0); assert.equal(c.maxX, 10);
+	const up = m.editorRectFromCorners([0, 8], [10, 0]);
+	assert.equal(up.mode, 'window'); assert.equal(up.minY, 0); assert.equal(up.maxY, 8);
+});
+
+test('rect relation: outside, inside, overlap', () => {
+	const r = { minX: 0, minY: 0, maxX: 10, maxY: 10 };
+	assert.equal(m.editorRectRelation({ minX: 11, minY: 0, maxX: 12, maxY: 5 }, r), 'outside');
+	assert.equal(m.editorRectRelation({ minX: 2, minY: 2, maxX: 8, maxY: 8 }, r), 'inside');
+	assert.equal(m.editorRectRelation({ minX: 5, minY: 5, maxX: 15, maxY: 8 }, r), 'overlap');
+	assert.equal(m.editorRectRelation({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, r), 'inside');
+});
+
+test('crossing: a line through the rectangle touches it, a line next to it does not', () => {
+	const r = { minX: 0, minY: 0, maxX: 10, maxY: 10, mode: 'crossing' };
+	assert.equal(m.editorPolylineTouchesRect([[-5, 5], [15, 5]], r), true);           // passes through, no vertex inside
+	assert.equal(m.editorPolylineTouchesRect([[-5, 12], [15, 12]], r), false);
+	assert.equal(m.editorPolylineTouchesRect([[5, 5], [6, 6]], r), true);             // vertex inside
+	assert.equal(m.editorPolylineTouchesRect([[-5, -5], [-1, 20]], r), false);
+});
+
+test('marquee hit: window needs the whole object inside, crossing only a touch', () => {
+	const rect = (mode) => ({ minX: 0, minY: 0, maxX: 10, maxY: 10, mode });
+	const crossing = [[-5, 5], [15, 5]];
+	const box = { minX: -5, minY: 5, maxX: 15, maxY: 5 };
+	assert.equal(m.editorMarqueeHit(box, () => crossing, rect('window')), false);
+	assert.equal(m.editorMarqueeHit(box, () => crossing, rect('crossing')), true);
+	const inner = { minX: 2, minY: 2, maxX: 4, maxY: 4 };
+	assert.equal(m.editorMarqueeHit(inner, () => { throw new Error('points not needed'); }, rect('window')), true);
+	assert.equal(m.editorMarqueeHit({ minX: 20, minY: 20, maxX: 30, maxY: 30 }, () => { throw new Error('not needed'); }, rect('crossing')), false);
+	// the bounding box overlaps but the outline does not touch (an L-shape around the corner)
+	const ell = [[-5, 20], [-5, 12], [8, 12]];
+	assert.equal(m.editorMarqueeHit({ minX: -5, minY: 12, maxX: 8, maxY: 20 }, () => ell, rect('crossing')), false);
+});
+
+test('cycling: the same spot picks the next object, another spot or a late click starts again', () => {
+	let r = m.editorCycleIndex(null, 100, 100, 1000, 3);
+	assert.equal(r.idx, 0);
+	r = m.editorCycleIndex(r.state, 102, 99, 1500, 3);
+	assert.equal(r.idx, 1);
+	r = m.editorCycleIndex(r.state, 101, 100, 2000, 3);
+	assert.equal(r.idx, 2);
+	r = m.editorCycleIndex(r.state, 100, 100, 2400, 3);
+	assert.equal(r.idx, 0);                                                              // wraps around
+	r = m.editorCycleIndex(r.state, 140, 100, 2600, 3);
+	assert.equal(r.idx, 0);                                                              // moved away
+	r = m.editorCycleIndex(r.state, 140, 100, 2700, 3);
+	assert.equal(r.idx, 1);
+	r = m.editorCycleIndex(r.state, 140, 100, 9000, 3);
+	assert.equal(r.idx, 0);                                                              // too late
+	assert.equal(m.editorCycleIndex(null, 0, 0, 0, 0).idx, 0);
+});

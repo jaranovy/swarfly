@@ -115,7 +115,7 @@ function mouseDown(event) {
         if (documents) {
           var intersects = raycaster.intersectObjects(documents.children, true)
           if (intersects.length > 0) {
-            var intersection = intersects[0],
+            var intersection = intersects[typeof editorPickIndex === "function" ? editorPickIndex(event, intersects) : 0],
               obj = intersection.object;
             if (obj.name && obj.name != "bullseye" && obj.name != "XY" && obj.name != "GridHelper" && obj.userData.type != "toolpath") {
               // printLog('Clicked on : ' + obj.name, successcolor, "viewer")
@@ -348,7 +348,8 @@ function mouseMove(event) {
               var center = {};
               center.x = child.geometry.boundingSphere.center.x + (child.parent.position.x) + (child.position.x)
               center.y = child.geometry.boundingSphere.center.y + (child.parent.position.y) + (child.position.y)
-              if (XinSelectRange(center.x) && YinSelectRange(center.y)) {
+              // Swarfly: left-to-right window = fully inside, right-to-left = touching (editorMarqueeTest in js/editor.js)
+              if (typeof editorMarqueeTest === "function" ? editorMarqueeTest(child) : (XinSelectRange(center.x) && YinSelectRange(center.y))) {
                 if (event.ctrlKey) {
                   child.userData.selected = !child.userData.lastSelected;
                 } else {

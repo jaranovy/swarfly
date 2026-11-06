@@ -6,7 +6,7 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { placing: null, dims: false, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null };
+var editorState = { placing: null, dims: false, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0 };
 
 function editorLoadSnapSettings() {
   try {
@@ -45,8 +45,13 @@ function editorAllBox() {
 // ---- changing the scene --------------------------------------------------------------------------------------------
 // fn maps one [x, y] point to a new one; kind "move" keeps the shape parameters, any other change drops them (the object no longer
 // is exactly what the parameters describe).
+function editorLocked(lines) {
+  return lines.filter(function(l) { return l.userData.locked; });
+}
+
 function editorTransform(lines, fn, kind) {
   if (!lines.length) return;
+  if (editorLocked(lines).length) { editorToast("Locked objects are not changed - untick Locked first"); editorRefresh(true); return; }
   storeUndo(true);                       // also bakes positions into the geometry
   lines.forEach(function(line) {
     var g = line.geometry;
@@ -160,6 +165,7 @@ function editorBuildPanel() {
     '<div class="ep-row"><label style="width:auto;flex:1"><input type="checkbox" id="epLock" checked> Keep proportions</label></div><hr>' +
     '<div class="ep-row"><label for="epAngle">Rotate</label><input type="text" id="epAngle" value="45" autocomplete="off"></div>' +
     '<div class="ep-row"><button type="button" id="epCCW" style="flex:1">Anticlockwise</button><button type="button" id="epCW" style="flex:1">Clockwise</button></div>' +
+    '<div class="ep-row"><label style="width:auto;flex:1" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label></div>' +
     '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
     '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
     '<b>Copies</b>' +
@@ -190,6 +196,7 @@ function editorBuildPanel() {
     document.getElementById("epRefNote").textContent = names[editorState.ref];
     editorRefresh(true);
   });
+  document.getElementById("epLocked").addEventListener("change", function() { editorSetLocked(this.checked); });
   document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
   document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
   document.getElementById("epToZero").addEventListener("click", editorToZero);
@@ -245,11 +252,15 @@ function editorRefresh(force) {
   var lines = editorSelection(), box = editorSelectionBox(lines);
   editorState.count = lines.length;
   if (!box || !editorState.panelOn || editorState.mv || editorState.placing) { panel.style.display = "none"; editorState.sig = ""; return; }   // out of the way while a point is being picked
-  var sig = lines.map(function(l) { return l.uuid; }).join() + [box.minX, box.minY, box.maxX, box.maxY].map(function(v) { return v.toFixed(4); }).join() + editorState.ref;
+  var sig = lines.map(function(l) { return l.uuid; }).join() + [box.minX, box.minY, box.maxX, box.maxY].map(function(v) { return v.toFixed(4); }).join() + editorState.ref + lines.map(function(l) { return l.userData.locked ? "L" : "u"; }).join("");
   if (sig === editorState.sig && !force) return;
   editorState.sig = sig;
   panel.style.display = "block";
   document.getElementById("epTitle").textContent = lines.length === 1 ? "Properties" : "Properties - " + lines.length + " objects";
+  var lockedCount = editorLocked(lines).length, lockBox = document.getElementById("epLocked");
+  lockBox.checked = lockedCount === lines.length;
+  lockBox.indeterminate = lockedCount > 0 && lockedCount < lines.length;
+  document.getElementById("epTitle").parentNode.style.opacity = lockedCount ? "0.9" : "1";
   var ref = editorRefPoint(box, editorState.ref), s = editorSize(box);
   document.getElementById("epX").value = editorFormat(ref[0]);
   document.getElementById("epY").value = editorFormat(ref[1]);
@@ -334,6 +345,8 @@ function editorDrawHandles() {
   var box = lines.length ? editorSelectionBox(lines) : null;
   if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; return; }
   hs.style.display = "block";
+  var locked = editorLocked(lines).length > 0;           // the box is shown, the handles are not
+  Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) { r.style.display = locked ? "none" : ""; });
   var a = editorToScreen(box.minX, box.maxY), b = editorToScreen(box.maxX, box.minY);
   var line = document.getElementById("editorBoxLine");
   line.setAttribute("x", Math.min(a[0], b[0])); line.setAttribute("y", Math.min(a[1], b[1]));
@@ -348,7 +361,7 @@ function editorHandleDown(e, handle) {
   if (e.button !== 0) return;
   e.preventDefault(); e.stopPropagation();
   var lines = editorSelection(), box = editorSelectionBox(lines);
-  if (!box) return;
+  if (!box || editorLocked(lines).length) return;
   storeUndo(true);
   editorDrag = {
     handle: handle, lines: lines, box: box, changed: false,
@@ -468,6 +481,7 @@ function editorStartMoveAB() {
   editorEndPlacement();
   var lines = editorSelection();
   if (!lines.length) { editorToast("Select the objects to move first"); return; }
+  if (editorLocked(lines).length) { editorToast("Locked objects are not changed - untick Locked first"); return; }
   editorCancelMoveAB(true);
   editorState.mv = { step: 1, a: null, lines: lines, snap: lines.map(function(l) { return l.geometry.vertices.map(function(v) { return [v.x, v.y]; }); }), undoTop: null };
   var b = document.getElementById("editorMoveButton");
@@ -550,6 +564,76 @@ function editorCancelMoveAB(quiet) {
   editorMoveABClean();
   clearSceneFlag = true;
   if (!quiet) editorStatusUpdate(null);
+}
+
+// ---- 1.5.2: lock, window selection, group by double-click, Esc, cycling ------------------------------------------------------
+function editorSetLocked(on) {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  storeUndo(true);
+  lines.forEach(function(l) { if (on) l.userData.locked = true; else delete l.userData.locked; });
+  editorRefresh(true);
+}
+
+// Called by the marquee code of the viewer for every outline while the window is dragged.
+function editorMarqueeTest(child) {
+  var a = worldstartcoords, b = worldendcoords;
+  if (!a || !b || !child.geometry || !child.geometry.vertices.length) return false;
+  var rect = editorRectFromCorners([a.x, a.y], [b.x, b.y]);
+  var sel = document.getElementById("selection");
+  if (sel) { sel.style.borderStyle = rect.mode === "window" ? "solid" : "dashed"; sel.style.borderColor = rect.mode === "window" ? "#2d8cff" : "#2fbf55"; }
+  var g = child.geometry;
+  if (g.computeBoundingBox) g.computeBoundingBox();
+  var ox = child.position.x + (child.parent ? child.parent.position.x : 0), oy = child.position.y + (child.parent ? child.parent.position.y : 0);
+  var bb = g.boundingBox;
+  var box = { minX: bb.min.x + ox, minY: bb.min.y + oy, maxX: bb.max.x + ox, maxY: bb.max.y + oy };
+  return editorMarqueeHit(box, function() { return editorLinePoints(child); }, rect);
+}
+
+// Called by the click code of the viewer: which of the objects under the pointer is picked. Clicking again on the same spot
+// moves on to the next one (the status line says how many there are).
+function editorPickIndex(event, intersects) {
+  var seen = {}, firsts = [];
+  intersects.forEach(function(hit, i) {
+    var o = hit.object;
+    if (!o || !o.name || o.userData.type === "toolpath" || seen[o.uuid]) return;
+    seen[o.uuid] = true; firsts.push(i);
+  });
+  editorState.pickCount = firsts.length;
+  var r = editorCycleIndex(editorState.pick, event.clientX, event.clientY, Date.now(), firsts.length);
+  editorState.pick = r.state;
+  editorState.pickObject = firsts.length ? intersects[firsts[r.idx]].object.uuid : null;        // a following double-click works on this one
+  return firsts.length ? firsts[r.idx] : 0;
+}
+
+// double-click selects every outline of the object group under the pointer (a whole imported drawing, a whole text)
+function editorDoubleClick(e) {
+  if (e.target.tagName !== "CANVAS" || editorState.placing || editorState.mv || typeof raycaster === "undefined") return;
+  mouseVector.x = (e.offsetX / renderer.domElement.width) * 2 - 1;
+  mouseVector.y = -(e.offsetY / renderer.domElement.height) * 2 + 1;
+  camera.updateProjectionMatrix();
+  raycaster.setFromCamera(mouseVector, camera);
+  var documents = scene.getObjectByName("Documents");
+  if (!documents) return;
+  var hits = raycaster.intersectObjects(documents.children, true).filter(function(h) { return h.object.name && h.object.userData.type !== "toolpath" && h.object.parent; });
+  if (!hits.length) return;
+  var chosen = hits.filter(function(h) { return h.object.uuid === editorState.pickObject; })[0] || hits[0];
+  var group = chosen.object.parent;
+  if (!e.ctrlKey) objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
+  group.children.forEach(function(c) { if (c.type === "Line") c.userData.selected = true; });
+  clearSceneFlag = true;
+  editorRefresh(true);
+}
+
+// Esc clears the selection (when nothing else is using Esc)
+function editorEscape(e) {
+  if (e.key !== "Escape" || editorState.placing || editorState.mv) return;
+  var t = e.target && e.target.nodeName ? e.target.nodeName.toLowerCase() : "";
+  if (t === "input" || t === "textarea" || t === "select") return;
+  if (!editorSelection().length) return;
+  objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
+  clearSceneFlag = true;
+  editorRefresh(true);
 }
 
 // ---- dimensions ------------------------------------------------------------------------------------------------------
@@ -671,7 +755,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0 });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }
@@ -721,6 +805,10 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     document.addEventListener("mousemove", editorHandleMove);
     document.addEventListener("mouseup", editorHandleUp, true);   // capture: the handles stop the event from bubbling
     document.addEventListener("keydown", editorArrowKey, true);
+    document.addEventListener("keydown", editorEscape);
+    area.addEventListener("dblclick", editorDoubleClick);
+    area.addEventListener("mouseleave", function() { editorState.pickCount = 0; });
+    area.addEventListener("mousemove", function() { if (editorState.pick && Date.now() - editorState.pick.t > 2000) editorState.pickCount = 0; });
 
     setInterval(function() { editorRefresh(false); editorStatusUpdate(null); }, 150);
     setInterval(function() { editorDrawDims(); editorDrawHandles(); }, 100);

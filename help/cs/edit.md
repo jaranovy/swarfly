@@ -12,6 +12,15 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
 
+### Výběr
+
+- **Klik** na objekt; **Ctrl+klik** přidá nebo odebere objekt.
+- **Tažení okna** na prázdném místě. Okno taženo **zleva doprava** (plný modrý rámeček) vybere, co leží **celé uvnitř**; taženo **zprava doleva** (čárkovaný zelený rámeček) vybere vše, čeho se **dotkne**.
+- **Dvojklik** vybere všechny obrysy té skupiny objektů (celý importovaný výkres, celý text); Ctrl ponechá dosavadní výběr.
+- **Opakovaný klik na stejné místo**, když objekty leží přes sebe: každé kliknutí vybere další (stavový řádek řekne kolik jich je).
+- **Esc** zruší výběr; Ctrl+A vybere vše (jako dřív).
+- **Zamknuto** (zaškrtnutí v panelu): objekt panel, úchyty, šipky ani Přesun A-B nezmění - hodí se pro hotový díl nebo obrys polotovaru. Kopie zamknuté nejsou.
+
 ### Přichytávání a „Přesun A-B“
 
 Při zapnutém **Přichytávání** (skupina Upravit, ve výchozím stavu zapnuto) se ukazatel přitáhne k nejbližšímu užitečnému bodu do asi 10 pixelů: **koncovému bodu** (rohu) jiného objektu, **průsečíku** dvou obrysů, **středu** objektu, **středu úsečky** nebo - když nic jiného není poblíž - bodu **mřížky**. Růžová značka bod pojmenuje. Funguje pro nový tvar na myši (přichytit se může libovolný roh, střed hrany nebo střed tvaru), pro úchyty i pro *Přesun A-B*. Krok mřížky se nastaví v záložce Nastavení (*Mřížka přichytávání*: 1, 5, 10, 0,5, 0,1 mm nebo vypnuto).
