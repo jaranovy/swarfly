@@ -524,3 +524,29 @@ function editorExtendEnds(points, startDelta, endDelta) {
   move(n - 1, n - 2, endDelta);
   return out;
 }
+
+// ---- 1.7.0: size steps and rotation snapping -------------------------------------------------------------------------------------
+// Rounds the new size given by the handle factors r = {fx, fy, fixed} to whole steps (default 1 mm; never below one step).
+// One factor changing (edge handle) snaps that side; both changing: free mode snaps each side, proportional mode snaps the longer
+// side and keeps the proportions.
+function editorSnapSize(box, r, free, step) {
+  step = step || 1;
+  var w = box.maxX - box.minX, h = box.maxY - box.minY, fx = r.fx, fy = r.fy;
+  function snapTo(len, f) { return len > 0 ? Math.max(step, Math.round(len * f / step) * step) / len : f; }
+  var cx = Math.abs(fx - 1) > 1e-12, cy = Math.abs(fy - 1) > 1e-12;
+  if (cx && cy) {
+    if (free) { fx = snapTo(w, fx); fy = snapTo(h, fy); }
+    else if (w >= h) { fx = snapTo(w, fx); fy = fx; }
+    else { fy = snapTo(h, fy); fx = fy; }
+  } else if (cx) fx = snapTo(w, fx);
+  else if (cy) fy = snapTo(h, fy);
+  return { fx: fx, fy: fy, fixed: r.fixed };
+}
+
+// Rotation angle in degrees: whole degrees, pulled to the nearest multiple of `magnet` (15) when within `tol` (4) degrees of it.
+function editorSnapAngle(deg, step, magnet, tol) {
+  step = step || 1; magnet = magnet || 15; tol = tol === undefined ? 4 : tol;
+  var d = Math.round(deg / step) * step, m = Math.round(d / magnet) * magnet;
+  if (Math.abs(d - m) <= tol) d = m;
+  return d === 0 ? 0 : d;
+}

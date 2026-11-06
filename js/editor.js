@@ -243,7 +243,7 @@ function editorBuildPanel() {
   var cursors = { ul: "nwse-resize", lr: "nwse-resize", ur: "nesw-resize", ll: "nesw-resize", uc: "ns-resize", lc: "ns-resize", ml: "ew-resize", mr: "ew-resize" };
   var html = '<rect id="editorBoxLine" fill="none" stroke="#0b9bff" stroke-width="1" stroke-dasharray="5 4"/>';
   Object.keys(cursors).forEach(function(h) {
-    html += '<rect class="editorHandle" data-h="' + h + '" width="9" height="9" fill="#fff" stroke="#0b6bcb" stroke-width="1.5" style="pointer-events:all;cursor:' + cursors[h] + '"/>';
+    html += '<rect class="editorHandle" data-h="' + h + '" data-cursor="' + cursors[h] + '" width="9" height="9" fill="#fff" stroke="#0b6bcb" stroke-width="1.5" style="pointer-events:all;cursor:' + cursors[h] + '"/>';
   });
   hs.innerHTML = html;
   area.appendChild(hs);
@@ -362,23 +362,36 @@ function editorCopyPolar() {
 
 // ---- 1.5.0: handles on the selection box ---------------------------------------------------------------------------------
 var editorDrag = null;
+var EDITOR_PAD = 7;
+var EDITOR_SIZE_STEP = 1;                 // resizing with the handles goes in whole millimetres
 
 function editorDrawHandles() {
   var hs = document.getElementById("editorHandles");
   if (!hs) return;
   var lines = (editorState.placing || editorState.mv || editorState.me) ? [] : editorSelection();      // no handles in the way while a point is being picked
   var box = lines.length ? editorSelectionBox(lines) : null;
-  if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; return; }
+  if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; editorState.rotKey = ""; editorState.rotate = false; return; }
   hs.style.display = "block";
   var locked = editorLocked(lines).length > 0;           // the box is shown, the handles are not
-  Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) { r.style.display = locked ? "none" : ""; });
+  var selKey = lines.map(function(l) { return l.uuid; }).join();
+  if (selKey !== editorState.rotKey) { editorState.rotKey = selKey; editorState.rotate = false; }       // a new selection starts in resize mode
+  var rot = !!editorState.rotate;
+  Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
+    var corner = /^[ul][lr]$/.test(r.getAttribute("data-h"));
+    r.style.display = locked || (rot && !corner) ? "none" : "";
+    r.setAttribute("rx", rot ? 4.5 : 0); r.setAttribute("fill", rot ? "#ffb020" : "#fff");
+    r.style.cursor = rot ? "alias" : r.getAttribute("data-cursor");
+  });
   var a = editorToScreen(box.minX, box.maxY), b = editorToScreen(box.maxX, box.minY);
   var line = document.getElementById("editorBoxLine");
-  line.setAttribute("x", Math.min(a[0], b[0])); line.setAttribute("y", Math.min(a[1], b[1]));
-  line.setAttribute("width", Math.abs(b[0] - a[0])); line.setAttribute("height", Math.abs(b[1] - a[1]));
+  // the dashed box and the handles sit EDITOR_PAD px outside the objects, so the box does not run over the selected (red) outline and make it look half coloured
+  var pad = EDITOR_PAD;
+  line.setAttribute("x", Math.min(a[0], b[0]) - pad); line.setAttribute("y", Math.min(a[1], b[1]) - pad);
+  line.setAttribute("width", Math.abs(b[0] - a[0]) + 2 * pad); line.setAttribute("height", Math.abs(b[1] - a[1]) + 2 * pad);
   Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
     var p = editorRefPoint(box, r.getAttribute("data-h")), q = editorToScreen(p[0], p[1]);
-    r.setAttribute("x", q[0] - 4.5); r.setAttribute("y", q[1] - 4.5);
+    var hn = r.getAttribute("data-h"), dx = hn.charAt(1) === "l" ? -pad : hn.charAt(1) === "r" ? pad : 0, dy = hn.charAt(0) === "u" ? -pad : hn.charAt(0) === "l" ? pad : 0;
+    r.setAttribute("x", q[0] + dx - 4.5); r.setAttribute("y", q[1] + dy - 4.5);
   });
 }
 
@@ -388,17 +401,22 @@ function editorHandleDown(e, handle) {
   var lines = editorSelection(), box = editorSelectionBox(lines);
   if (!box || editorLocked(lines).length) return;
   storeUndo(true);
+  var w = mouseToWorldCoord(e), hp = editorRefPoint(box, handle), c = editorRefPoint(box, "mc");
   editorDrag = {
-    handle: handle, lines: lines, box: box, changed: false,
+    handle: handle, lines: lines, box: box, changed: false, off: [w.x - hp[0], w.y - hp[1]],
+    rotate: !!editorState.rotate, centre: c, a0: Math.atan2(w.y - c[1], w.x - c[0]),
     snap: lines.map(function(l) { return l.geometry.vertices.map(function(v) { return [v.x, v.y]; }); })
   };
 }
 
 function editorHandleMove(e) {
   if (!editorDrag) return;
-  var d = editorDrag, w = mouseToWorldCoord(e), sp = editorSnapPoint(w.x, w.y, d.lines);
+  var d = editorDrag, w = mouseToWorldCoord(e);
+  if (d.rotate) { editorRotateMove(d, w); return; }
+  var mx = w.x - d.off[0], my = w.y - d.off[1], sp = editorSnapPoint(mx, my, d.lines);
   editorShowSnap(sp ? sp.point : null, sp ? sp.kind : null);
-  var r = editorHandleFactors(d.box, d.handle, sp ? sp.point[0] : w.x, sp ? sp.point[1] : w.y, e.shiftKey);
+  var r = editorHandleFactors(d.box, d.handle, sp ? sp.point[0] : mx, sp ? sp.point[1] : my, e.shiftKey);
+  if (!sp) r = editorSnapSize(d.box, r, e.shiftKey, EDITOR_SIZE_STEP);
   d.lines.forEach(function(line, li) {
     var g = line.geometry;
     for (var i = 0; i < g.vertices.length; i++) {
@@ -407,7 +425,25 @@ function editorHandleMove(e) {
     }
     g.verticesNeedUpdate = true;
   });
-  d.changed = d.changed || Math.abs(r.fx - 1) > 1e-9 || Math.abs(r.fy - 1) > 1e-9;
+  d.changed = Math.abs(r.fx - 1) > 1e-9 || Math.abs(r.fy - 1) > 1e-9;
+  clearSceneFlag = true;
+}
+
+// rotation mode: the corner handles turn the selection round the middle of its box; whole degrees, magnet to multiples of 15
+function editorRotateMove(d, w) {
+  var delta = (Math.atan2(w.y - d.centre[1], w.x - d.centre[0]) - d.a0) * 180 / Math.PI;
+  delta = ((delta + 540) % 360) - 180;                        // -180 .. 180
+  delta = editorSnapAngle(delta, 1, 15, 4);
+  editorShowSnap([w.x, w.y], (delta > 0 ? "+" : "") + delta + "\u00b0");
+  d.lines.forEach(function(line, li) {
+    var g = line.geometry;
+    for (var i = 0; i < g.vertices.length; i++) {
+      var q = editorRotatePoint(d.snap[li][i], d.centre, delta);
+      g.vertices[i].x = q[0]; g.vertices[i].y = q[1];
+    }
+    g.verticesNeedUpdate = true;
+  });
+  d.changed = delta !== 0;
   clearSceneFlag = true;
 }
 
@@ -660,9 +696,28 @@ function editorEscape(e) {
   var t = e.target && e.target.nodeName ? e.target.nodeName.toLowerCase() : "";
   if (t === "input" || t === "textarea" || t === "select") return;
   if (!editorSelection().length) return;
+  if (editorState.rotate) { editorState.rotate = false; editorDrawHandles(); return; }
   objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
   clearSceneFlag = true;
   editorRefresh(true);
+}
+
+// second click on the selected object switches between resize and rotate handles. The viewer calls editorSecondClickDown when a
+// click lands on an object; the switch happens on mouseup if the pointer did not move (a drag is a marquee, not a click).
+function editorSecondClickDown(event, obj) {
+  var was = 0;
+  objectsInScene.forEach(function(o) { o.children.forEach(function(c) { if (c.userData.lastSelected) was++; }); });
+  var sel = editorSelection();
+  editorState.second = (!event.ctrlKey && was === 1 && obj.userData.lastSelected && sel.length === 1 && sel[0] === obj) ? { x: event.clientX, y: event.clientY } : null;
+}
+
+function editorSecondClickUp(event) {
+  var s = editorState.second;
+  editorState.second = null;
+  if (!s || Math.hypot(event.clientX - s.x, event.clientY - s.y) > 4) return;
+  if (editorLocked(editorSelection()).length) return;
+  editorState.rotate = !editorState.rotate;
+  editorDrawHandles();
 }
 
 // ---- 1.6.3: extend / trim ends -----------------------------------------------------------------------------------------------
@@ -1150,6 +1205,8 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
 
     document.addEventListener("mousemove", editorHandleMove);
     document.addEventListener("mouseup", editorHandleUp, true);   // capture: the handles stop the event from bubbling
+    document.addEventListener("mousedown", function() { editorState.second = null; }, true);   // the viewer sets it again when the click lands on the selected object
+    document.addEventListener("mouseup", editorSecondClickUp, true);
     document.addEventListener("keydown", editorArrowKey, true);
     document.addEventListener("keydown", editorEscape);
     area.addEventListener("dblclick", editorDoubleClick);

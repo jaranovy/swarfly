@@ -3,6 +3,14 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.7.0] - 2026-11-06
+### Added
+- Resizing with the handles goes in whole millimetres (an edge snaps that side; a corner snaps the longer side, or each side with Shift). Object snapping still wins when it finds a point.
+- Rotate mode: a second click on the selected object (no drag) switches the handles to four round rotation handles; dragging turns the selection round the middle of its box in whole degrees, with a magnet to multiples of 15 degrees (4 degree reach), the angle shown at the pointer. Third click or Esc goes back; a new selection starts in resize mode.
+### Changed
+- The selection box and handles are drawn 7 px outside the objects so the dashed box no longer covers the (red) selected outline and makes it look half coloured. The handle grabs where it was clicked (no jump).
+- Unit tests for the size and angle snapping; 6 e2e tests.
+
 ## [1.6.4] - 2026-11-06
 ### Changed
 - Dimension and snap texts are drawn in a regular (not bold) sans-serif font with a thinner outline, and dimension lines are thinner, so they are easier to read.

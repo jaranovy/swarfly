@@ -192,7 +192,8 @@ test('handles: dragging the upper-right corner scales proportionally from the lo
 	await page.waitForTimeout(300);
 	const b = await box();
 	near(b.minX, before.minX); near(b.minY, before.minY);
-	near(b.w / before.w, 1.5, 0.01); near(b.h / before.h, 1.5, 0.01);
+	near(b.w / before.w, 1.5, 0.05); near(b.w / b.h, before.w / before.h, 0.001);   // proportions kept
+	near(Math.max(b.w, b.h), Math.round(Math.max(b.w, b.h)), 0.0001);          // the longer side is a whole number of mm
 	expect(await field('epW')).toBe(b.w.toFixed(2));
 	await page.evaluate(() => undo());
 	await page.waitForTimeout(500);
@@ -213,7 +214,7 @@ test('handles: an edge handle changes one side only; Shift on a corner scales fr
 	await page.mouse.up();
 	await page.waitForTimeout(300);
 	const b = await box();
-	near(b.w / before.w, 1.5, 0.01); near(b.h, before.h);
+	near(b.w / before.w, 1.5, 0.05); near(b.w, Math.round(b.w), 0.0001); near(b.h, before.h);   // width in whole mm
 });
 
 test('handles: Shift on a corner scales freely', async () => {

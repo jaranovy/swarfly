@@ -485,3 +485,27 @@ test('extend ends: positive extends along the end segment, negative trims, close
 	assert.throws(() => m.editorExtendEnds([[0, 0], [5, 0], [5, 5], [0, 0]], 1, 1), /open lines/);
 	assert.throws(() => m.editorExtendEnds(line, 'x', 0), /number/);
 });
+
+test('size steps: handle factors are rounded to whole millimetres', () => {
+	const box = { minX: 0, minY: 0, maxX: 40, maxY: 20 };
+	const fixed = [0, 0];
+	let r = m.editorSnapSize(box, { fx: 1.4321, fy: 1.4321, fixed }, false, 1);
+	near(r.fx * 40, 57); near(r.fx, r.fy, 1e-12);
+	r = m.editorSnapSize(box, { fx: 1.0123, fy: 1.2345, fixed }, true, 1);
+	near(r.fx * 40, 40); near(r.fy * 20, 25);
+	r = m.editorSnapSize(box, { fx: 1, fy: 0.5321, fixed }, false, 1);
+	assert.equal(r.fx, 1); near(r.fy * 20, 11);
+	r = m.editorSnapSize(box, { fx: 0.01, fy: 0.01, fixed }, false, 1);
+	near(r.fx * 40, 1);
+	r = m.editorSnapSize({ minX: 0, minY: 0, maxX: 0, maxY: 10 }, { fx: 1, fy: 1.33, fixed }, false, 1);
+	near(r.fy * 10, 13);
+});
+
+test('rotation snap: whole degrees, magnet to multiples of 15 within 4 degrees', () => {
+	assert.equal(m.editorSnapAngle(7.4), 7);
+	assert.equal(m.editorSnapAngle(12), 15);
+	assert.equal(m.editorSnapAngle(10.4), 10);
+	assert.equal(m.editorSnapAngle(-44), -45);
+	assert.equal(m.editorSnapAngle(89.6), 90);
+	assert.ok(Object.is(m.editorSnapAngle(-0.3), 0));
+});

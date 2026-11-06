@@ -50,7 +50,9 @@ With **Snap** on (Edit group, on by default) the pointer is pulled to the neares
 
 ### Handles and arrow keys
 
-The selection is framed by a dashed box with eight handles. Drag a **corner** to scale proportionally (hold **Shift** to change width and height separately); drag the **middle of an edge** to change one side. The opposite corner or edge stays where it is, and the panel follows while you drag. Click on a handle without moving does nothing.
+The selection is framed by a dashed box with eight handles. Drag a **corner** to scale proportionally (hold **Shift** to change width and height separately); drag the **middle of an edge** to change one side. The opposite corner or edge stays where it is, and the panel follows while you drag. Click on a handle without moving does nothing. The box and handles sit a few pixels outside the object, so they do not cover its outline. Dragging with the handles changes the size in **whole millimetres** (when the pointer is not pulled to a snap point); use the panel for finer sizes.
+
+**Rotating:** click the selected object a second time (without dragging) and the handles change to four round orange **rotation handles**. Drag one of them round the middle of the selection: the angle goes in whole degrees and is pulled to multiples of 15 degrees when you come within 4 degrees of them; the angle shows next to the pointer. Click the object again (or press **Esc**) to get the resize handles back. Selecting another object always starts in resize mode.
 
 The **arrow keys** nudge the selection by 1 mm (Shift 10 mm, Alt 0.1 mm); they do nothing while you type in a field.
 

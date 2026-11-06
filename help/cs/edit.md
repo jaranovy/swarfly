@@ -50,7 +50,9 @@ Při zapnutém **Přichytávání** (skupina Upravit, ve výchozím stavu zapnut
 
 ### Úchyty a šipky
 
-Výběr obklopuje čárkovaný rámeček s osmi úchyty. Táhni za **roh** pro poměrné zvětšení (s klávesou **Shift** se šířka a výška mění zvlášť); táhni za **střed hrany** pro změnu jedné strany. Protější roh nebo hrana zůstanou na místě a panel se při tažení mění s tebou. Kliknutí na úchyt bez tažení nic neudělá.
+Výběr obklopuje čárkovaný rámeček s osmi úchyty. Táhni za **roh** pro poměrné zvětšení (s klávesou **Shift** se šířka a výška mění zvlášť); táhni za **střed hrany** pro změnu jedné strany. Protější roh nebo hrana zůstanou na místě a panel se při tažení mění s tebou. Kliknutí na úchyt bez tažení nic neudělá. Rámeček a úchyty jsou o pár pixelů mimo objekt, takže nezakrývají jeho obrys. Tažení za úchyty mění velikost po **celých milimetrech** (pokud kurzor nepřitáhne přichytávání); jemnější velikost zadej v panelu.
+
+**Otáčení:** klikni na vybraný objekt podruhé (bez tažení) a úchyty se změní na čtyři kulaté oranžové **úchyty otáčení**. Táhni za jeden z nich okolo středu výběru: úhel jde po celých stupních a v blízkosti násobků 15 stupňů (do 4 stupňů) se k nim přitáhne; úhel se ukazuje u kurzoru. Dalším kliknutím na objekt (nebo klávesou **Esc**) se vrátíš k úchytům velikosti. Po výběru jiného objektu se vždy začíná režimem velikosti.
 
 **Šipky** posunou výběr o 1 mm (Shift 10 mm, Alt 0,1 mm); při psaní do pole nic nedělají.
 

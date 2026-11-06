@@ -136,6 +136,7 @@ function mouseDown(event) {
               } else {
                 obj.userData.selected = false;
               }
+              if (typeof editorSecondClickDown === "function") editorSecondClickDown(event, obj);
             }
           } else { // if nothing intersected we clicked empty space and clear the selection if ctrl is not down
             // Deselecting only if not ctrl.
