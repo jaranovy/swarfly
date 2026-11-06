@@ -458,5 +458,12 @@
  "Point at a circle or arc": "Ukaž na kružnici nebo oblouk",
  "Click two different lines - for a corner of one outline use Corners": "Klikni na dvě různé čáry - pro roh jednoho obrysu použij Rohy",
  "No tangent arc of this radius fits between the two lines": "Mezi oběma čárami se tečný oblouk tohoto poloměru nevejde",
- "A closed outline is not trimmed - the arc was added as a separate line": "Uzavřený obrys se neořezává - oblouk se přidal jako samostatná čára"
+ "A closed outline is not trimmed - the arc was added as a separate line": "Uzavřený obrys se neořezává - oblouk se přidal jako samostatná čára",
+ "To corner": "Do rohu",
+ "Extend or trim two lines to their intersection (SAPS: extension to the point of intersection)": "Prodloužit nebo zkrátit dvě čáry do jejich průsečíku",
+ "To intersection: click the first line on the part that stays - Esc ends": "Do průsečíku: klikni na první čáru na část, která zůstane - Esc ukončí",
+ "To intersection: click the second line on the part that stays - Esc ends": "Do průsečíku: klikni na druhou čáru na část, která zůstane - Esc ukončí",
+ "Lines only - an arc cannot be extended here": "Jen čáry - oblouk se tady prodloužit nedá",
+ "The two lines are parallel - they never meet": "Čáry jsou rovnoběžné - nikdy se nepotkají",
+ "A closed outline or a middle segment cannot be extended - click the end segment of an open line": "Uzavřený obrys nebo prostřední úsek nejde prodloužit - klikni na koncový úsek otevřené čáry"
 }

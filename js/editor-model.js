@@ -158,6 +158,7 @@ function editorPrompt(state) {
   if (state.cut === "trim") return "Trim: click the part of a line that should go (between two crossings) - Esc ends";
   if (state.cut === "tangent") return "Tangent: point at a circle or arc - the tangent line in the set direction is previewed - click to draw it - Esc ends";
   if (state.cut === "arc") return state.cutStep === 1 ? "Tangent arc: click the first line or arc (on the part that stays) - Esc ends" : "Tangent arc: click the second line or arc (on the part that stays) - Esc ends";
+  if (state.cut === "reach") return state.cutStep === 1 ? "To intersection: click the first line on the part that stays - Esc ends" : "To intersection: click the second line on the part that stays - Esc ends";
   if (state.cut === "split") return "Split: click a line where it should be cut (crossings attract) - Esc ends";
   if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
   if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
@@ -828,4 +829,32 @@ function editorFilletJoin(pointsA, clickTA, fillet, pointsB, clickTB) {
   var clean = [];
   out.forEach(function(p) { var q = clean[clean.length - 1]; if (!q || Math.hypot(q[0] - p[0], q[1] - p[1]) > 1e-9) clean.push(p); });
   return clean;
+}
+
+// ---- 1.13.0: extend / trim two lines to their intersection (SAPS 8.3.9) ------------------------------------------------------------
+// Intersection of the infinite lines through ab and cd: {point, s, u} (s, u = distance along each, 0..1 inside the segment) or null.
+function editorLineHit(a, b, c, d) {
+  var rx = b[0] - a[0], ry = b[1] - a[1], sx = d[0] - c[0], sy = d[1] - c[1], den = rx * sy - ry * sx;
+  if (Math.abs(den) < 1e-12) return null;
+  var s = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den, u = ((c[0] - a[0]) * ry - (c[1] - a[1]) * rx) / den;
+  return { point: [a[0] + rx * s, a[1] + ry * s], s: s, u: u };
+}
+
+// The open polyline reaches the point I (on the straight line of the segment at tc): the side of I that holds the click stays, the other
+// side is cut off - or, when I lies beyond the end of the polyline, that end segment is extended to I. null when this is not possible
+// (closed outline, or I beyond an end but the clicked segment is not the end segment).
+function editorReachPoint(points, tc, I) {
+  var n = points.length;
+  if (n < 2 || editorPolyClosed(points)) return null;
+  var i = Math.max(0, Math.min(n - 2, Math.floor(tc))), a = points[i], b = points[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
+  if (len2 < 1e-18) return null;
+  var tI = i + ((I[0] - a[0]) * dx + (I[1] - a[1]) * dy) / len2, eps = 1e-9, out;
+  if (tc <= tI) {
+    if (tI > n - 1 + eps) { if (i !== n - 2) return null; out = points.slice(0, n - 1).concat([[I[0], I[1]]]); }
+    else out = editorSubPolyline(points, 0, Math.min(tI, n - 1));
+  } else {
+    if (tI < -eps) { if (i !== 0) return null; out = [[I[0], I[1]]].concat(points.slice(1)); }
+    else out = editorSubPolyline(points, Math.max(tI, 0), n - 1);
+  }
+  return out.length >= 2 ? out : null;
 }

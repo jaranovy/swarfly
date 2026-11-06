@@ -30,6 +30,10 @@ Oříznutý nebo rozdělený tvar ztratí své parametry (kruh s chybějícím o
 - **Tečna** - v okně, které se objeví, nastav *Úhel* (směr čáry, 0 = vodorovně) a *Délku*, pak ukaž na kružnici nebo oblouk: tečna, která se jich v tom směru dotýká, se ukáže náhledem (ze dvou možných ta na straně ukazatele). Kliknutím se nakreslí jako nová čára.
 - **Tečný oblouk** - nastav *Poloměr*, klikni na první čáru nebo oblouk **na část, která má zůstat**, pak na druhý. Najde se kružnice tohoto poloměru, která se dotýká obou (ta nejblíž tvým kliknutím); obě čáry se zkrátí k bodům dotyku a spojí obloukem do jedné otevřené čáry, jako zaoblený roh mezi dvěma samostatnými čárami. Když je jedním z prvků oblouk nebo kruh, poloměr může být menší i větší než jejich. Pokud žádný takový oblouk nevyhovuje, zpráva to řekne. Uzavřené obrysy (obdélník, kruh) se neořezávají - oblouk se přidá jako samostatná čára; pro roh jednoho obrysu použij *Rohy*.
 
+### Do rohu (prodloužení do průsečíku)
+
+**Do rohu** prodlouží nebo zkrátí dvě čáry tak, aby končily přesně tam, kde se jejich přímky potkají. Klikni na první čáru, pak na druhou, vždy na část, která má zůstat. Čára, která k průsečíku nedosáhne, se prodlouží (musí to být koncový úsek otevřené čáry); čára, která ho kříží, se na druhé straně od kliknutí useká. Rovnoběžné čáry, oblouky a uzavřené obrysy se odmítnou se zprávou.
+
 *Smazání oknem*: táhni okno kolem objektů (zleva doprava: celé objekty uvnitř, zprava doleva: vše, čeho se okno dotkne) a stiskni **Del**. *Smazání všeho mimo okno*: táhni okno, v panelu Dokumenty stiskni **Obrátit výběr** a pak **Del**.
 
 ### Kapsa (vyfrézování plochy)

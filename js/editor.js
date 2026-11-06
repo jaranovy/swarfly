@@ -760,6 +760,44 @@ function editorSecondClickUp(event) {
   editorDrawHandles();
 }
 
+// ---- 1.13.0: extend / trim two lines to their intersection ------------------------------------------------------------------------
+// Click the first line, then the second, each on the part that stays: both end exactly at the point where their lines meet. A line that
+// does not reach it is extended; a line that crosses is cut off on the far side.
+function editorReachPlan(e) {
+  var first = editorState.cut.first, tg = editorCutTarget(e);
+  if (!first || !tg || tg.line === first.line) return null;
+  var ea = editorElementAt(first.pts, first.t), eb = editorElementAt(tg.pts, tg.t);
+  if (ea.type !== "line" || eb.type !== "line") return { error: "Lines only - an arc cannot be extended here" };
+  var hit = editorLineHit(ea.p, ea.q, eb.p, eb.q);
+  if (!hit) return { error: "The two lines are parallel - they never meet" };
+  var a = editorReachPoint(first.pts, first.t, hit.point), b = editorReachPoint(tg.pts, tg.t, hit.point);
+  if (!a || !b) return { error: "A closed outline or a middle segment cannot be extended - click the end segment of an open line" };
+  return { point: hit.point, a: a, b: b, lineA: first.line, lineB: tg.line };
+}
+
+function editorReachClick(e) {
+  var cut = editorState.cut, tg = editorCutTarget(e), w = mouseToWorldCoord(e);
+  if (!tg) { editorToast("No line under the pointer"); return; }
+  if (!cut.first) {
+    cut.first = { line: tg.line, pts: tg.pts, t: tg.t, point: [w.x, w.y] };
+    editorState.cutStep = 2;
+    editorStatusUpdate(null);
+    return;
+  }
+  if (tg.line === cut.first.line) { editorToast("Click two different lines - for a corner of one outline use Corners"); return; }
+  var plan = editorReachPlan(e);
+  if (!plan || plan.error) { editorToast(plan ? plan.error : "No line under the pointer"); return; }
+  storeUndo(true);
+  [[plan.lineA, plan.a], [plan.lineB, plan.b]].forEach(function(pair) {
+    var line = pair[0], parent = line.parent, ox = line.position.x + (parent ? parent.position.x : 0), oy = line.position.y + (parent ? parent.position.y : 0);
+    editorReplaceGeometry(line, pair[1].map(function(q) { return [q[0] - ox, q[1] - oy]; }));
+    delete line.userData.shape;
+  });
+  cut.first = null;
+  editorState.cutStep = 1;
+  editorCutDone();
+}
+
 // ---- 1.12.0: tangent line and tangent arc ---------------------------------------------------------------------------------------
 // Tangent: the line that touches a circle / arc in a set direction. Tangent arc: a circle of a set radius that touches two lines or
 // arcs; both are trimmed to the touching points and joined with the arc into one polyline (like SAPS "tangential arc").
@@ -867,7 +905,7 @@ function editorStartCut(mode) {
   editorEndCut();
   if (same) return;
   editorState.cut = { mode: mode };
-  var b = document.getElementById({ trim: "editorTrimButton", split: "editorSplitButton", tangent: "editorTangentButton", arc: "editorArcButton" }[mode]);
+  var b = document.getElementById({ trim: "editorTrimButton", split: "editorSplitButton", tangent: "editorTangentButton", arc: "editorArcButton", reach: "editorReachButton" }[mode]);
   if (b) b.classList.add("ed-on");
   editorState.cutStep = 1;
   editorToolBoxShow(mode);
@@ -877,7 +915,7 @@ function editorStartCut(mode) {
 
 function editorEndCut() {
   editorState.cut = null;
-  ["editorTrimButton", "editorSplitButton", "editorTangentButton", "editorArcButton"].forEach(function(id) { var b = document.getElementById(id); if (b) b.classList.remove("ed-on"); });
+  ["editorTrimButton", "editorSplitButton", "editorTangentButton", "editorArcButton", "editorReachButton"].forEach(function(id) { var b = document.getElementById(id); if (b) b.classList.remove("ed-on"); });
   editorState.cutStep = 0;
   editorToolBoxShow(null);
   var area = document.getElementById("renderArea");
@@ -919,6 +957,12 @@ function editorCutMove(e) {
     editorCutPreview(tp ? tp.points : null);
     return;
   }
+  if (cut.mode === "reach") {
+    var rp = editorReachPlan(e);
+    if (rp && !rp.error) { editorShowSnap(rp.point, "intersection"); editorCutPreview(rp.b); }
+    else { editorShowSnap(null); editorCutPreview(null); }
+    return;
+  }
   if (cut.mode === "arc") {
     var ap = editorArcPreview(e);
     editorShowSnap(null);
@@ -952,6 +996,7 @@ function editorCutClick(e) {
   var cut = editorState.cut;
   if (cut.mode === "tangent") { editorTangentClick(e); return; }
   if (cut.mode === "arc") { editorArcClick(e); return; }
+  if (cut.mode === "reach") { editorReachClick(e); return; }
   var tg = editorCutTarget(e);
   if (!tg) { editorToast("No line under the pointer"); return; }
   var pieces, message;
@@ -1474,7 +1519,7 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     document.addEventListener("mousedown", function(e) {
       if (editorState.cut) {
         var onCanvas4 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
-        if (!onCanvas4) { if (!(e.target.closest && e.target.closest("#editorTrimButton, #editorSplitButton, #editorTangentButton, #editorArcButton, #editorToolBox"))) editorEndCut(); return; }
+        if (!onCanvas4) { if (!(e.target.closest && e.target.closest("#editorTrimButton, #editorSplitButton, #editorTangentButton, #editorArcButton, #editorReachButton, #editorToolBox"))) editorEndCut(); return; }
         e.preventDefault(); e.stopImmediatePropagation();
         if (e.button === 2) editorEndCut(); else if (e.button === 0) editorCutClick(e);
         return;

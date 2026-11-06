@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.13.0] - 2026-11-06
+### Added
+- **To corner** tool (SAPS "extension to the point of intersection"): two lines are extended or trimmed to where their lines meet; the click side of each stays. Pure maths `editorLineHit`, `editorReachPoint` with unit tests, Playwright test.
+
 ## [1.12.0] - 2026-11-06
 ### Added
 - **Tangent** tool (SAPS "tangent under an angle"): point at a circle or arc, the tangent line in the set angle and length is previewed in red, click draws it.

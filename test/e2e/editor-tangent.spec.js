@@ -95,3 +95,24 @@ test('Tangent arc: two lines at a right angle are joined by an arc of the set ra
 	await page.waitForTimeout(500);
 	expect((await lines()).length).toBe(2);
 });
+
+test('To corner: a short line is extended and a crossing line trimmed to their intersection; parallel lines are refused', async () => {
+	await fresh();
+	await addLine([[10, 10], [40, 10]]);                            // ends before the vertical line
+	await addLine([[50, 0], [50, 30]]);                             // the vertical line
+	await page.evaluate(() => editorRefresh(true));
+	await page.click('#editorReachButton');
+	await click(30, 10);                                            // the horizontal line, on the part that stays
+	await click(50, 5);                                              // the vertical line: the lower part stays
+	let l = await lines();
+	expect(l.length).toBe(2);
+	const h = l.find((p) => p[0][1] === 10 && p[1][1] === 10);
+	expect(h).toEqual([[10, 10], [50, 10]]);                        // extended to the vertical line
+	const v = l.find((p) => p[0][0] === 50 && p[1][0] === 50);
+	expect(v.map((q) => q[1]).sort((a, b) => a - b)).toEqual([0, 10]);   // the upper part was cut off
+	await page.keyboard.press('Escape');
+	await page.evaluate(() => undo());
+	await page.waitForTimeout(500);
+	l = await lines();
+	expect(l.find((p) => p[0][1] === 10 && p[1][1] === 10)).toEqual([[10, 10], [40, 10]]);
+});

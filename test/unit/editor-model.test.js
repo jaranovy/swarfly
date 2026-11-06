@@ -648,3 +648,23 @@ test('editorFilletJoin: both lines are trimmed and joined with the arc into one 
 	const k = m.editorFilletJoin(A, 0.05, f, B, 0.05);
 	same(k[0], [0, 0]);
 });
+
+// ---- 1.13.0: extend to intersection ----
+test('editorLineHit: lines through the segments, also outside them', () => {
+	const h = m.editorLineHit([0, 0], [10, 0], [20, -5], [20, 5]);
+	same(h.point.map((v) => Math.round(v * 1e9) / 1e9), [20, 0]);
+	near(h.s, 2); near(h.u, 0.5);
+	assert.equal(m.editorLineHit([0, 0], [10, 0], [0, 5], [10, 5]), null);
+});
+
+test('editorReachPoint: an end segment is extended, a crossing line is trimmed to the side with the click', () => {
+	const L = [[0, 0], [10, 0]];
+	same(m.editorReachPoint(L, 0.5, [20, 0]), [[0, 0], [20, 0]]);                  // extended beyond the end
+	same(m.editorReachPoint(L, 0.5, [-5, 0]), [[-5, 0], [10, 0]]);                 // extended beyond the start (click after I)
+	same(m.editorReachPoint(L, 0.2, [6, 0]), [[0, 0], [6, 0]]);                    // crossing: the click side (start) stays
+	same(m.editorReachPoint(L, 0.9, [6, 0]), [[6, 0], [10, 0]]);                   // crossing: the click side (end) stays
+	const P = [[0, 0], [10, 0], [10, 10]];
+	assert.equal(m.editorReachPoint(P, 0.5, [-5, 0]) !== null, true);              // first segment, beyond the start
+	assert.equal(m.editorReachPoint(P, 0.5, [40, 0]), null);                       // beyond the end of a segment that is not the last
+	assert.equal(m.editorReachPoint(SQ, 0.5, [50, 0]), null);                      // closed outline
+});
