@@ -20,4 +20,9 @@ By default a new shape hangs on the mouse until you click (see [Move, scale, rot
 
 *Open* loads SVG, DXF and pictures (pictures are traced into lines). Imported objects are placed at the workspace origin without overlapping existing ones.
 
+- **DXF** files are scaled to millimetres from their `$INSUNITS` setting (inches, feet, centimetres, metres); a message tells you when this happened. Files without units are taken as millimetres.
+- **SVG** sizes in `px` are read at 96 dpi (400 px = 105.83 mm). Set real units (mm) in your drawing program for exact sizes.
+- **Pictures** are traced at 96 dpi as well (160 x 80 px = 42.33 x 21.17 mm); scale the result with the properties bar.
+- **Text** inside DXF or SVG files cannot be cut and is not imported - a message appears. Convert it to curves/paths first, or use the *Text* tool.
+
 See also [Move, scale, rotate](topic:edit).

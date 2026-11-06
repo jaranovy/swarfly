@@ -203,3 +203,27 @@ test('lock survives undo / redo and copies of a locked object are not locked', a
 	expect(flags.filter(Boolean).length).toBe(1);                              // the original stays locked, the copy is free
 });
 
+test('hover fill covers the whole rectangle even when a global loop variable is left over', async () => {
+	await fresh();
+	await create('CreateRect', { rectX: 40, rectY: 20 });
+	const faces = await page.evaluate(() => {
+		window.i = 3;                                              // upstream loops leave a global i behind
+		const line = objectsInScene[0].children[0];
+		const mesh = shapeFromLine(line, 0x0088ff, 0.4);
+		return mesh.geometry.faces.length;
+	});
+	expect(faces).toBe(2);                                         // two triangles = the whole rectangle (a triangle meant half)
+});
+
+test('the drawing does not jump when the properties bar appears and disappears', async () => {
+	await fresh();
+	await create('CreateRect', { rectX: 40, rectY: 20 });
+	await page.evaluate(() => { objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = false; })); });
+	await page.waitForTimeout(400);
+	const top = () => page.evaluate(() => document.getElementById('renderArea').getBoundingClientRect().top);
+	const none = await top();
+	await page.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForTimeout(300);
+	expect(await top()).toBe(none);
+});

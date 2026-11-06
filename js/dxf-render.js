@@ -1,6 +1,20 @@
 var inflateGrp;
 var fileParentGroup;
 
+// $INSUNITS (DXF header) -> millimetres per drawing unit. Unitless (0) and unknown codes stay as they are (mm).
+var DXF_UNIT_MM = { 1: 25.4, 2: 304.8, 4: 1, 5: 10, 6: 1000, 9: 0.0254, 10: 914.4, 14: 100 };
+var DXF_UNIT_NAME = { 1: "inches", 2: "feet", 5: "centimetres", 6: "metres", 9: "mils", 10: "yards", 14: "decimetres" };
+
+function dxfUnitScale(header) {
+  var code = header ? Number(header["$INSUNITS"]) : 0;
+  return DXF_UNIT_MM[code] || 1;
+}
+
+function dxfUnitName(header) {
+  var code = header ? Number(header["$INSUNITS"]) : 0;
+  return DXF_UNIT_NAME[code] || "";
+}
+
 function drawDXF(file, fileName) {
 
   // console.group("DXF File:")
@@ -41,6 +55,20 @@ function drawDXF(file, fileName) {
     }
     // console.log( dxf2.entities[i].type + i)
   };
+
+  // drawings in inches, feet, ... are scaled to millimetres (the geometry itself is changed, so later steps see real mm)
+  var unitScale = dxfUnitScale(dxf2.header);
+  if (unitScale !== 1) {
+    fileObject.traverse(function(obj) {
+      if (obj !== fileObject) obj.position.multiplyScalar(unitScale);
+      if (obj.geometry && obj.geometry.scale) obj.geometry.scale(unitScale, unitScale, unitScale);
+    });
+    Metro.toast.create(fileName + " is drawn in " + dxfUnitName(dxf2.header) + " - scaled to millimetres (x " + unitScale + ").", null, 6000, 'bg-amber');
+  }
+  var textCount = dxf2.entities.filter(function(en) { return en.type === "TEXT" || en.type === "MTEXT"; }).length;
+  if (textCount > 0) {
+    Metro.toast.create(fileName + " contains " + textCount + " text entit" + (textCount === 1 ? "y" : "ies") + ", which cannot be cut. Convert the text to curves in your CAD program, or use the Text tool.", null, 8000, 'bg-amber');
+  }
 
   if (errorcount > 0) {
     var message = fileName + " contained " + errorcount + " unsupported entities. These were ignored."

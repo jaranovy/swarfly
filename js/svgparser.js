@@ -86,6 +86,9 @@ function loadSVGFile(file) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var svgtext = e.target.result;
+    if (/<text[\s>]/i.test(svgtext)) {
+      Metro.toast.create(file.name + " contains text, which is not imported. Convert it to paths first (Inkscape: Path > Object to Path), or use the Text tool.", null, 8000, 'bg-amber');
+    }
     var forcedResol;
     var roottag = svgtext.match(/<svg[^>]*>/i);
     if (roottag) {

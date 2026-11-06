@@ -20,4 +20,9 @@ Nový tvar ve výchozím stavu visí na myši, dokud neklikneš (viz [Posun, mě
 
 *Otevřít* načte SVG, DXF a obrázky (obrázky se převedou na čáry). Načtené objekty se umístí na počátek pracovní plochy tak, aby se nepřekrývaly se stávajícími.
 
+- **DXF** se podle nastavení `$INSUNITS` převede na milimetry (palce, stopy, centimetry, metry); zpráva ti řekne, že k tomu došlo. Soubor bez jednotek se bere jako milimetry.
+- **SVG** s rozměry v `px` se čte při 96 dpi (400 px = 105,83 mm). Pro přesné rozměry nastav v kreslicím programu skutečné jednotky (mm).
+- **Obrázky** se vektorizují také při 96 dpi (160 x 80 px = 42,33 x 21,17 mm); výsledek zvětši nebo zmenši v liště vlastností.
+- **Text** uvnitř DXF nebo SVG nelze řezat a nenačte se - objeví se zpráva. Nejdřív ho převeď na křivky/cesty, nebo použij nástroj *Text*.
+
 Viz také [Posun, měřítko, otočení](topic:edit).

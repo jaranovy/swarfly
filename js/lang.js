@@ -44,6 +44,9 @@
     [/^Shape: (.+)$/, "Tvar: $1"],
     [/^Not a number: (.*)$/, "Není číslo: $1"],
     [/^(\d+) objects under the pointer - click again to pick the next one$/, "Pod ukazatelem objektů: $1 - dalším kliknutím vybereš další"],
+    [/^(.+) is drawn in (.+) - scaled to millimetres \(x ([\d.]+)\)\.$/, "$1: kresba je v jednotkách „$2“ - převedeno na milimetry (x $3)."],
+    [/^(.+) contains (\d+) text entit(?:y|ies), which cannot be cut\. Convert the text to curves in your CAD program, or use the Text tool\.$/, "$1 obsahuje textových prvků: $2 - ty nelze řezat. Převeď text na křivky v CAD programu nebo použij nástroj Text."],
+    [/^(.+) contains text, which is not imported\. Convert it to paths first \(Inkscape: Path > Object to Path\), or use the Text tool\.$/, "$1 obsahuje text, který se nenačte. Nejdřív ho převeď na cesty (Inkscape: Cesta > Objekt na cestu) nebo použij nástroj Text."],
     [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
   ];
   var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })

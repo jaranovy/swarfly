@@ -3,6 +3,17 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.8.3] - 2026-11-06
+### Fixed
+- DXF import now honours `$INSUNITS`: drawings in inches (and feet, cm, m, ...) were imported 25.4x too small; they are scaled to millimetres with a message.
+- DXF circles and arcs without a Z value (group 30) produced NaN coordinates.
+- Hovering a rectangle filled only half of it (a leaked global loop variable in the hover fill).
+- The properties bar slot keeps its height while nothing is selected, so the drawing no longer jumps.
+### Added
+- Messages when a DXF or SVG contains text, which cannot be cut and is not imported.
+- Help: import notes (units, 96 dpi for px SVG and pictures, text).
+- Import tests (synthetic DXF/SVG, library DXFs, potrace bitmap) and DXF unit unit-tests.
+
 ## [1.8.2] - 2026-11-06
 ### Added
 - Properties bar: **Pocket** button. With closed outlines selected it creates the toolpath and opens its dialog with the operation "CNC: Pocket" already chosen (mills out the whole area inside); an open line is refused with a message.

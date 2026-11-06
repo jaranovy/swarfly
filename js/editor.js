@@ -196,9 +196,11 @@ function editorBuildPanel() {
   // the bar has its own slot above the drawing, so it never covers the drawing or its handles
   var slot = document.createElement("div");
   slot.id = "editorBarSlot";
-  slot.style.cssText = "position:relative;min-height:46px;z-index:6";
+  slot.style.cssText = "position:relative;height:46px;z-index:6";
   area.parentNode.insertBefore(slot, area);
   slot.appendChild(p);
+  window.addEventListener("resize", editorReserveBar);
+  setTimeout(editorReserveBar, 300);
   // the panel must not start a marquee or orbit in the viewer underneath
   ["mousedown", "mouseup", "mousemove", "wheel", "dblclick", "contextmenu"].forEach(function(t) {
     p.addEventListener(t, function(e) { e.stopPropagation(); });
@@ -280,6 +282,17 @@ function editorParamsHtml(line) {
     return '<div class="ep-row"><label for="epP_' + f.key + '">' + f.label + '</label><input type="text" id="epP_' + f.key + '" value="' + info.params[f.key] + '" autocomplete="off"></div>';
   }).join("");
   return '<hr><b>Shape: ' + info.kind + '</b>' + rows + '<div class="ep-row"><button type="button" id="epApplyParams" style="flex:1">Apply parameters</button></div>';
+}
+
+// The bar is hidden while nothing is selected; its slot keeps the height the bar needs, so the drawing never jumps up and down.
+function editorReserveBar() {
+  var panel = document.getElementById("editorPanel"), slot = document.getElementById("editorBarSlot");
+  if (!panel || !slot) return;
+  var wasShown = panel.style.display === "block";
+  if (!wasShown) { panel.style.visibility = "hidden"; panel.style.display = "block"; }
+  var h = panel.offsetHeight;
+  if (!wasShown) { panel.style.display = "none"; panel.style.visibility = ""; }
+  if (h > 0) slot.style.height = h + "px";
 }
 
 function editorApplyMore() {
