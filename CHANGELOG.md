@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.6.4] - 2026-11-06
+### Changed
+- Dimension and snap texts are drawn in a regular (not bold) sans-serif font with a thinner outline, and dimension lines are thinner, so they are easier to read.
+
 ## [1.6.3] - 2026-11-06
 ### Added
 - Properties panel: Extend / trim ends of one open line (start and end, positive extends, negative trims).

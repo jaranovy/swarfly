@@ -252,7 +252,7 @@ function editorBuildPanel() {
   sm.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none";
   sm.innerHTML = '<line id="editorRubber" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4" style="display:none"/>' +
     '<circle id="editorSnapDot" r="7" fill="none" stroke="#ff4fd8" stroke-width="2.5"/>' +
-    '<text id="editorSnapText" fill="#ff4fd8" font-size="12" font-family="monospace" font-weight="bold" paint-order="stroke" stroke="#000" stroke-width="3"></text>';
+    '<text id="editorSnapText" fill="#ff4fd8" font-size="12" font-family="Segoe UI, Arial, sans-serif" font-weight="normal" paint-order="stroke" stroke="#000" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"></text>';
   area.appendChild(sm);
   Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
     r.addEventListener("mousedown", function(e) { editorHandleDown(e, r.getAttribute("data-h")); });
@@ -928,7 +928,7 @@ function editorSvgLine(x1, y1, x2, y2, color, w) {
 }
 
 function editorSvgText(x, y, t, color, size, rot) {
-  return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-size="' + size + '" font-family="monospace" font-weight="bold" text-anchor="middle" paint-order="stroke" stroke="#000" stroke-width="3"' +
+  return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-size="' + size + '" font-family="Segoe UI, Arial, sans-serif" font-weight="normal" text-anchor="middle" paint-order="stroke" stroke="#000" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"' +
     (rot ? ' transform="rotate(-90 ' + x + " " + y + ')"' : "") + ">" + t + "</text>";
 }
 
@@ -965,7 +965,7 @@ function editorMeasureSvg(me) {
     while (da < -Math.PI) da += 2 * Math.PI;
     var pts = [], rad = 30;
     for (var i = 0; i <= 16; i++) { var t = a1 + da * i / 16; pts.push((v[0] + rad * Math.cos(t)).toFixed(1) + "," + (v[1] + rad * Math.sin(t)).toFixed(1)); }
-    out += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + color + '" stroke-width="1.5"/>';
+    out += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + color + '" stroke-width="1"/>';
     var mid = a1 + da / 2;
     out += editorSvgText(v[0] + (rad + 24) * Math.cos(mid), v[1] + (rad + 24) * Math.sin(mid) + 4, me.deg.toFixed(1) + "°", color, 13, false);
   } else if (me.type === "dia") {
