@@ -12,6 +12,12 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
 
+### Kóty, měření a body zadané číslem
+
+- Tlačítko **Kóty** (skupina Upravit) přepíná tři stavy: vypnuto, **Celkový rozměr** (šířka a výška výběru, nebo celého výkresu, když nic není vybráno) a **Každý objekt** (každý obrys dostane vlastní šířku a výšku, kruh průměr).
+- Nabídka **Měřit**: *Vzdálenost dvou bodů* (délka, dX, dY a směr), *Úhel* (klikni na vrchol, pak na bod každého ramene) a *Průměr vybraných kruhů* (Ø a R). Nástroj zůstává aktivní pro další měření; Esc ho ukončí. Výsledky zůstanou na výkresu do *Smazat měření*. S projektem se neukládají.
+- **Body zadané číslem**: když *Přesun A-B* nebo *Měření* čekají na bod, objeví se vlevo dole pole. Zadej `x,y` (absolutně), `@dx,dy` (vůči předchozímu bodu) nebo `@délka<úhel` (úhel ve stupních, proti směru hodin od osy X) a stiskni Enter - stejné jako klik. S desetinnou čárkou piš `12,5;30` nebo `12,5 30`.
+
 ### Výběr
 
 - **Klik** na objekt; **Ctrl+klik** přidá nebo odebere objekt.

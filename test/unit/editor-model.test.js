@@ -316,3 +316,73 @@ test('cycling: the same spot picks the next object, another spot or a late click
 	assert.equal(r.idx, 0);                                                              // too late
 	assert.equal(m.editorCycleIndex(null, 0, 0, 0, 0).idx, 0);
 });
+
+test('typed coordinates: absolute, with decimal commas, relative and polar', () => {
+	const last = [10, 20];
+	assert.deepEqual(Array.from(m.editorParseCoordinate('12.5,30', null)), [12.5, 30]);
+	assert.deepEqual(Array.from(m.editorParseCoordinate('  -3 , 4  ', null)), [-3, 4]);
+	assert.deepEqual(Array.from(m.editorParseCoordinate('12,5;30,25', null)), [12.5, 30.25]);        // decimal commas need ;
+	assert.deepEqual(Array.from(m.editorParseCoordinate('12,5 30', null)), [12.5, 30]);               // or a space
+	assert.deepEqual(Array.from(m.editorParseCoordinate('@5,-2', last)), [15, 18]);
+	assert.deepEqual(Array.from(m.editorParseCoordinate('@5;-2,5', last)), [15, 17.5]);
+	const p = m.editorParseCoordinate('@10<90', last);
+	near(p[0], 10, 1e-9); near(p[1], 30, 1e-9);
+	const q = m.editorParseCoordinate('@10<45', [0, 0]);
+	near(q[0], 7.0710678, 1e-6); near(q[1], 7.0710678, 1e-6);
+});
+
+test('typed coordinates: readable errors', () => {
+	assert.throws(() => m.editorParseCoordinate('', null), /Type a point/);
+	assert.throws(() => m.editorParseCoordinate('abc,5', null), /Not a number: abc/);
+	assert.throws(() => m.editorParseCoordinate('1,2,3', null), /Use x,y/);
+	assert.throws(() => m.editorParseCoordinate('@5,5', null), /no previous point/);
+	assert.throws(() => m.editorParseCoordinate('10<45', [0, 0]), /start with @/);
+	assert.throws(() => m.editorParseCoordinate('@10<', [0, 0]), /Not a number/);
+	assert.throws(() => m.editorParseCoordinate('5,', null), /Not a number/);
+});
+
+test('distance info: length, components, direction', () => {
+	const d = m.editorDistanceInfo([1, 1], [4, 5]);
+	near(d.dist, 5); near(d.dx, 3); near(d.dy, 4);
+	near(d.angle, Math.atan2(4, 3) * 180 / Math.PI, 1e-9);
+	near(m.editorDistanceInfo([0, 0], [-1, 0]).angle, 180);
+	near(m.editorDistanceInfo([0, 0], [0, -1]).angle, 270);
+	near(m.editorDistanceInfo([2, 2], [2, 2]).dist, 0);
+});
+
+test('angle info: right angle, straight, zero, and a degenerate ray', () => {
+	near(m.editorAngleInfo([0, 0], [10, 0], [0, 10]), 90, 1e-9);
+	near(m.editorAngleInfo([0, 0], [10, 0], [-10, 0]), 180, 1e-9);
+	near(m.editorAngleInfo([0, 0], [10, 0], [5, 0]), 0, 1e-9);
+	near(m.editorAngleInfo([5, 5], [10, 5], [10, 10]), 45, 1e-9);
+	assert.equal(m.editorAngleInfo([0, 0], [0, 0], [1, 1]), null);
+});
+
+test('circle fit: a circle polyline is recognised, ellipse / square / open line are not', () => {
+	const c = m.editorBuildShape('circle', { radius: 12, segments: 32 }, 5, 7);
+	const f = m.editorCircleFit(c);
+	near(f.r, 12, 0.2); near(f.cx, 17, 1e-6); near(f.cy, 19, 1e-6);
+	assert.equal(m.editorCircleFit(m.editorBuildShape('ellipse', { rx: 25, ry: 10, segments: 72 }, 0, 0)), null);
+	assert.equal(m.editorCircleFit(m.editorBuildShape('rectangle', { width: 20, height: 20 }, 0, 0)), null);
+	assert.equal(m.editorCircleFit(c.slice(0, 20)), null);                                 // open
+	assert.equal(m.editorCircleFit([[0, 0], [1, 1]]), null);
+	assert.ok(m.editorCircleFit(m.editorBuildShape('circle', { radius: 10, segments: 64 }, 0, 0)));
+});
+
+test('automatic dimensions: diameter for circles, width and height for the rest', () => {
+	const circle = m.editorBuildShape('circle', { radius: 12, segments: 48 }, 0, 0);
+	const rect = m.editorBuildShape('rectangle', { width: 30, height: 20 }, 50, 50);
+	const dims = m.editorAutoDimensions([circle, rect, []]);
+	assert.equal(dims.length, 2);
+	assert.equal(dims[0].type, 'dia');
+	assert.match(dims[0].text, /Ø 24\.0\d$/);
+	assert.equal(dims[1].type, 'size');
+	assert.equal(dims[1].width.text, '30.00');
+	assert.equal(dims[1].height.text, '20.00');
+});
+
+test('dimensions mode cycles off -> overall -> each -> off', () => {
+	assert.equal(m.editorNextDimsMode(0), 1);
+	assert.equal(m.editorNextDimsMode(1), 2);
+	assert.equal(m.editorNextDimsMode(2), 0);
+});

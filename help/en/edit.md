@@ -12,6 +12,12 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 - **Copies**: *Copy in a row* makes the given total number of objects (the original included) with the step X / Y between them; *Copy around a point* turns the copies about the centre X / Y (default X0 Y0), 360 = a full circle spread evenly, any other angle ends exactly there. The copies become the selection; copies of one shape keep its parameters.
 - Every change is one undo step (Ctrl+Z).
 
+### Dimensions, measuring and typed points
+
+- **Dimensions** button (Edit group) cycles three states: off, **Overall size** (width and height of the selection, or of the whole drawing when nothing is selected) and **Every object** (each outline gets its own width and height, a circle gets its diameter).
+- **Measure** menu: *Distance between two points* (length, dX, dY and direction), *Angle* (click the corner, then a point on each arm) and *Diameter of the selected circles* (Ø and R). The tool stays active for the next measurement; Esc ends it. The results stay on the drawing until *Clear measurements*. They are not saved with the project.
+- **Typed points**: while *Move A-B* or *Measure* wait for a point, a field appears at the bottom left. Type `x,y` (absolute), `@dx,dy` (relative to the previous point) or `@length<angle` (angle in degrees, anticlockwise from the X axis) and press Enter - the same as a click. With a decimal comma write `12,5;30` or `12,5 30`.
+
 ### Selecting
 
 - **Click** an object; **Ctrl+click** adds or removes one.

@@ -258,6 +258,22 @@
 													<span class="caption">Snap</span>
 												</button>
 											</div>
+											<div class="ribbon-group">
+												<div id="editorMeasureMenu">
+													<button class="ribbon-icon-button dropdown-toggle" id="editorMeasureButton" title="Measure on the drawing">
+														<span class="icon">
+															<span class="fas fa-ruler"></span>
+														</span>
+														<span class="caption">Measure</span>
+													</button>
+													<ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
+														<li onclick="editorStartMeasure('dist');"><a href="#">Distance between two points</a></li>
+														<li onclick="editorStartMeasure('angle');"><a href="#">Angle</a></li>
+														<li onclick="editorStartMeasure('circle');"><a href="#">Diameter of the selected circles</a></li>
+														<li onclick="editorClearMeasures();"><a href="#">Clear measurements</a></li>
+													</ul>
+												</div>
+											</div>
 											<span class="title">Edit</span>
 										</div>
 										<div class="group">
@@ -360,7 +376,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.5.2</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.6.0</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->

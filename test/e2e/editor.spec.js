@@ -191,6 +191,7 @@ test('Dimensions button draws the overall width and height of the selection', as
 	const texts = await page.$$eval('#editorDims text', (t) => t.map((x) => x.textContent));
 	expect(texts).toContain('123.46 mm');
 	expect(texts).toContain('50.00 mm');
+	await page.click('#editorDimsButton');                       // overall -> every object -> off
 	await page.click('#editorDimsButton');
 	await page.waitForTimeout(300);
 	expect(await page.$eval('#editorDims', (e) => getComputedStyle(e).display)).toBe('none');

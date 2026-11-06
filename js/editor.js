@@ -6,7 +6,7 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { placing: null, dims: false, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0 };
+var editorState = { placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null };
 
 function editorLoadSnapSettings() {
   try {
@@ -204,6 +204,17 @@ function editorBuildPanel() {
   document.getElementById("epCopyPolar").addEventListener("click", editorCopyPolar);
   p.addEventListener("keydown", function(e) { e.stopPropagation(); });   // Delete / Backspace in a field must not delete objects
 
+  var coord = document.createElement("div");
+  coord.id = "editorCoordBox";
+  coord.style.cssText = "position:absolute;left:64px;bottom:34px;z-index:7;display:none;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:4px;color:#fff;font:12px monospace";
+  // the hint is a text node (the translator skips input placeholders)
+  coord.innerHTML = '<div id="editorCoordHint" style="opacity:.85;margin-bottom:3px">or type X,Y @dx,dy @length&lt;angle</div><input type="text" id="editorCoord" autocomplete="off" style="width:240px;background:#fff;color:#000;border:0;border-radius:3px;padding:2px 5px"> <span style="opacity:.8">Enter</span>';
+  area.appendChild(coord);
+  ["mousedown", "mouseup", "mousemove", "wheel", "dblclick", "contextmenu", "keydown"].forEach(function(t) { coord.addEventListener(t, function(e) { e.stopPropagation(); }); });
+  document.getElementById("editorCoord").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); editorCoordSubmit(); }
+    if (e.key === "Escape") { editorCancelMoveAB(); if (editorState.me) editorMeasureEnd(); }
+  });
   var status = document.createElement("div");
   status.id = "editorStatus";
   status.innerHTML = '<span id="editorCoords"></span><span id="editorPrompt"></span>';   // prompt alone, so the Czech translation can match it
@@ -251,7 +262,7 @@ function editorRefresh(force) {
   if (!panel) return;
   var lines = editorSelection(), box = editorSelectionBox(lines);
   editorState.count = lines.length;
-  if (!box || !editorState.panelOn || editorState.mv || editorState.placing) { panel.style.display = "none"; editorState.sig = ""; return; }   // out of the way while a point is being picked
+  if (!box || !editorState.panelOn || editorState.mv || editorState.me || editorState.placing) { panel.style.display = "none"; editorState.sig = ""; return; }   // out of the way while a point is being picked
   var sig = lines.map(function(l) { return l.uuid; }).join() + [box.minX, box.minY, box.maxX, box.maxY].map(function(v) { return v.toFixed(4); }).join() + editorState.ref + lines.map(function(l) { return l.userData.locked ? "L" : "u"; }).join("");
   if (sig === editorState.sig && !force) return;
   editorState.sig = sig;
@@ -341,7 +352,7 @@ var editorDrag = null;
 function editorDrawHandles() {
   var hs = document.getElementById("editorHandles");
   if (!hs) return;
-  var lines = (editorState.placing || editorState.mv) ? [] : editorSelection();      // no handles in the way while a point is being picked
+  var lines = (editorState.placing || editorState.mv || editorState.me) ? [] : editorSelection();      // no handles in the way while a point is being picked
   var box = lines.length ? editorSelectionBox(lines) : null;
   if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; return; }
   hs.style.display = "block";
@@ -488,6 +499,7 @@ function editorStartMoveAB() {
   if (b) b.classList.add("ed-on");
   editorDrawHandles();
   editorRefresh(true);
+  editorCoordShow();
   editorStatusUpdate(null);
 }
 
@@ -521,9 +533,11 @@ function editorMoveABMove(e) {
   }
 }
 
-function editorMoveABClick(e) {
+function editorMoveABClick(e) { editorMoveABAccept(editorMoveABPoint(e)); }
+
+function editorMoveABAccept(p) {
   var mv = editorState.mv;
-  var p = editorMoveABPoint(e);
+  editorState.lastPoint = p;
   if (mv.step === 1) {
     mv.a = p;
     mv.undoTop = typeof undoStore !== "undefined" ? undoStore[0] : null;
@@ -546,6 +560,7 @@ function editorMoveABClean() {
   editorShowSnap(null);
   var b = document.getElementById("editorMoveButton");
   if (b) b.classList.remove("ed-on");
+  editorCoordHide();
 }
 
 // cancel: put the objects back and drop the undo snapshot that step 2 took. quiet: no status update
@@ -636,43 +651,193 @@ function editorEscape(e) {
   editorRefresh(true);
 }
 
+// ---- 1.6.0: measuring, typed coordinates ---------------------------------------------------------------------------------
+function editorStartMeasure(mode) {
+  editorEndPlacement();
+  editorCancelMoveAB(true);
+  if (mode === "circle") { editorMeasureCircles(); return; }
+  editorState.me = { mode: mode, pts: [] };
+  var b = document.getElementById("editorMeasureButton");
+  if (b) b.classList.add("ed-on");
+  editorDrawHandles(); editorRefresh(true);
+  editorCoordShow();
+  editorStatusUpdate(null);
+}
+
+function editorMeasureStep() {
+  var me = editorState.me;
+  if (!me) return null;
+  return me.mode === "dist" ? (me.pts.length ? "d2" : "d1") : ["a1", "a2", "a3"][me.pts.length];
+}
+
+function editorMeasureEnd() {
+  editorState.me = null;
+  var b = document.getElementById("editorMeasureButton");
+  if (b) b.classList.remove("ed-on");
+  editorShowSnap(null);
+  editorCoordHide();
+  editorStatusUpdate(null);
+}
+
+function editorMeasureAccept(p) {
+  var me = editorState.me;
+  if (!me) return;
+  me.pts.push(p);
+  editorState.lastPoint = p;
+  if (me.mode === "dist" && me.pts.length === 2) {
+    editorState.measures.push({ type: "dist", a: me.pts[0], b: me.pts[1] });
+    me.pts = [];
+  } else if (me.mode === "angle" && me.pts.length === 3) {
+    var deg = editorAngleInfo(me.pts[0], me.pts[1], me.pts[2]);
+    if (deg === null) editorToast("An arm of the angle has no length - pick another point");
+    else editorState.measures.push({ type: "angle", v: me.pts[0], p1: me.pts[1], p2: me.pts[2], deg: deg });
+    me.pts = [];
+  }
+  editorDrawDims();
+  editorStatusUpdate(null);
+}
+
+function editorMeasureMove(e) {
+  var w = mouseToWorldCoord(e), s = editorSnapPoint(w.x, w.y, []);
+  editorShowSnap(s ? s.point : null, s ? s.kind : null);
+  editorState.cursorSnapped = s ? s.point : [w.x, w.y];
+}
+
+// Ø and R of the selected outlines that are circles
+function editorMeasureCircles() {
+  var lines = editorSelection(), found = 0;
+  lines.forEach(function(l) {
+    var c = editorCircleFit(editorLinePoints(l), 0.01);
+    if (c) { editorState.measures.push({ type: "dia", center: [c.cx, c.cy], r: c.r, text: "Ø " + editorFormat(2 * c.r) }); found++; }
+  });
+  if (!found) editorToast("Select a circle first");
+  editorDrawDims();
+}
+
+function editorClearMeasures() {
+  editorState.measures = [];
+  editorDrawDims();
+}
+
+function editorCoordShow() {
+  var box = document.getElementById("editorCoordBox");
+  if (box) { box.style.display = "block"; var i = document.getElementById("editorCoord"); i.value = ""; }
+}
+
+function editorCoordHide() {
+  var box = document.getElementById("editorCoordBox");
+  if (box && !editorState.mv && !editorState.me) box.style.display = "none";
+}
+
+// Enter in the coordinate field = a click at the typed point
+function editorCoordSubmit() {
+  var input = document.getElementById("editorCoord");
+  try {
+    var p = editorParseCoordinate(input.value, editorState.lastPoint);
+    input.value = "";
+    if (editorState.me) editorMeasureAccept(p);
+    else if (editorState.mv) editorMoveABAccept(p);
+  } catch (e) { editorToast(e.message); }
+}
+
 // ---- dimensions ------------------------------------------------------------------------------------------------------
 function editorToScreen(x, y) {
   var area = document.getElementById("renderArea"), v = new THREE.Vector3(x, y, 0).project(camera);
   return [(v.x + 1) / 2 * area.offsetWidth, (1 - v.y) / 2 * area.offsetHeight];
 }
 
+function editorAllLines() {
+  var lines = [];
+  objectsInScene.forEach(function(o) { o.children.forEach(function(c) { if (c.geometry && c.geometry.vertices && c.geometry.vertices.length) lines.push(c); }); });
+  return lines;
+}
+
+function editorSvgLine(x1, y1, x2, y2, color, w) {
+  return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + color + '" stroke-width="' + (w || 1.5) + '"/>';
+}
+
+function editorSvgText(x, y, t, color, size, rot) {
+  return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-size="' + size + '" font-family="monospace" font-weight="bold" text-anchor="middle" paint-order="stroke" stroke="#000" stroke-width="3"' +
+    (rot ? ' transform="rotate(-90 ' + x + " " + y + ')"' : "") + ">" + t + "</text>";
+}
+
+// width below the box, height left of it
+function editorSizeDimSvg(box, color, gap, size) {
+  var d = editorDimensions(box), out = "";
+  var a = editorToScreen(d.width.from[0], d.width.from[1]), b = editorToScreen(d.width.to[0], d.width.to[1]);
+  var c = editorToScreen(d.height.from[0], d.height.from[1]), e = editorToScreen(d.height.to[0], d.height.to[1]);
+  out += editorSvgLine(a[0], a[1] + gap, b[0], b[1] + gap, color) + editorSvgLine(a[0], a[1] + 4, a[0], a[1] + gap + 5, color) + editorSvgLine(b[0], b[1] + 4, b[0], b[1] + gap + 5, color);
+  out += editorSvgText((a[0] + b[0]) / 2, a[1] + gap + size + 4, d.width.text + " mm", color, size, false);
+  out += editorSvgLine(c[0] - gap, c[1], e[0] - gap, e[1], color) + editorSvgLine(c[0] - 4, c[1], c[0] - gap - 5, c[1], color) + editorSvgLine(e[0] - 4, e[1], e[0] - gap - 5, e[1], color);
+  out += editorSvgText(c[0] - gap - 8, (c[1] + e[1]) / 2, d.height.text + " mm", color, size, true);
+  return out;
+}
+
+function editorDiaDimSvg(item, color, size, extra) {
+  var a = editorToScreen(item.center[0] - item.r, item.center[1]), b = editorToScreen(item.center[0] + item.r, item.center[1]), m = editorToScreen(item.center[0], item.center[1]);
+  return editorSvgLine(a[0], a[1], b[0], b[1], color) + editorSvgText(m[0], m[1] - 6, item.text + (extra || ""), color, size, false);
+}
+
+function editorMeasureSvg(me) {
+  var color = "#35e0ff", out = "", a, b;
+  if (me.type === "dist") {
+    a = editorToScreen(me.a[0], me.a[1]); b = editorToScreen(me.b[0], me.b[1]);
+    var info = editorDistanceInfo(me.a, me.b), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    out += editorSvgLine(a[0], a[1], b[0], b[1], color) + '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="3.5" fill="' + color + '"/><circle cx="' + b[0] + '" cy="' + b[1] + '" r="3.5" fill="' + color + '"/>';
+    out += editorSvgText(mx, my - 8, editorFormat(info.dist) + " mm", color, 13, false);
+    out += editorSvgText(mx, my + 8, "dX " + editorFormat(info.dx) + "  dY " + editorFormat(info.dy) + "  " + info.angle.toFixed(1) + "°", color, 11, false);
+  } else if (me.type === "angle") {
+    var v = editorToScreen(me.v[0], me.v[1]), p1 = editorToScreen(me.p1[0], me.p1[1]), p2 = editorToScreen(me.p2[0], me.p2[1]);
+    out += editorSvgLine(v[0], v[1], p1[0], p1[1], color) + editorSvgLine(v[0], v[1], p2[0], p2[1], color);
+    var a1 = Math.atan2(p1[1] - v[1], p1[0] - v[0]), a2 = Math.atan2(p2[1] - v[1], p2[0] - v[0]), da = a2 - a1;
+    while (da > Math.PI) da -= 2 * Math.PI;
+    while (da < -Math.PI) da += 2 * Math.PI;
+    var pts = [], rad = 30;
+    for (var i = 0; i <= 16; i++) { var t = a1 + da * i / 16; pts.push((v[0] + rad * Math.cos(t)).toFixed(1) + "," + (v[1] + rad * Math.sin(t)).toFixed(1)); }
+    out += '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + color + '" stroke-width="1.5"/>';
+    var mid = a1 + da / 2;
+    out += editorSvgText(v[0] + (rad + 24) * Math.cos(mid), v[1] + (rad + 24) * Math.sin(mid) + 4, me.deg.toFixed(1) + "°", color, 13, false);
+  } else if (me.type === "dia") {
+    out += editorDiaDimSvg(me, color, 13, "   R " + editorFormat(me.r));
+  }
+  return out;
+}
+
 function editorDrawDims() {
   var svg = document.getElementById("editorDims");
   if (!svg) return;
-  if (!editorState.dims) { svg.style.display = "none"; return; }
-  var lines = editorSelection(), box = lines.length ? editorSelectionBox(lines) : editorAllBox();
-  if (!box || box.maxX - box.minX + box.maxY - box.minY <= 0) { svg.style.display = "none"; return; }
-  svg.style.display = "block";
-  var d = editorDimensions(box), ns = "http://www.w3.org/2000/svg", out = "";
-  var color = "#ffb000", gap = 16;
-  var a = editorToScreen(d.width.from[0], d.width.from[1]), b = editorToScreen(d.width.to[0], d.width.to[1]);
-  var c = editorToScreen(d.height.from[0], d.height.from[1]), e = editorToScreen(d.height.to[0], d.height.to[1]);
-  function line(x1, y1, x2, y2) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + color + '" stroke-width="1.5"/>'; }
-  function label(x, y, t, rot) {
-    return '<text x="' + x + '" y="' + y + '" fill="' + color + '" font-size="13" font-family="monospace" font-weight="bold" text-anchor="middle" paint-order="stroke" stroke="#000" stroke-width="3"' +
-      (rot ? ' transform="rotate(-90 ' + x + " " + y + ')"' : "") + ">" + t + " mm</text>";
+  var out = "", mode = editorState.dims;
+  if (mode) {
+    var lines = editorSelection();
+    if (mode === 1) {
+      var box = lines.length ? editorSelectionBox(lines) : editorAllBox();
+      if (box && box.maxX - box.minX + box.maxY - box.minY > 0) out += editorSizeDimSvg(box, "#ffb000", 16, 13);
+    } else {
+      var src = (lines.length ? lines : editorAllLines()).slice(0, 300);          // a drawing with thousands of outlines would only be a mess
+      editorAutoDimensions(src.map(editorLinePoints)).forEach(function(it) {
+        out += it.type === "dia" ? editorDiaDimSvg(it, "#ffb000", 11, "") : editorSizeDimSvg(it.box, "#ffb000", 9, 11);
+      });
+    }
   }
-  // width: below the box
-  out += line(a[0], a[1] + gap, b[0], b[1] + gap) + line(a[0], a[1] + 4, a[0], a[1] + gap + 5) + line(b[0], b[1] + 4, b[0], b[1] + gap + 5);
-  out += label((a[0] + b[0]) / 2, a[1] + gap + 17, d.width.text, false);
-  // height: left of the box
-  out += line(c[0] - gap, c[1], e[0] - gap, e[1]) + line(c[0] - 4, c[1], c[0] - gap - 5, c[1]) + line(e[0] - 4, e[1], e[0] - gap - 5, e[1]);
-  out += label(c[0] - gap - 8, (c[1] + e[1]) / 2, d.height.text, true);
+  editorState.measures.forEach(function(me) { out += editorMeasureSvg(me); });
+  if (!out) { svg.style.display = "none"; return; }
+  svg.style.display = "block";
   svg.innerHTML = out;
 }
 
+var EDITOR_DIMS_CAPTIONS = ["Dimensions", "Overall size", "Every object"];
+
 function editorToggleDims() {
-  editorState.dims = !editorState.dims;
+  editorState.dims = editorNextDimsMode(editorState.dims);
   var b = document.getElementById("editorDimsButton");
-  if (b) b.classList.toggle("ed-on", editorState.dims);
+  if (b) {
+    b.classList.toggle("ed-on", editorState.dims > 0);
+    var cap = b.querySelector(".caption"), t = EDITOR_DIMS_CAPTIONS[editorState.dims];
+    if (cap && cap.getAttribute("data-en") !== t) { cap.setAttribute("data-en", t); cap.textContent = t; }
+  }
   editorDrawDims();
 }
+
 
 function editorTogglePanel() {
   editorState.panelOn = !editorState.panelOn;
@@ -755,7 +920,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep() });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }
@@ -777,11 +942,20 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     area.addEventListener("mousemove", function(e) {
       if (editorState.placing) editorMovePlacement(e);
       if (editorState.mv) editorMoveABMove(e);
+      if (editorState.me) editorMeasureMove(e);
       editorStatusUpdate(e);
     });
 
     // capture phase on the document: while a shape is being placed the first click / right click / Esc belongs to the placement
     document.addEventListener("mousedown", function(e) {
+      if (editorState.me) {
+        var onCanvas3 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
+        if (!onCanvas3) { if (!(e.target.closest && e.target.closest("#editorMeasureMenu, #editorCoordBox"))) editorMeasureEnd(); return; }
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (e.button === 2) editorMeasureEnd();
+        else if (e.button === 0) { var w = mouseToWorldCoord(e), sp = editorSnapPoint(w.x, w.y, []); editorMeasureAccept(sp ? sp.point : [w.x, w.y]); }
+        return;
+      }
       if (editorState.mv) {
         var onCanvas2 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
         if (!onCanvas2) { if (!(e.target.closest && e.target.closest("#editorMoveButton"))) editorCancelMoveAB(); return; }
@@ -796,8 +970,9 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       if (e.button === 2) editorCancelPlacement();
       else if (e.button === 0) { editorMovePlacement(e); editorEndPlacement(); }
     }, true);
-    document.addEventListener("contextmenu", function(e) { if (editorState.placing || editorState.mv) e.preventDefault(); }, true);
+    document.addEventListener("contextmenu", function(e) { if (editorState.placing || editorState.mv || editorState.me) e.preventDefault(); }, true);
     document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && editorState.me) { e.preventDefault(); e.stopImmediatePropagation(); editorMeasureEnd(); return; }
       if (e.key === "Escape" && editorState.mv) { e.preventDefault(); e.stopImmediatePropagation(); editorCancelMoveAB(); return; }
       if (e.key === "Escape" && editorState.placing) { e.preventDefault(); e.stopImmediatePropagation(); editorDropAtOrigin(); }
     }, true);

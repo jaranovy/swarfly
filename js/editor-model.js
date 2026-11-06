@@ -143,9 +143,18 @@ function editorBuildShape(kind, params, x, y) {
   return pts.map(function(q) { return [q[0] - b.minX + (x || 0), q[1] - b.minY + (y || 0)]; });
 }
 
+var EDITOR_MEASURE_PROMPTS = {
+  d1: "Measure: click the first point (Esc ends)",
+  d2: "Measure: click the second point (Esc ends)",
+  a1: "Angle: click the corner (Esc ends)",
+  a2: "Angle: click a point on the first arm (Esc ends)",
+  a3: "Angle: click a point on the second arm (Esc ends)"
+};
+
 // Status line prompt for the current state.
 function editorPrompt(state) {
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
+  if (state.measure) return EDITOR_MEASURE_PROMPTS[state.measure];
   if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
   if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
   if (state.pick > 1) return state.pick + " objects under the pointer - click again to pick the next one";
@@ -345,3 +354,88 @@ function editorCycleIndex(state, x, y, now, count) {
   var idx = same ? (state.idx + 1) % count : 0;
   return { idx: idx, state: { x: x, y: y, t: now, idx: idx } };
 }
+
+// ---- 1.6.0: typed coordinates, measuring, automatic dimensions ------------------------------------------------------------
+// Parses a typed point. Absolute "x,y" / "x;y" / "x y" (a decimal comma is fine with ; or a space), relative to the last point
+// "@dx,dy", polar relative "@length<angle" (angle in degrees, anticlockwise from +X). `last` is the previous point [x, y] or null.
+function editorParseCoordinate(text, last) {
+  var t = String(text).trim();
+  if (!t) throw new Error("Type a point, e.g. 12.5,30 or @10,5");
+  var relative = t.charAt(0) === "@";
+  if (relative) t = t.slice(1).trim();
+  var num = function(s) {
+    var v = Number(String(s).trim().replace(",", "."));
+    if (String(s).trim() === "" || !isFinite(v)) throw new Error("Not a number: " + String(s).trim());
+    return v;
+  };
+  var x, y;
+  if (t.indexOf("<") >= 0) {
+    if (!relative) throw new Error("A polar point must start with @, e.g. @10<45");
+    var pp = t.split("<");
+    if (pp.length !== 2) throw new Error("Use @length<angle");
+    var len = num(pp[0]), ang = num(pp[1]) * Math.PI / 180;
+    x = len * Math.cos(ang); y = len * Math.sin(ang);
+  } else {
+    var parts;
+    t = t.replace(/\s*,\s*/g, ",");                    // "12 , 5" is the same as "12,5"
+    if (t.indexOf(";") >= 0) parts = t.split(";");
+    else if (/\s/.test(t)) parts = t.split(/\s+/);
+    else parts = t.split(",");
+    if (parts.length !== 2) throw new Error("Use x,y (or x;y with decimal commas)");
+    x = num(parts[0]); y = num(parts[1]);
+  }
+  if (relative) {
+    if (!last) throw new Error("There is no previous point to measure from - type an absolute point");
+    return [last[0] + x, last[1] + y];
+  }
+  return [x, y];
+}
+
+// Distance between two points with the components and the direction (degrees, anticlockwise from +X, 0..360).
+function editorDistanceInfo(a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], ang = Math.atan2(dy, dx) * 180 / Math.PI;
+  return { dist: Math.hypot(dx, dy), dx: dx, dy: dy, angle: ang < 0 ? ang + 360 : ang };
+}
+
+// Angle at the vertex between the rays to p1 and p2, 0..180 degrees; null when a ray has no length.
+function editorAngleInfo(vertex, p1, p2) {
+  var ax = p1[0] - vertex[0], ay = p1[1] - vertex[1], bx = p2[0] - vertex[0], by = p2[1] - vertex[1];
+  var la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+  if (!la || !lb) return null;
+  var c = (ax * bx + ay * by) / (la * lb);
+  return Math.acos(Math.max(-1, Math.min(1, c))) * 180 / Math.PI;
+}
+
+// Does the closed outline look like a circle? Centre = middle of the bounding box, all points within tol (relative) of the mean
+// radius and at least 9 points. Returns {cx, cy, r} or null. Used to label holes and discs with a diameter.
+function editorCircleFit(points, tol) {
+  tol = tol || 0.01;
+  if (!points || points.length < 9) return null;
+  var first = points[0], last = points[points.length - 1];
+  if (Math.abs(first[0] - last[0]) > 1e-9 || Math.abs(first[1] - last[1]) > 1e-9) return null;      // must be closed
+  var b = editorBox(points), cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2, sum = 0, i;
+  for (i = 0; i < points.length; i++) sum += Math.hypot(points[i][0] - cx, points[i][1] - cy);
+  var r = sum / points.length;
+  if (!(r > 0)) return null;
+  for (i = 0; i < points.length; i++) {
+    if (Math.abs(Math.hypot(points[i][0] - cx, points[i][1] - cy) - r) > tol * r) return null;
+  }
+  return { cx: cx, cy: cy, r: r };
+}
+
+// Automatic dimensions of a list of outlines (arrays of points): a circle gets a diameter, anything else its width and height.
+function editorAutoDimensions(outlines) {
+  var out = [];
+  outlines.forEach(function(pts) {
+    if (!pts.length) return;
+    var c = editorCircleFit(pts, 0.01);
+    if (c) { out.push({ type: "dia", center: [c.cx, c.cy], r: c.r, text: "Ø " + editorFormat(2 * c.r) }); return; }
+    var box = editorBox(pts), d = editorDimensions(box);
+    if (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0) return;
+    out.push({ type: "size", box: box, width: d.width, height: d.height });
+  });
+  return out;
+}
+
+// What the Dimensions button shows: 0 off, 1 overall size of the selection (or the drawing), 2 every object on its own.
+function editorNextDimsMode(current) { return (Number(current) + 1) % 3; }

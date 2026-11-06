@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.6.0] - 2026-11-06
+### Added
+- Dimensions button now has three states: off, overall size, every object (own width and height per outline, diameter for circles).
+- Measure menu: distance between two points (length, dX, dY, direction), angle from three points, diameter and radius of the selected circles; results stay on the drawing until cleared (not saved with the project).
+- Typed points for Move A-B and Measure: `x,y`, `@dx,dy`, `@length<angle` (decimal comma with `;` or a space), same as a click, with readable error messages.
+- Unit tests for coordinate parsing, distance / angle maths, circle detection and automatic dimensions; 8 e2e tests.
+
 ## [1.5.2] - 2026-11-06
 ### Added
 - Window selection by direction: left to right (solid blue frame) = only objects fully inside, right to left (dashed green frame) = everything the window touches. Before, any object whose centre lay in the window was selected.
