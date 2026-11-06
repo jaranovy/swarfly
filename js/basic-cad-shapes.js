@@ -3,6 +3,7 @@ function addCircle(radius, segments) {
     segments = 32;
   }
   console.log("Adding circle: " + radius)
+  if (typeof storeUndo === "function") storeUndo(true);   // Swarfly: undo removes the new shape
   var existingInternalCad = scene.getObjectByName("Internal CAD", true);
   if (!existingInternalCad) {
     var fileObject = new THREE.Group();
@@ -38,6 +39,7 @@ function addCircle(radius, segments) {
   // geometry2.translate(radius, radius, 0)
   var circle = new THREE.Line(geometry2, material);
   circle.name = "circle"
+  circle.userData.shape = { kind: "circle", params: { radius: parseFloat(radius), segments: parseInt(segments) } };
   // circle.geometry.verticesNeedUpdate = true
   // circle.translateX(radius);
   // circle.translateY(radius);
@@ -50,10 +52,12 @@ function addCircle(radius, segments) {
     fillTree();
     changePositionToGeoTranslate();
     resetView();
+    if (typeof editorBeginPlacement === "function") editorBeginPlacement(circle);
   }, 250);
 }
 
 function addRect(width, height) {
+  if (typeof storeUndo === "function") storeUndo(true);
   var existingInternalCad = scene.getObjectByName("Internal CAD", true);
   if (!existingInternalCad) {
     var fileObject = new THREE.Group();
@@ -74,6 +78,7 @@ function addRect(width, height) {
   });
   var rectangle = new THREE.Line(rectgeom, material);
   rectangle.name = "rectangle"
+  rectangle.userData.shape = { kind: "rectangle", params: { width: parseFloat(width), height: parseFloat(height) } };
   fileObject.add(rectangle);
   fileObject.name = "Internal CAD" + Math.random()
   if (!existingInternalCad) {
@@ -83,6 +88,7 @@ function addRect(width, height) {
     fillTree();
     changePositionToGeoTranslate();
     resetView();
+    if (typeof editorBeginPlacement === "function") editorBeginPlacement(rectangle);
   }, 250);
 }
 
@@ -140,7 +146,8 @@ $(document).ready(function() {
 });
 // ---- Swarfly: more shapes (geometry in js/shape-generators.js) -------------------------------------------------
 // Adds a closed polyline given as [[x, y], ...] to the "Internal CAD" group, same way as addRect / addCircle.
-function addPolyline(name, points) {
+function addPolyline(name, points, shape) {
+  if (typeof storeUndo === "function") storeUndo(true);
   var existingInternalCad = scene.getObjectByName("Internal CAD", true);
   var fileObject = existingInternalCad ? existingInternalCad : new THREE.Group();
   var geom = new THREE.Geometry();
@@ -150,6 +157,7 @@ function addPolyline(name, points) {
   var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
   var line = new THREE.Line(geom, material);
   line.name = name;
+  if (shape) line.userData.shape = shape;
   fileObject.add(line);
   fileObject.name = "Internal CAD" + Math.random();
   if (!existingInternalCad) {
@@ -159,6 +167,7 @@ function addPolyline(name, points) {
     fillTree();
     changePositionToGeoTranslate();
     resetView();
+    if (typeof editorBeginPlacement === "function") editorBeginPlacement(line);
   }, 250);
 }
 
@@ -174,9 +183,9 @@ function shapeDialog(id, title, fields, buttonId) {
 }
 
 // Reads the dialog fields, runs the generator and adds the shape; a bad value shows a red toast instead of a broken shape.
-function createShapeFromDialog(name, build) {
+function createShapeFromDialog(name, build, shape) {
   try {
-    addPolyline(name, build());
+    addPolyline(name, build(), shape);
   } catch (e) {
     Metro.toast.create(e.message, null, 5000, "bg-red");
   }
@@ -209,9 +218,9 @@ $(document).ready(function() {
       { id: "slW", value: 12, unit: "mm", label: "Width" }
     ], "CreateSlot")
   );
-  $("#CreateRoundRect").on("click", function(e) { e.preventDefault(); createShapeFromDialog("rounded rectangle", function() { return shapeRoundedRect(num("rrW"), num("rrH"), num("rrR"), 8); }); });
-  $("#CreateEllipse").on("click", function(e) { e.preventDefault(); createShapeFromDialog("ellipse", function() { return shapeEllipse(num("elRX"), num("elRY"), num("elSeg")); }); });
-  $("#CreatePolygon").on("click", function(e) { e.preventDefault(); createShapeFromDialog("polygon", function() { return shapePolygon(num("pgN"), num("pgR")); }); });
-  $("#CreateStar").on("click", function(e) { e.preventDefault(); createShapeFromDialog("star", function() { return shapeStar(num("stN"), num("stR"), num("str")); }); });
-  $("#CreateSlot").on("click", function(e) { e.preventDefault(); createShapeFromDialog("slot", function() { return shapeSlot(num("slL"), num("slW"), 16); }); });
+  $("#CreateRoundRect").on("click", function(e) { e.preventDefault(); createShapeFromDialog("rounded rectangle", function() { return shapeRoundedRect(num("rrW"), num("rrH"), num("rrR"), 8); }, { kind: "rounded rectangle", params: { width: num("rrW"), height: num("rrH"), radius: num("rrR") } }); });
+  $("#CreateEllipse").on("click", function(e) { e.preventDefault(); createShapeFromDialog("ellipse", function() { return shapeEllipse(num("elRX"), num("elRY"), num("elSeg")); }, { kind: "ellipse", params: { rx: num("elRX"), ry: num("elRY"), segments: num("elSeg") } }); });
+  $("#CreatePolygon").on("click", function(e) { e.preventDefault(); createShapeFromDialog("polygon", function() { return shapePolygon(num("pgN"), num("pgR")); }, { kind: "polygon", params: { sides: num("pgN"), radius: num("pgR") } }); });
+  $("#CreateStar").on("click", function(e) { e.preventDefault(); createShapeFromDialog("star", function() { return shapeStar(num("stN"), num("stR"), num("str")); }, { kind: "star", params: { points: num("stN"), outer: num("stR"), inner: num("str") } }); });
+  $("#CreateSlot").on("click", function(e) { e.preventDefault(); createShapeFromDialog("slot", function() { return shapeSlot(num("slL"), num("slW"), 16); }, { kind: "slot", params: { length: num("slL"), width: num("slW") } }); });
 });

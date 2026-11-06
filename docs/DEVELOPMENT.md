@@ -4,7 +4,7 @@
 
 - `index.html` - the whole UI and the script list (the order matters).
 - `js/` - application code. Swarfly additions: `lang.js` + `lang/cs.json` (language), `default-lang.js`, `preset-3018.js` (machine preset),
-  `gcode-validate.js` (G-code check), `gcode-stats.js` (statistics, `nc83Name`), `shape-generators.js` (pure shape geometry), `help.js` (in-app help),
+  `gcode-validate.js` (G-code check), `gcode-stats.js` (statistics, `nc83Name`), `shape-generators.js` (pure shape geometry), `editor-model.js` (pure editor maths) + `editor.js` (properties panel, placement mode, dimensions, status line), `help.js` (in-app help),
   `basic-cad-shapes.js` (shape dialogs). `advanced-cam-gcode.js` holds the G-code generator and `cardStyleGcode()`.
 - `help/` - help topics as Markdown, `help/en/*.md` and `help/cs/*.md`, list in `help/index.json`; `CHANGELOG.md` is shown as "What's new".
 - `electron/` - desktop shell: `main.js` (window, `app://` protocol, start-up window), `defaults.js` (reads `swarfly-defaults.json`), `splash.html`.

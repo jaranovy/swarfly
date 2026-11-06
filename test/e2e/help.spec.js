@@ -36,7 +36,7 @@ test('F1 opens the help, topics switch and internal links work', async ({ page }
 	// internal link inside a topic
 	await page.locator('#helpTopicList a[data-topic="drawing"]').click();
 	await expect(page.locator('#helpContent h1')).toHaveText('Drawing and shapes');
-	await page.locator('#helpContent a.help-link[data-topic="edit"]').click();
+	await page.locator('#helpContent a.help-link[data-topic="edit"]').first().click();
 	await expect(page.locator('#helpContent h1')).toHaveText('Move, scale, rotate');
 });
 

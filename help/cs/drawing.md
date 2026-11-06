@@ -10,7 +10,7 @@ Nabídka **Tvary** (záložka Projekt, skupina Vložit) přidá hotový uzavřen
 - **Hvězda**: počet cípů, vnější poloměr, vnitřní poloměr
 - **Drážka**: celková délka, šířka (kulaté konce)
 
-Všechny tvary, i kruh, se umístí levým dolním rohem obalového rámečku na X0 Y0, takže jejich souřadnice nejsou záporné.
+Nový tvar ve výchozím stavu visí na myši, dokud neklikneš (viz [Posun, měřítko, otočení](topic:edit)); při volbě *Na X0 Y0* (nebo po Esc) se všechny tvary, i kruh, umístí levým dolním rohem obalového rámečku na X0 Y0, takže jejich souřadnice nejsou záporné.
 
 ## Text
 

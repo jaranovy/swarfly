@@ -3,6 +3,16 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.4.0] - 2026-11-06
+### Added
+- Properties panel for the selection: X / Y of a chosen reference point (3x3 picker), width, height with "Keep proportions", rotation, several objects together; every change is one undo step.
+- Shape parameters: the shapes you create (circle, rectangle, rounded rectangle, ellipse, polygon, star, slot) remember their parameters; select one and change e.g. the number of points of a star in the panel (saved with the project and kept by undo / redo).
+- Placement mode: a new shape hangs on the mouse; click drops it, Esc puts it at X0 Y0, right click cancels (no undo step left). Settings -> Editor -> "New shapes" switches between mouse and X0 Y0.
+- Dimensions button (Edit group): overall width and height of the selection, or of the whole drawing, drawn on the part.
+- Status line at the bottom of the drawing: cursor X / Y and the next step.
+- Creating a shape is now one undo step (Ctrl+Z removes it completely).
+- Unit tests for the editor maths (`js/editor-model.js`) and e2e tests for the panel, placement, dimensions and undo.
+
 ## [1.3.5] - 2026-11-06
 ### Changed
 - The circle is placed like every other shape: lower-left corner of its bounding box at X0 Y0 (it used to be centred on 0,0, so half of it had negative coordinates).

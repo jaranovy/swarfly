@@ -227,6 +227,24 @@
 											</div>
 											<span class="title">Zoom</span>
 										</div>
+										<div class="group" id="editGroup">
+											<div class="ribbon-group">
+												<button class="ribbon-icon-button" id="editorPanelButton" onclick="editorTogglePanel()" title="Show or hide the properties panel of the selection">
+													<span class="icon">
+														<span class="fas fa-sliders-h"></span>
+													</span>
+													<span class="caption">Properties</span>
+												</button>
+												<br>
+												<button class="ribbon-icon-button" id="editorDimsButton" onclick="editorToggleDims()" title="Show the overall size of the selection (or of the whole drawing) on the part">
+													<span class="icon">
+														<span class="fas fa-ruler-combined"></span>
+													</span>
+													<span class="caption">Dimensions</span>
+												</button>
+											</div>
+											<span class="title">Edit</span>
+										</div>
 										<div class="group">
 											<div class="ribbon-group">
 												<button class="ribbon-icon-button" onclick="undo()">
@@ -287,6 +305,7 @@
 
 
 										<div class="group" id="languageGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="swarflySwitchLanguage()" title="Language / Jazyk"><span class="icon"><i class="fas fa-language"></i></span><span class="caption" id="languageButtonCaption">Česky</span></button></div><span class="title">Language</span></div>
+										<div class="group" id="placeGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="editorTogglePlace()" title="Where a new shape appears: under the mouse (click to drop) or at X0 Y0"><span class="icon"><i class="fas fa-crosshairs"></i></span><span class="caption">New shapes:<br><span id="editorPlaceCaption">With mouse</span></span></button></div><span class="title">Editor</span></div>
 											
 										<div class="group" style="display:none"><!-- 3018: Changelog + Fork hidden (link to upstream web) -->
 											<div class="ribbon-group">
@@ -325,7 +344,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.3.5</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.4.0</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -580,6 +599,7 @@
 
 	<!-- SimpleCAD -->
 	<script type="text/javascript" src="js/shape-generators.js"></script><!-- Swarfly: polygon / star / ellipse / rounded rect / slot geometry -->
+	<script type="text/javascript" src="js/editor-model.js"></script><!-- Swarfly: editor maths (move / resize / rotate / dimensions / shape parameters) -->
 	<script type="text/javascript" src="js/basic-cad-shapes.js"></script>
 	<script type="text/javascript" src="js/basic-cad-text.js"></script>
 
@@ -608,6 +628,7 @@
 	<script type="text/javascript" src="js/advanced-cam-gcode.js"></script>
 	<script type="text/javascript" src="js/gcode-validate.js"></script><!-- 3018: G-code validator -->
 	<script type="text/javascript" src="js/help.js"></script><!-- Swarfly: in-app help (F1) -->
+	<script type="text/javascript" src="js/editor.js"></script><!-- Swarfly: properties panel, placement mode, dimensions, status line -->
 	<script type="text/javascript" src="js/gcode-stats.js"></script><!-- 3018: path / material / time statistics -->
 	<script type="text/javascript" src="js/advanced-cam-doctree.js"></script>
 	<script type="text/javascript" src="js/advanced-cam-tree.js"></script>
