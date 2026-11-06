@@ -44,6 +44,19 @@ function showScaleWindow(object) {
           </td>
           <td>mm</td>
         </tr>
+        <tr>
+          <td>Scale %: </td>
+          <td><i class="fas fa-percent fa-fw"></i></td>
+          <td>
+            <div class="input-addon">
+              <input type="text" class="cam-form-field active-border" value="100" id="scalePercent" style="text-align: right;">
+            </div>
+          </td>
+          <td>%</td>
+        </tr>
+        <tr>
+          <td colspan="4"><label><input type="checkbox" id="scaleKeepAspect" checked> Keep proportions</label></td>
+        </tr>
       </table>
       <button type="button" class="button alert" onclick="scalewindow.style.visibility = 'hidden';" aria-label="Close">
         Cancel
@@ -154,13 +167,23 @@ function showScaleWindow(object) {
   $("#scaleWidth, #scaleHeight").on('input', function() { transformDirty.scale = true; });
   $("#left, #xcenter, #right, #top, #ycenter, #bottom").on('input', function() { transformDirty.position = true; });
   var aspect = width / height
-  $("#scaleWidth").keyup(function() {
-    var width = Number($(this).val());
-    $("#scaleHeight").val((width / aspect).toFixed(3));
-  });
-  $("#scaleHeight").keyup(function() {
-    var height = Number($(this).val());
-    $("#scaleWidth").val((height * aspect).toFixed(3));
+  // width / height / percent stay linked while "Keep proportions" is ticked (helpers in js/shape-generators.js)
+  function linkedSizes(which) {
+    var size = shapeLinkedSize(which, $(which === "width" ? "#scaleWidth" : "#scaleHeight").val(),
+      Number($("#scaleWidth").val()), Number($("#scaleHeight").val()), aspect, $("#scaleKeepAspect").is(":checked"));
+    $("#scaleWidth").val(size[0].toFixed(3));
+    $("#scaleHeight").val(size[1].toFixed(3));
+    $("#scalePercent").val((size[0] / width * 100).toFixed(2));
+  }
+  $("#scaleWidth").keyup(function() { linkedSizes("width"); });
+  $("#scaleHeight").keyup(function() { linkedSizes("height"); });
+  $("#scalePercent").on('input', function() {
+    transformDirty.scale = true;
+    var pct = Number($(this).val());
+    if (!(pct > 0)) return;
+    var size = shapeScaleByPercent(Number(width), Number(height), pct);
+    $("#scaleWidth").val(size[0].toFixed(3));
+    $("#scaleHeight").val(size[1].toFixed(3));
   });
   $("#left").keyup(function() {
     var newLeft = Number($(this).val());

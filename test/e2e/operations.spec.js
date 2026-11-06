@@ -48,9 +48,11 @@ test.beforeAll(async ({ browser }) => {
 		loadFile(new File([svg], 'plan_001.svg', { type: 'image/svg+xml' }));
 		await sleep(1500);
 		const find = (re) => [...document.querySelectorAll('button,a,div,span')].filter((b) => re.test(b.textContent) && b.children.length <= 3 && b.getBoundingClientRect().width > 0).sort((a, b) => a.textContent.length - b.textContent.length)[0];
-		find(/^\s*(Vše|All)\s*$/).click();
+			// waits for the control instead of guessing a delay (the app builds its dialogs asynchronously)
+			const waitFind = async (re, ms) => { const end = Date.now() + (ms || 10000); for (;;) { const el = find(re); if (el || Date.now() > end) return el; await sleep(150); } };
+		(await waitFind(/^\s*(Vše|All)\s*$/)).click();
 		await sleep(500);
-		find(/Vytvořit dráhu nástroje z vybraných|Create Toolpath using/).click();
+		(await waitFind(/Vytvořit dráhu nástroje z vybraných|Create Toolpath using/)).click();
 		await sleep(900);
 	}, SVG);
 });
@@ -62,15 +64,17 @@ for (const spec of OPERATIONS) {
 		const result = await page.evaluate(async ({ op, wait }) => {
 			const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 			const find = (re) => [...document.querySelectorAll('button,a,div,span')].filter((b) => re.test(b.textContent) && b.children.length <= 3 && b.getBoundingClientRect().width > 0).sort((a, b) => a.textContent.length - b.textContent.length)[0];
+			// waits for the control instead of guessing a delay (the app builds its dialogs asynchronously)
+			const waitFind = async (re, ms) => { const end = Date.now() + (ms || 10000); for (;;) { const el = find(re); if (el || Date.now() > end) return el; await sleep(150); } };
 			setupJob(0);
 			await sleep(700);
 			const sel = document.querySelector('#toperation0');
 			sel.value = op;
 			sel.dispatchEvent(new Event('change', { bubbles: true }));
 			await sleep(600);
-			find(/Použít a zobrazit|Apply and Preview/).click();
+			(await waitFind(/Použít a zobrazit|Apply and Preview/)).click();
 			await sleep(wait || 2500);
-			find(/^\s*(Vytvořit G-kód|Generate G-Code)\s*$/).click();
+			(await waitFind(/^\s*(Vytvořit G-kód|Generate G-Code)\s*$/)).click();
 			await sleep(3500);
 			const text = prepgcodefile();
 			const check = validateGcode(text, { maxX: 270, maxY: 175 });

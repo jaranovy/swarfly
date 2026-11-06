@@ -137,3 +137,80 @@ $(document).ready(function() {
   });
 
 });
+// ---- Swarfly: more shapes (geometry in js/shape-generators.js) -------------------------------------------------
+// Adds a closed polyline given as [[x, y], ...] to the "Internal CAD" group, same way as addRect / addCircle.
+function addPolyline(name, points) {
+  var existingInternalCad = scene.getObjectByName("Internal CAD", true);
+  var fileObject = existingInternalCad ? existingInternalCad : new THREE.Group();
+  var geom = new THREE.Geometry();
+  for (var i = 0; i < points.length; i++) {
+    geom.vertices.push(new THREE.Vector3(points[i][0], points[i][1], 0));
+  }
+  var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+  var line = new THREE.Line(geom, material);
+  line.name = name;
+  fileObject.add(line);
+  fileObject.name = "Internal CAD" + Math.random();
+  if (!existingInternalCad) {
+    objectsInScene.push(fileObject);
+  }
+  setTimeout(function() {
+    fillTree();
+    changePositionToGeoTranslate();
+    resetView();
+  }, 250);
+}
+
+function shapeDialog(id, title, fields, buttonId) {
+  var inputs = fields.map(function(f) {
+    return '<input type="number" class="form-control" id="' + f.id + '" value="' + f.value + '" data-role="input"' +
+      (f.unit ? ' data-append="' + f.unit + '"' : '') + ' data-prepend="' + f.label + '" step="any"><br>';
+  }).join("");
+  return '<div class="dialog dark" data-overlay-click-close="true" data-role="dialog" id="' + id + '" data-to-top="true">' +
+    '<div class="dialog-title">Add shape: ' + title + '</div><div class="dialog-content"><form>' + inputs + '</form></div>' +
+    '<div class="dialog-actions"><button class="button js-dialog-close">Cancel</button>' +
+    '<button type="button" class="button js-dialog-close success" id="' + buttonId + '">Create</button></div></div>';
+}
+
+// Reads the dialog fields, runs the generator and adds the shape; a bad value shows a red toast instead of a broken shape.
+function createShapeFromDialog(name, build) {
+  try {
+    addPolyline(name, build());
+  } catch (e) {
+    Metro.toast.create(e.message, null, 5000, "bg-red");
+  }
+}
+
+$(document).ready(function() {
+  var num = function(id) { return parseFloat($("#" + id).val()); };
+  $("body").append(
+    shapeDialog("addShapeRoundRect", "Rounded rectangle", [
+      { id: "rrW", value: 100, unit: "mm", label: "Width" },
+      { id: "rrH", value: 50, unit: "mm", label: "Height" },
+      { id: "rrR", value: 8, unit: "mm", label: "Corner radius" }
+    ], "CreateRoundRect") +
+    shapeDialog("addShapeEllipse", "Ellipse", [
+      { id: "elRX", value: 30, unit: "mm", label: "Radius X" },
+      { id: "elRY", value: 20, unit: "mm", label: "Radius Y" },
+      { id: "elSeg", value: 64, label: "Segments" }
+    ], "CreateEllipse") +
+    shapeDialog("addShapePolygon", "Polygon", [
+      { id: "pgN", value: 6, label: "Sides" },
+      { id: "pgR", value: 20, unit: "mm", label: "Radius (to corners)" }
+    ], "CreatePolygon") +
+    shapeDialog("addShapeStar", "Star", [
+      { id: "stN", value: 5, label: "Points" },
+      { id: "stR", value: 25, unit: "mm", label: "Outer radius" },
+      { id: "str", value: 10, unit: "mm", label: "Inner radius" }
+    ], "CreateStar") +
+    shapeDialog("addShapeSlot", "Slot", [
+      { id: "slL", value: 60, unit: "mm", label: "Length" },
+      { id: "slW", value: 12, unit: "mm", label: "Width" }
+    ], "CreateSlot")
+  );
+  $("#CreateRoundRect").on("click", function(e) { e.preventDefault(); createShapeFromDialog("rounded rectangle", function() { return shapeRoundedRect(num("rrW"), num("rrH"), num("rrR"), 8); }); });
+  $("#CreateEllipse").on("click", function(e) { e.preventDefault(); createShapeFromDialog("ellipse", function() { return shapeEllipse(num("elRX"), num("elRY"), num("elSeg")); }); });
+  $("#CreatePolygon").on("click", function(e) { e.preventDefault(); createShapeFromDialog("polygon", function() { return shapePolygon(num("pgN"), num("pgR")); }); });
+  $("#CreateStar").on("click", function(e) { e.preventDefault(); createShapeFromDialog("star", function() { return shapeStar(num("stN"), num("stR"), num("str")); }); });
+  $("#CreateSlot").on("click", function(e) { e.preventDefault(); createShapeFromDialog("slot", function() { return shapeSlot(num("slL"), num("slW"), 16); }); });
+});

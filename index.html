@@ -192,6 +192,11 @@
 													<ul class="ribbon-dropdown" data-role="dropdown" data-duration="100">
 														<li onclick="Metro.dialog.open(' #addShapeCircle ');"><a href="#">Circle</a></li>
 														<li onclick="Metro.dialog.open(' #addShapeRect ');"><a href="#">Rectangle</a></li>
+														<li onclick="Metro.dialog.open(' #addShapeRoundRect ');"><a href="#">Rounded rectangle</a></li>
+														<li onclick="Metro.dialog.open(' #addShapeEllipse ');"><a href="#">Ellipse</a></li>
+														<li onclick="Metro.dialog.open(' #addShapePolygon ');"><a href="#">Polygon</a></li>
+														<li onclick="Metro.dialog.open(' #addShapeStar ');"><a href="#">Star</a></li>
+														<li onclick="Metro.dialog.open(' #addShapeSlot ');"><a href="#">Slot</a></li>
 													</ul>
 												</div>
 
@@ -280,7 +285,7 @@
 
 
 										<div class="group" id="languageGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="swarflySwitchLanguage()" title="Language / Jazyk"><span class="icon"><i class="fas fa-language"></i></span><span class="caption" id="languageButtonCaption">Česky</span></button></div><span class="title">Language</span></div>
-											<div class="group" id="appVersion3018"><div class="ribbon-group" style="padding:8px 14px;text-align:center"><span class="fa fa-fw fa-cog"></span><br><b>Swarfly</b><br><span id="appVersionNo">v1.2.1</span></div><span class="title">Version</span></div>
+											<div class="group" id="appVersion3018"><div class="ribbon-group" style="padding:8px 14px;text-align:center"><span class="fa fa-fw fa-cog"></span><br><b>Swarfly</b><br><span id="appVersionNo">v1.3.0</span></div><span class="title">Version</span></div>
 										<div class="group" style="display:none"><!-- 3018: Changelog + Fork hidden (link to upstream web) -->
 											<div class="ribbon-group">
 												<button class="ribbon-icon-button" onclick="getChangelog()">
@@ -567,6 +572,7 @@
 	<script type="text/javascript" src="lib/opentypejs/opentype.min.js"></script>
 
 	<!-- SimpleCAD -->
+	<script type="text/javascript" src="js/shape-generators.js"></script><!-- Swarfly: polygon / star / ellipse / rounded rect / slot geometry -->
 	<script type="text/javascript" src="js/basic-cad-shapes.js"></script>
 	<script type="text/javascript" src="js/basic-cad-text.js"></script>
 
