@@ -6,7 +6,7 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null };
+var editorState = { more: false, placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null };
 
 function editorLoadSnapSettings() {
   try {
@@ -139,13 +139,21 @@ function editorBuildPanel() {
     grid += '<input type="radio" name="epRef" value="' + r + '" id="epRef_' + r + '" title="Reference point"' + (r === "ll" ? " checked" : "") + ">";
   });
   p.innerHTML = '<style>' +
-    '#editorPanel{position:absolute;top:10px;left:64px;z-index:6;width:236px;max-height:calc(100% - 50px);overflow:auto;display:none;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px}' +
-    '#editorPanel .ep-head{padding:5px 10px;background:var(--ed-bar);border-radius:6px 6px 0 0;font-weight:600;cursor:default}' +
-    '#editorPanel .ep-body{padding:8px 10px}#editorPanel .ep-row{display:flex;align-items:center;gap:6px;margin:4px 0}' +
+    '#editorPanel{position:relative;z-index:6;display:none;background:var(--ed-bg);color:var(--ed-fg);border-bottom:1px solid var(--ed-border);box-shadow:0 2px 6px rgba(0,0,0,.18);font-size:12px}' +
+    '#editorPanel .ep-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:4px 10px}' +
+    '#editorPanel .ep-grp{display:flex;align-items:center;gap:4px}' +
+    '#editorPanel .ep-grp label{flex:0 0 auto;color:var(--ed-fg)}' +
+    '#editorPanel .ep-bar input[type=text]{width:54px;min-width:0;box-sizing:border-box;background:var(--ed-input);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:3px;padding:1px 4px;text-align:right}' +
+    '#editorPanel .ep-bar button{padding:2px 7px}' +
+    '#editorPanel #epTitle{color:var(--sw-muted,#5f6b7a);min-width:70px}' +
+    '#editorPanel .ep-note{display:none}' +
+    '#editorPanel #epMore{display:none;position:absolute;top:100%;right:8px;width:250px;max-height:calc(100vh - 260px);overflow:auto;background:var(--ed-bg);border:1px solid var(--ed-border);border-radius:var(--sw-radius,6px);box-shadow:0 4px 14px rgba(0,0,0,.28);padding:8px 10px}' +
+    '#editorPanel.ep-open #epMore{display:block}' +
+    '#editorPanel .ep-row{display:flex;align-items:center;gap:6px;margin:4px 0}' +
     '#editorPanel .ep-row label{width:70px;flex:0 0 70px}' +
-    '#editorPanel input[type=text]{width:100%;min-width:0;box-sizing:border-box;background:var(--ed-input);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:3px;padding:2px 5px;text-align:right}' +
-    '#editorPanel .ep-grid{display:grid;grid-template-columns:repeat(3,16px);grid-gap:3px;padding:4px;border:1px solid var(--ed-border);border-radius:3px;background:var(--ed-input)}' +
-    '#editorPanel .ep-grid input{margin:0;width:16px;height:16px}' +
+    '#editorPanel #epMore input[type=text]{width:100%;min-width:0;box-sizing:border-box;background:var(--ed-input);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:3px;padding:2px 5px;text-align:right}' +
+    '#editorPanel .ep-grid{display:grid;grid-template-columns:repeat(3,12px);grid-gap:1px;padding:2px;border:1px solid var(--ed-border);border-radius:3px;background:var(--ed-input)}' +
+    '#editorPanel .ep-grid input{margin:0;width:12px;height:12px}' +
     '#editorPanel button{background:var(--ed-accent);color:#fff;border:0;border-radius:3px;padding:3px 8px;cursor:pointer}' +
     '#editorPanel hr{border:0;border-top:1px solid var(--ed-border);margin:8px 0}' +
     '#editorPanel .ep-note{opacity:.75;font-size:12px}' +
@@ -153,19 +161,17 @@ function editorBuildPanel() {
     '#editorStatus{position:absolute;left:64px;bottom:6px;z-index:5;pointer-events:none;font:12px/1.4 monospace;padding:2px 8px;border-radius:3px;background:rgba(0,0,0,.55);color:#fff;white-space:nowrap}' +   // fallback when the bar is missing
     '#editorDims{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;display:none}' +
     '</style>' +
-    '<div class="ep-head"><i class="fas fa-fw fa-sliders-h"></i> <span id="epTitle">Properties</span></div><div class="ep-body">' +
-    '<div class="ep-row"><div class="ep-grid" id="epGrid">' + grid + '</div><div style="flex:1">' +
-    '<div class="ep-row"><label for="epX">X</label><input type="text" id="epX" autocomplete="off"></div>' +
-    '<div class="ep-row"><label for="epY">Y</label><input type="text" id="epY" autocomplete="off"></div></div></div>' +
-    '<div class="ep-note" id="epRefNote">Lower-left corner</div><hr>' +
-    '<div class="ep-row"><label for="epW">Width</label><input type="text" id="epW" autocomplete="off"></div>' +
-    '<div class="ep-row"><label for="epH">Height</label><input type="text" id="epH" autocomplete="off"></div>' +
-    '<div class="ep-row"><label style="width:auto;flex:1"><input type="checkbox" id="epLock" checked> Keep proportions</label></div><hr>' +
-    '<div class="ep-row"><label for="epAngle">Rotate</label><input type="text" id="epAngle" value="45" autocomplete="off"></div>' +
-    '<div class="ep-row"><button type="button" id="epCCW" style="flex:1">Anticlockwise</button><button type="button" id="epCW" style="flex:1">Clockwise</button></div>' +
-    '<div class="ep-row"><label style="width:auto;flex:1" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label></div>' +
-    '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
-    '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
+    '<div class="ep-bar">' +
+    '<span id="epTitle">Properties</span>' +
+    '<div class="ep-grp"><div class="ep-grid" id="epGrid" title="Reference point for X and Y">' + grid + '</div><span class="ep-note" id="epRefNote">Lower-left corner</span></div>' +
+    '<div class="ep-grp"><label for="epX">X</label><input type="text" id="epX" autocomplete="off"><label for="epY">Y</label><input type="text" id="epY" autocomplete="off"></div>' +
+    '<div class="ep-grp"><label for="epW">W</label><input type="text" id="epW" autocomplete="off" title="Width"><label for="epH">H</label><input type="text" id="epH" autocomplete="off" title="Height"></div>' +
+    '<label class="ep-grp" title="Keep the proportions when W or H changes"><input type="checkbox" id="epLock" checked> Keep proportions</label>' +
+    '<div class="ep-grp"><label for="epAngle">Rotate</label><input type="text" id="epAngle" value="45" autocomplete="off" title="Angle in degrees"><button type="button" id="epCCW" title="Anticlockwise"><i class="fas fa-undo"></i></button><button type="button" id="epCW" title="Clockwise"><i class="fas fa-redo"></i></button></div>' +
+    '<div class="ep-grp"><button type="button" id="epMirrorX" title="Mirror left-right: flip left-right about the centre of the selection"><i class="fas fa-arrows-alt-h"></i></button><button type="button" id="epMirrorY" title="Mirror up-down: flip up-down about the centre of the selection"><i class="fas fa-arrows-alt-v"></i></button><button type="button" id="epToZero" title="Move the selection so its lower-left corner is at X0 Y0">X0 Y0</button></div>' +
+    '<label class="ep-grp" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label>' +
+    '<button type="button" id="epMoreBtn" title="Copies, corners, offset, points, shape parameters">More <i class="fas fa-caret-down"></i></button>' +
+    '</div><div id="epMore">' +
     '<div id="epPointsBox"></div>' +
     '<b>Extend / trim</b>' +
     '<div class="ep-row"><label for="epExtStart">Start</label><input type="text" id="epExtStart" value="0" autocomplete="off" title="Positive extends the first end, negative trims it"><label for="epExtEnd">End</label><input type="text" id="epExtEnd" value="0" autocomplete="off" title="Positive extends the last end, negative trims it"></div>' +
@@ -186,7 +192,12 @@ function editorBuildPanel() {
     '<div class="ep-row"><button type="button" id="epCopyPolar" style="flex:1" title="Copies rotated about the centre point">Copy around a point</button></div>' +
     '<div id="epParams"></div></div>';
   var area = document.getElementById("renderArea");
-  area.appendChild(p);
+  // the bar has its own slot above the drawing, so it never covers the drawing or its handles
+  var slot = document.createElement("div");
+  slot.id = "editorBarSlot";
+  slot.style.cssText = "position:relative;min-height:46px;z-index:6";
+  area.parentNode.insertBefore(slot, area);
+  slot.appendChild(p);
   // the panel must not start a marquee or orbit in the viewer underneath
   ["mousedown", "mouseup", "mousemove", "wheel", "dblclick", "contextmenu"].forEach(function(t) {
     p.addEventListener(t, function(e) { e.stopPropagation(); });
@@ -211,6 +222,7 @@ function editorBuildPanel() {
   document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
   document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
   document.getElementById("epToZero").addEventListener("click", editorToZero);
+  document.getElementById("epMoreBtn").addEventListener("click", function() { editorState.more = !editorState.more; editorApplyMore(); });
   document.getElementById("epCopyLinear").addEventListener("click", editorCopyLinear);
   document.getElementById("epCopyPolar").addEventListener("click", editorCopyPolar);
   p.addEventListener("keydown", function(e) { e.stopPropagation(); });   // Delete / Backspace in a field must not delete objects
@@ -268,6 +280,11 @@ function editorParamsHtml(line) {
   return '<hr><b>Shape: ' + info.kind + '</b>' + rows + '<div class="ep-row"><button type="button" id="epApplyParams" style="flex:1">Apply parameters</button></div>';
 }
 
+function editorApplyMore() {
+  var panel = document.getElementById("editorPanel");
+  if (panel) panel.classList.toggle("ep-open", !!editorState.more);
+}
+
 // fills the fields from the selection; force = overwrite even when a field has the focus
 function editorRefresh(force) {
   var panel = document.getElementById("editorPanel");
@@ -279,11 +296,11 @@ function editorRefresh(force) {
   if (sig === editorState.sig && !force) return;
   editorState.sig = sig;
   panel.style.display = "block";
+  editorApplyMore();
   document.getElementById("epTitle").textContent = lines.length === 1 ? "Properties" : "Properties - " + lines.length + " objects";
   var lockedCount = editorLocked(lines).length, lockBox = document.getElementById("epLocked");
   lockBox.checked = lockedCount === lines.length;
   lockBox.indeterminate = lockedCount > 0 && lockedCount < lines.length;
-  document.getElementById("epTitle").parentNode.style.opacity = lockedCount ? "0.9" : "1";
   var ref = editorRefPoint(box, editorState.ref), s = editorSize(box);
   document.getElementById("epX").value = editorFormat(ref[0]);
   document.getElementById("epY").value = editorFormat(ref[1]);
@@ -1206,6 +1223,13 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     document.addEventListener("mouseup", editorHandleUp, true);   // capture: the handles stop the event from bubbling
     document.addEventListener("mousedown", function() { editorState.second = null; }, true);   // the viewer sets it again when the click lands on the selected object
     document.addEventListener("mouseup", editorSecondClickUp, true);
+    // the compact ribbon shows icons only: a button without a tooltip gets its caption as one (read when pointed at, so it is already translated)
+    document.addEventListener("mouseover", function(e) {
+      var b = e.target && e.target.closest ? e.target.closest(".ribbon-button, .ribbon-icon-button") : null;
+      if (!b || b.getAttribute("title")) return;
+      var c = b.querySelector(".caption");
+      if (c && c.textContent.trim()) b.setAttribute("title", c.textContent.trim().replace(/\s+/g, " "));
+    });
     document.addEventListener("keydown", editorArrowKey, true);
     document.addEventListener("keydown", editorEscape);
     area.addEventListener("dblclick", editorDoubleClick);

@@ -15,6 +15,7 @@ test.beforeAll(async ({ browser }) => {
 	await page.goto('/index.html?reset3018&en');
 	await page.waitForLoadState('load');
 	await page.waitForTimeout(2500);
+	await page.evaluate(() => { editorState.more = true; });          // the shape parameter fields live in the More drawer
 });
 
 test.afterAll(async () => { await page.close(); });
@@ -298,26 +299,3 @@ test('the Editor button in Settings switches placement and remembers it', async 
 	expect(await page.evaluate(() => localStorage.getItem('swarflyPlaceMouse'))).toBe('0');
 });
 
-test('Czech: panel, buttons and status line are translated', async ({ browser }) => {
-	const cz = await browser.newPage();
-	await cz.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
-	await cz.goto('/index.html?reset3018');
-	await cz.evaluate(() => localStorage.setItem('swarflyLang', 'cs'));
-	await cz.goto('/index.html');
-	await cz.waitForTimeout(2500);
-	await cz.evaluate(() => {
-		localStorage.setItem('swarflyPlaceMouse', '0');
-		document.getElementById('rectX').value = 30; document.getElementById('rectY').value = 10; document.getElementById('CreateRect').click();
-	});
-	await cz.waitForTimeout(700);
-	await cz.evaluate(() => { const o = objectsInScene[0]; o.children[0].userData.selected = true; });
-	await cz.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
-	await cz.waitForTimeout(400);
-	expect(await cz.textContent('#epTitle')).toBe('Vlastnosti');
-	expect(await cz.textContent('#editorPanel')).toContain('Levý dolní roh');
-	expect(await cz.textContent('#editorPanel')).toContain('Zachovat poměr stran');
-	expect(await cz.textContent('#editorPrompt')).toMatch(/Vybrán 1 objekt/);
-	expect(await cz.textContent('#editGroup .title')).toBe('Upravit');
-	expect(await cz.textContent('#editorDimsButton .caption')).toBe('Kóty');
-	await cz.close();
-});

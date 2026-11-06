@@ -20,3 +20,16 @@ The program is saved as a `.nc` file and carried to the machine on an SD card.
 - **Help tab**: the *Help* button and the *Version* button (what is new).
 - **Panels on the right**: 1 drawing, 2 toolpaths, 3 create G-code (with time and statistics), 4 export G-code.
 - **Help**: the *Help* button in the Help tab or the F1 key. The help is a free window: drag it by the title bar, resize it from the corner, and keep working in the application; it remembers its size and place.
+
+## Mouse and keys
+
+| Action | How |
+|---|---|
+| Select | Left mouse button (click an object, or drag a window; **Ctrl** adds to the selection) |
+| Rotate / resize handles | Click the selected object again to switch between resize and rotate handles |
+| Orbit the view | **Alt** + left mouse drag, or middle mouse button |
+| Pan | Right mouse button drag |
+| Zoom | Mouse wheel |
+| Delete selected | **Del** |
+| Nudge selected | Arrow keys (1 mm; **Shift** 10 mm; **Alt** 0.1 mm) |
+| Cancel | **Esc** |

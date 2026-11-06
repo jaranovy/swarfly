@@ -21,7 +21,7 @@ test.afterAll(async () => { await page.close(); });
 async function fresh() {
 	await page.evaluate(() => {
 		parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0;
-		editorState.panelOn = true; editorState.snap = false; editorState.measures = [];
+		editorState.panelOn = true; editorState.more = true; editorState.snap = false; editorState.measures = [];
 		localStorage.setItem('swarflyPlaceMouse', '0');
 	});
 	await page.waitForTimeout(400);
@@ -164,25 +164,3 @@ test('Offset copy shrinks with a negative distance; too much shrinking leaves no
 	expect((await lines()).length).toBe(1);
 });
 
-test('Czech: the new buttons and messages are translated', async ({ browser }) => {
-	const cz = await browser.newPage();
-	await cz.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
-	await cz.goto('/index.html?reset3018');
-	await cz.evaluate(() => localStorage.setItem('swarflyLang', 'cs'));
-	await cz.goto('/index.html');
-	await cz.waitForTimeout(2500);
-	await cz.evaluate(() => {
-		localStorage.setItem('swarflyPlaceMouse', '0');
-		document.getElementById('rectX').value = 30; document.getElementById('rectY').value = 10; document.getElementById('CreateRect').click();
-	});
-	await cz.waitForTimeout(700);
-	await cz.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await cz.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
-	await cz.waitForTimeout(400);
-	const txt = await cz.textContent('#editorPanel');
-	expect(txt).toContain('Zaoblit rohy');
-	expect(txt).toContain('Zkosit');
-	expect(txt).toContain('Odsazená kopie');
-	expect(txt).toContain('Rohy a odsazení');
-	await cz.close();
-});

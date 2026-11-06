@@ -12,6 +12,10 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
 
+### Lišta vlastností
+
+Když je něco vybráno, nahoře nad výkresem se objeví lišta: vztažný bod (3x3 tečky), **X**, **Y**, **W**, **H**, *Zachovat poměr stran*, **Otočit** se dvěma tlačítky, dvě tlačítka zrcadlení, **X0 Y0** (přesun do počátku) a *Zamknuto*. Vše ostatní popsané níže (kopie, rohy a odsazení, body, prodloužení / zkrácení, parametry tvaru) je v zásuvce **Více** na pravém konci lišty.
+
 ### Rohy a odsazení
 
 Sekce panelu *Rohy a odsazení* (vyber jeden nebo více obrysů):

@@ -19,7 +19,7 @@ test.beforeAll(async ({ browser }) => {
 test.afterAll(async () => { await page.close(); });
 
 async function fresh() {
-	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; editorState.panelOn = true; editorState.snap = false; localStorage.setItem('swarflyPlaceMouse', '0'); });
+	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0; editorState.panelOn = true; editorState.more = true; editorState.snap = false; localStorage.setItem('swarflyPlaceMouse', '0'); });
 	await page.waitForTimeout(400);
 }
 
@@ -164,6 +164,7 @@ async function handleCentre(h) {
 
 async function showHandles() {
 	await fresh();
+	await page.evaluate(() => { editorState.more = false; });          // the open drawer would cover the upper-right handle
 	await create('CreateRect', { rectX: 60, rectY: 30 });
 	await selectOnly(0);
 	await page.waitForFunction(() => document.getElementById('editorHandles').style.display === 'block');
@@ -182,8 +183,8 @@ test('handles: dragging the upper-right corner scales proportionally from the lo
 	const before = await box();
 	const ur = await handleCentre('ur');
 	const ll = await handleCentre('ll');
-	// drag along the diagonal to 1.5 times its length
-	const tx = ll.x + (ur.x - ll.x) * 1.5, ty = ll.y + (ur.y - ll.y) * 1.5;
+	// drag along the diagonal to 1.2 times its length (staying inside the drawing area)
+	const tx = ll.x + (ur.x - ll.x) * 1.2, ty = ll.y + (ur.y - ll.y) * 1.2;
 	await page.mouse.move(ur.x, ur.y);
 	await page.mouse.down();
 	await page.mouse.move((ur.x + tx) / 2, (ur.y + ty) / 2, { steps: 4 });
@@ -192,7 +193,7 @@ test('handles: dragging the upper-right corner scales proportionally from the lo
 	await page.waitForTimeout(300);
 	const b = await box();
 	near(b.minX, before.minX); near(b.minY, before.minY);
-	near(b.w / before.w, 1.5, 0.05); near(b.w / b.h, before.w / before.h, 0.001);   // proportions kept
+	near(b.w / before.w, 1.2, 0.05); near(b.w / b.h, before.w / before.h, 0.001);   // proportions kept
 	near(Math.max(b.w, b.h), Math.round(Math.max(b.w, b.h)), 0.0001);          // the longer side is a whole number of mm
 	expect(await field('epW')).toBe(b.w.toFixed(2));
 	await page.evaluate(() => undo());

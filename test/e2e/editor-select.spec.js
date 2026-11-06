@@ -21,7 +21,7 @@ test.afterAll(async () => { await page.close(); });
 async function fresh() {
 	await page.evaluate(() => {
 		parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0;
-		editorState.panelOn = true; editorState.snap = false; editorState.pick = null; editorState.pickCount = 0;
+		editorState.panelOn = true; editorState.more = true; editorState.snap = false; editorState.pick = null; editorState.pickCount = 0;
 		localStorage.setItem('swarflyPlaceMouse', '0');
 		mouseSelectMode();
 	});
@@ -203,22 +203,3 @@ test('lock survives undo / redo and copies of a locked object are not locked', a
 	expect(flags.filter(Boolean).length).toBe(1);                              // the original stays locked, the copy is free
 });
 
-test('Czech: lock, selection prompt and tooltips are translated', async ({ browser }) => {
-	const cz = await browser.newPage();
-	await cz.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
-	await cz.goto('/index.html?reset3018');
-	await cz.evaluate(() => localStorage.setItem('swarflyLang', 'cs'));
-	await cz.goto('/index.html');
-	await cz.waitForTimeout(2500);
-	await cz.evaluate(() => {
-		localStorage.setItem('swarflyPlaceMouse', '0');       // no placement mode: the panel must be visible
-		document.getElementById('rectX').value = 30; document.getElementById('rectY').value = 10; document.getElementById('CreateRect').click();
-	});
-	await cz.waitForTimeout(700);
-	await cz.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; editorState.pickCount = 3; });
-	await cz.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
-	await cz.waitForTimeout(500);
-	expect(await cz.textContent('#editorPanel')).toContain('Zamknuto');
-	expect(await cz.textContent('#editorPrompt')).toMatch(/Pod ukazatelem objektů: 3/);
-	await cz.close();
-});

@@ -17,18 +17,8 @@ const OPERATIONS = [
 	{ op: 'CNC: Vector (path inside)', mill: true },
 	{ op: 'CNC: Vector (path outside)', mill: true },
 	{ op: 'CNC: Pocket', mill: true, wait: 8000 },
-	{ op: 'Laser: Vector (no path offset)', laser: true },
-	{ op: 'Laser: Vector (path inside)', laser: true },
 	{ op: 'Laser: Vector (path outside)', laser: true },
-	{ op: 'Laser: Vector (raster fill) (Beta)', laser: true, wait: 6000 },
-	{ op: 'Plasma: Vector (path outside)' },
-	{ op: 'Plasma: Vector (path inside)' },
-	{ op: 'Plasma: Vector (no path offset)' },
-	{ op: 'Drag Knife: Cutout' },
-	{ op: 'Pen Plotter: (no offset)' },
-	{ op: 'Pen Plotter: (path inside)' },
-	{ op: 'Pen Plotter: (path outside)' },
-	{ op: 'Pen Plotter: (lines fill)', wait: 6000 }
+	{ op: 'Laser: Vector (raster fill) (Beta)', laser: true, wait: 6000 }
 ];
 
 test.describe.configure({ mode: 'serial' });

@@ -403,5 +403,12 @@
  "An open line needs at least 2 points": "Otevřená čára potřebuje aspoň 2 body",
  "Only open lines can be extended": "Prodloužit lze jen otevřené čáry",
  "Cannot extend a zero-length segment": "Nelze prodloužit úsečku nulové délky",
- "Cannot trim more than the length of the end segment": "Nelze zkrátit o víc, než je délka koncové úsečky"
+ "Cannot trim more than the length of the end segment": "Nelze zkrátit o víc, než je délka koncové úsečky",
+ "More": "Více",
+ "Reference point for X and Y": "Vztažný bod pro X a Y",
+ "Angle in degrees": "Úhel ve stupních",
+ "Keep the proportions when W or H changes": "Zachovat poměr stran při změně W nebo H",
+ "Copies, corners, offset, points, shape parameters": "Kopie, rohy, odsazení, body, parametry tvaru",
+ "Mirror left-right: flip left-right about the centre of the selection": "Zrcadlit vlevo-vpravo: překlopit okolo středu výběru",
+ "Mirror up-down: flip up-down about the centre of the selection": "Zrcadlit nahoru-dolů: překlopit okolo středu výběru"
 }

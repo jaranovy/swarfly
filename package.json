@@ -1,7 +1,7 @@
 {
   "name": "openbuilds-cam",
   "productName": "Swarfly",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Swarfly, a fork of OpenBuilds CAM (AGPL-3.0) — browser CAM tool that converts DXF/SVG/bitmap/Gerber to G-Code, packaged as a desktop app with Electron",
   "license": "AGPL-3.0",
   "main": "electron/main.js",
@@ -17,7 +17,8 @@
     "check-html": "node scripts/check-html.js",
     "verify": "npm run check && npm run lint && npm run check-html",
     "test": "node --test test/unit/*.test.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --workers=2",
+    "test:quick": "node --test test/unit/*.test.js && playwright test editor czech shapes --workers=2"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

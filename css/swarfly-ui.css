@@ -67,6 +67,7 @@ body.theme_dark {
 }
 
 #swBar #helpoverlay {
+  display: none !important;     /* the mouse help moved into Help > Getting started */
   position: static;
   order: 4;
   flex: 0 0 100%;
@@ -179,3 +180,19 @@ body.theme_dark {
   border-radius: var(--sw-radius);
   box-shadow: var(--sw-shadow);
 }
+
+/* ---- compact ribbon (1.8.0): icons only, no group titles; the name shows as a tooltip ------------------------------------------ */
+.ribbon-group + .title,
+nav[data-role="ribbonmenu"] .section > .group > .title { display: none !important; }
+nav[data-role="ribbonmenu"] .ribbon-button .caption,
+nav[data-role="ribbonmenu"] .ribbon-icon-button .caption { display: none !important; }
+nav[data-role="ribbonmenu"] .content-holder,
+nav[data-role="ribbonmenu"] .content-holder .section { height: 58px !important; min-height: 0 !important; }
+nav[data-role="ribbonmenu"] .section > .group { height: 52px !important; }
+nav[data-role="ribbonmenu"] .ribbon-button { width: 36px !important; height: 48px !important; min-width: 0 !important; padding: 0 !important; }
+nav[data-role="ribbonmenu"] .ribbon-button .icon { height: 30px !important; font-size: 22px; line-height: 30px; }
+nav[data-role="ribbonmenu"] .ribbon-icon-button { height: 24px !important; min-height: 0 !important; width: 28px !important; }
+nav[data-role="ribbonmenu"] .ribbon-icon-button .icon { height: 20px !important; line-height: 20px !important; font-size: 14px; }
+
+#swBar { flex-wrap: nowrap; }
+#swBar #editorStatus { max-width: none; flex: 1 1 auto; min-width: 0; }

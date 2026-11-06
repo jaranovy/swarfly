@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.8.0] - 2026-11-06
+### Changed
+- Compact ribbon: icons only (no captions, no group titles), smaller buttons; every button shows its name as a tooltip.
+- The Properties panel is now a bar across the top of the drawing (reference point, X, Y, W, H, keep proportions, rotate, mirror, X0 Y0, Locked) instead of a card covering the left part of the drawing. Copies, corners and offset, points, extend / trim and shape parameters are in the **More** drawer on the right of the bar.
+- The bottom line with the mouse help is gone; the mouse and key list is now in Help > Getting started. The bottom bar is a single row (coordinates and prompt, simulation buttons, view switches).
+- Test suite slimmed: no operation tests for plasma, drag knife and pen plotter (the machine has none), six Czech editor tests merged into one page load, nine help tests into three. Full e2e run 3.8 min instead of 8-11; `npm run test:quick` (unit + editor specs) for everyday work.
+
 ## [1.7.1] - 2026-11-06
 ### Changed
 - New `css/swarfly-ui.css`: one set of colour / radius / shadow tokens (light values, dark values under `body.theme_dark`) shared by the new chrome.

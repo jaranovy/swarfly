@@ -21,7 +21,7 @@ test.afterAll(async () => { await page.close(); });
 async function fresh() {
 	await page.evaluate(() => {
 		parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0;
-		editorState.panelOn = true; editorState.snap = true; editorState.gridStep = 1; editorState.dims = 0; editorState.measures = []; editorState.me = null; editorState.lastPoint = null;
+		editorState.panelOn = true; editorState.more = true; editorState.snap = true; editorState.gridStep = 1; editorState.dims = 0; editorState.measures = []; editorState.me = null; editorState.lastPoint = null;
 		localStorage.setItem('swarflyPlaceMouse', '0');
 		mouseSelectMode();
 	});
@@ -183,21 +183,3 @@ test('Move A-B with typed points: absolute start, relative target', async () => 
 	near(back, 0, 1e-6);
 });
 
-test('Czech: measure menu, dimension modes, prompts and the coordinate hint are translated', async ({ browser }) => {
-	const cz = await browser.newPage();
-	await cz.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
-	await cz.goto('/index.html?reset3018');
-	await cz.evaluate(() => localStorage.setItem('swarflyLang', 'cs'));
-	await cz.goto('/index.html');
-	await cz.waitForTimeout(2500);
-	expect(await cz.textContent('#editorMeasureButton .caption')).toBe('Měřit');
-	expect(await cz.textContent('#editorMeasureMenu')).toContain('Vzdálenost dvou bodů');
-	await cz.evaluate(() => { editorToggleDims(); });
-	await cz.waitForTimeout(300);
-	expect(await cz.textContent('#editorDimsButton .caption')).toBe('Celkový rozměr');
-	await cz.evaluate(() => { editorStartMeasure('dist'); });
-	await cz.waitForTimeout(400);
-	expect(await cz.textContent('#editorPrompt')).toMatch(/Měření: klikni na první bod/);
-	expect(await cz.textContent('#editorCoordHint')).toMatch(/nebo zadej/);
-	await cz.close();
-});

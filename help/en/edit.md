@@ -12,6 +12,10 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 - **Copies**: *Copy in a row* makes the given total number of objects (the original included) with the step X / Y between them; *Copy around a point* turns the copies about the centre X / Y (default X0 Y0), 360 = a full circle spread evenly, any other angle ends exactly there. The copies become the selection; copies of one shape keep its parameters.
 - Every change is one undo step (Ctrl+Z).
 
+### The properties bar
+
+When something is selected a bar appears across the top of the drawing: reference point (the 3x3 dots), **X**, **Y**, **W**, **H**, *Keep proportions*, **Rotate** with the two turn buttons, the two mirror buttons, **X0 Y0** (move to the origin) and *Locked*. Everything else described below (copies, corners and offset, points, extend / trim, shape parameters) is in the **More** drawer at the right end of the bar.
+
 ### Corners and offset
 
 Panel section *Corners and offset* (select one or more outlines):

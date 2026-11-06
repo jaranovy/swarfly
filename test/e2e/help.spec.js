@@ -18,32 +18,30 @@ async function fresh(page, lang) {
 	await page.waitForTimeout(2000);
 }
 
-test('Help button opens the dialog with all topics and the first topic', async ({ page }) => {
+test('English help: dialog, topics, links, every topic renders, What\'s new, ribbon tab, no console errors', async ({ page }) => {
+	const errors = [];
+	page.on('pageerror', (e) => errors.push(e.message));
+	page.on('console', (m) => { if (m.type() === 'error' && !/config\.json|api\/config|favicon/.test(m.text())) errors.push(m.text()); });
 	await fresh(page, 'en');
+	// ribbon: Help has its own tab with two buttons; Settings has neither
+	expect(await page.locator('#section-help #helpGroup button').count()).toBe(2);
+	expect(await page.locator('#section-settings #helpGroup').count()).toBe(0);
+	expect(await page.locator('#section-settings #appVersionNo').count()).toBe(0);
+	expect(await page.locator('#appVersionNo').textContent()).toBe('v' + version);
+	// the Help button opens the dialog with all topics and the first topic
 	await page.evaluate(() => document.querySelector('#helpGroup button').click());
 	await page.waitForSelector('#helpContent h1');
 	expect(await page.locator('#helpTopicList a').count()).toBe(topics.length + 1);          // + What's new
 	expect(await page.locator('#helpContent h1').first().textContent()).toBe('Getting started');
 	expect(await page.locator('#helpTopicList a.active').textContent()).toBe('Getting started');
-});
-
-test('F1 opens the help, topics switch and internal links work', async ({ page }) => {
-	await fresh(page, 'en');
-	await page.keyboard.press('F1');
-	await page.waitForSelector('#helpContent h1');
+	// topics switch and internal links work
 	await page.locator('#helpTopicList a[data-topic="laser"]').click();
 	await expect(page.locator('#helpContent h1')).toHaveText('Laser: settings and safety');
-	// internal link inside a topic
 	await page.locator('#helpTopicList a[data-topic="drawing"]').click();
 	await expect(page.locator('#helpContent h1')).toHaveText('Drawing and shapes');
 	await page.locator('#helpContent a.help-link[data-topic="edit"]').first().click();
 	await expect(page.locator('#helpContent h1')).toHaveText('Move, scale, rotate');
-});
-
-test('every topic renders a non-empty page without raw markdown markers', async ({ page }) => {
-	await fresh(page, 'en');
-	await page.evaluate(() => openHelp());
-	await page.waitForSelector('#helpContent h1');
+	// every topic renders a non-empty page without raw markdown markers
 	for (const t of topics) {
 		await page.evaluate((id) => helpOpenTopic(id), t.id);
 		await expect(page.locator('#helpContent h1')).toHaveText(t.en);
@@ -52,13 +50,14 @@ test('every topic renders a non-empty page without raw markdown markers', async 
 		expect(text, t.id + ' has no raw ** markers').not.toContain('**');
 		expect(text, t.id + ' has no raw topic: links').not.toContain('(topic:');
 	}
-});
-
-test("What's new shows the changelog of the running version", async ({ page }) => {
-	await fresh(page, 'en');
-	await page.evaluate(() => openHelp('changelog'));
-	await page.waitForSelector('#helpContent h2');
-	expect(await page.locator('#helpContent h2').first().textContent()).toContain('[' + version + ']');
+	// the Version button shows What's new of the running version
+	await page.evaluate(() => document.getElementById('versionButton3018').click());
+	await expect(page.locator('#helpContent h2').first()).toContainText('[' + version + ']');
+	// F1 opens it as well
+	await page.locator('#helpCloseBtn').click();
+	await page.keyboard.press('F1');
+	await expect(page.locator('#helpWindow')).toBeVisible();
+	expect(errors).toEqual([]);
 });
 
 test('Czech language shows Czech titles and content', async ({ page }) => {
@@ -68,28 +67,7 @@ test('Czech language shows Czech titles and content', async ({ page }) => {
 	expect(await page.locator('#helpTopicList a').first().textContent()).toBe('Začínáme');
 });
 
-test('no console errors while opening help', async ({ page }) => {
-	const errors = [];
-	page.on('pageerror', (e) => errors.push(e.message));
-	page.on('console', (m) => { if (m.type() === 'error' && !/config\.json|api\/config|favicon/.test(m.text())) errors.push(m.text()); });
-	await fresh(page, 'en');
-	await page.evaluate(() => openHelp());
-	await page.waitForSelector('#helpContent h1');
-	expect(errors).toEqual([]);
-});
-
-test('Help has its own ribbon tab with two buttons (Help, Version); Settings has neither', async ({ page }) => {
-	await fresh(page, 'en');
-	expect(await page.locator('#section-help #helpGroup button').count()).toBe(2);
-	expect(await page.locator('#section-settings #helpGroup').count()).toBe(0);
-	expect(await page.locator('#section-settings #appVersionNo').count()).toBe(0);
-	expect(await page.locator('#appVersionNo').textContent()).toBe('v' + version);
-	// the Version button opens What's new
-	await page.evaluate(() => document.getElementById('versionButton3018').click());
-	await expect(page.locator('#helpContent h2').first()).toContainText('[' + version + ']');
-});
-
-test('help is a free window: wide enough, does not block the application, movable, remembers its place', async ({ page }) => {
+test('help is a free window (wide, not modal, movable, remembers its place, closes) and follows the application theme', async ({ page }) => {
 	await fresh(page, 'en');
 	await page.evaluate(() => openHelp());
 	await page.waitForSelector('#helpContent h1');
@@ -99,6 +77,23 @@ test('help is a free window: wide enough, does not block the application, movabl
 	await page.locator('a[href="#section-settings"]').click();
 	await expect(page.locator('#section-settings')).toBeVisible();
 	await expect(page.locator('#helpWindow')).toBeVisible();
+	// theme: light and dark, live while open
+	const colors = async () => page.evaluate(() => {
+		const cs = getComputedStyle(document.getElementById('helpWindow'));
+		return { bg: cs.backgroundColor, fg: cs.color, theme: document.body.className.match(/theme_\w+/)[0] };
+	});
+	const lum = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; };
+	await page.evaluate(() => Theme.set('light'));
+	const light = await colors();
+	await page.evaluate(() => Theme.set('dark'));
+	const dark = await colors();
+	expect(light.theme).toBe('theme_light');
+	expect(dark.theme).toBe('theme_dark');
+	expect(lum(light.bg)).toBeGreaterThan(200);
+	expect(lum(light.fg)).toBeLessThan(80);
+	expect(lum(dark.bg)).toBeLessThan(80);
+	expect(lum(dark.fg)).toBeGreaterThan(180);
+	await page.evaluate(() => Theme.set('light'));
 	// drag the title bar
 	await page.mouse.move(box.x + 200, box.y + 12);
 	await page.mouse.down();
@@ -119,29 +114,4 @@ test('help is a free window: wide enough, does not block the application, movabl
 	// close button hides it
 	await page.locator('#helpCloseBtn').click();
 	await expect(page.locator('#helpWindow')).toBeHidden();
-});
-
-test('help window follows the application theme (light and dark)', async ({ page }) => {
-	await fresh(page, 'en');
-	await page.evaluate(() => openHelp());
-	await page.waitForSelector('#helpContent h1');
-	const colors = async () => page.evaluate(() => {
-		const cs = getComputedStyle(document.getElementById('helpWindow'));
-		return { bg: cs.backgroundColor, fg: cs.color, theme: document.body.className.match(/theme_\w+/)[0] };
-	});
-	const lum = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; };
-	await page.evaluate(() => Theme.set('light'));
-	const light = await colors();
-	await page.evaluate(() => Theme.set('dark'));
-	const dark = await colors();
-	expect(light.theme).toBe('theme_light');
-	expect(dark.theme).toBe('theme_dark');
-	expect(lum(light.bg)).toBeGreaterThan(200);          // light background, dark text
-	expect(lum(light.fg)).toBeLessThan(80);
-	expect(lum(dark.bg)).toBeLessThan(80);                // dark background, light text
-	expect(lum(dark.fg)).toBeGreaterThan(180);
-	// and it switches live while open
-	await page.evaluate(() => Theme.toggle());
-	expect((await colors()).theme).toBe('theme_light');
-	expect(lum((await colors()).bg)).toBeGreaterThan(200);
 });

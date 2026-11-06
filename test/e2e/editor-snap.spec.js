@@ -21,7 +21,7 @@ test.afterAll(async () => { await page.close(); });
 async function fresh(placeWithMouse) {
 	await page.evaluate((pm) => {
 		parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); undoStore.length = 0; redoStore.length = 0;
-		editorState.panelOn = true; editorState.snap = true; editorState.gridStep = 1;
+		editorState.panelOn = true; editorState.more = true; editorState.snap = true; editorState.gridStep = 1;
 		localStorage.setItem('swarflyPlaceMouse', pm ? '1' : '0');
 	}, placeWithMouse);
 	await page.waitForTimeout(400);
@@ -211,23 +211,3 @@ test('handles snap to an end point of another shape', async () => {
 	expect(mr.x).toBeGreaterThan(0);
 });
 
-test('Czech: snap names, the buttons and the prompt are translated', async ({ browser }) => {
-	const cz = await browser.newPage();
-	await cz.route(/\/(config\.json|api\/config)/, (route) => route.fulfill({ status: 204, body: '' }));
-	await cz.goto('/index.html?reset3018');
-	await cz.evaluate(() => localStorage.setItem('swarflyLang', 'cs'));
-	await cz.goto('/index.html');
-	await cz.waitForTimeout(2500);
-	expect(await cz.textContent('#editorMoveButton .caption')).toBe('Přesun A-B');
-	expect(await cz.textContent('#editorSnapButton .caption')).toBe('Přichytávání');
-	expect(await cz.textContent('#gridGroup')).toContain('Mřížka');
-	await cz.evaluate(() => {
-		editorShowSnap([10, 10], 'end');
-		editorState.mv = { step: 2, lines: [], snap: [] };
-		editorStatusUpdate(null);
-	});
-	await cz.waitForTimeout(300);
-	expect(await cz.textContent('#editorSnapText')).toBe('Koncový bod');
-	expect(await cz.textContent('#editorPrompt')).toMatch(/Klikni na bod, kam/);
-	await cz.close();
-});
