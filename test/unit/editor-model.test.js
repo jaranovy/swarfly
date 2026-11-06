@@ -588,3 +588,63 @@ test('editorTrimRange: the range a trim removes', () => {
 	same(m.editorTrimRange(SQ, [0.5, 2.5], 3.5), [2.5, 0.5]);                                  // through the start
 	same(m.editorPrompt({ cut: 'trim' }).slice(0, 5), 'Trim:');
 });
+
+// ---- 1.12.0: tangent line, tangent arc ----
+test('editorTangentLine: touches the circle in the direction given, nearer side wins', () => {
+	const c = { cx: 0, cy: 0, r: 10 };
+	const up = m.editorTangentLine(c, 0, [0, 20], 20);                // horizontal tangent above
+	near(up[0][1], 10); near(up[1][1], 10); near(up[0][0], -10); near(up[1][0], 10);
+	const down = m.editorTangentLine(c, 0, [3, -20], 20);
+	near(down[0][1], -10);
+	const diag = m.editorTangentLine(c, 45, [-20, 20], 10);          // 45 degrees, touching in the upper left
+	near(Math.hypot(diag[0][0] + diag[1][0], diag[0][1] + diag[1][1]) / 2, 10);   // the middle of the segment is on the circle
+	assert.ok((diag[0][0] + diag[1][0]) / 2 < 0);
+});
+
+test('editorCircleThrough / editorArcFit / editorElementAt', () => {
+	const c = m.editorCircleThrough([10, 0], [0, 10], [-10, 0]);
+	near(c.cx, 0); near(c.cy, 0); near(c.r, 10);
+	assert.equal(m.editorCircleThrough([0, 0], [1, 1], [2, 2]), null);
+	const arc = []; for (let i = 0; i <= 12; i++) arc.push([20 * Math.cos(i * Math.PI / 12), 20 * Math.sin(i * Math.PI / 12)]);
+	near(m.editorArcFit(arc, 0.01).r, 20);
+	assert.equal(m.editorArcFit([[0, 0], [1, 0], [2, 0], [3, 0], [4, 1]], 0.01), null);
+	assert.equal(m.editorElementAt(arc, 3).type, 'circle');
+	const el = m.editorElementAt([[0, 0], [10, 0], [10, 10]], 1.5);
+	assert.equal(el.type, 'line'); same(el.p, [10, 0]); same(el.q, [10, 10]);
+});
+
+test('editorFilletCenters: two lines give four centres, line + circle and two circles are found', () => {
+	const lx = { type: 'line', p: [0, 0], q: [100, 0] }, ly = { type: 'line', p: [0, 0], q: [0, 100] };
+	const four = m.editorFilletCenters(lx, ly, 10);
+	assert.equal(four.length, 4);
+	assert.ok(four.some((c) => Math.abs(c[0] - 10) < 1e-9 && Math.abs(c[1] - 10) < 1e-9));
+	const circ = { type: 'circle', cx: 0, cy: 0, r: 10 };
+	const lc = m.editorFilletCenters({ type: 'line', p: [-50, 18], q: [50, 18] }, circ, 5);
+	assert.ok(lc.some((c) => Math.abs(c[1] - 13) < 1e-9 && Math.abs(Math.hypot(c[0], c[1]) - 15) < 1e-9));   // under the line, outside the circle
+	const cc = m.editorFilletCenters(circ, { type: 'circle', cx: 30, cy: 0, r: 10 }, 5);
+	assert.ok(cc.some((c) => Math.abs(c[0] - 15) < 1e-6 && Math.abs(c[1]) < 1e-6));                    // between the two circles
+});
+
+test('editorFilletArc: the circle nearest to the clicks wins; the touching points are on the elements', () => {
+	const A = [[0, 0], [100, 0]], B = [[0, 0], [0, 100]];
+	const f = m.editorFilletArc(m.editorElementAt(A, 0.5), m.editorElementAt(B, 0.5), 10, [50, 0], [0, 50], A, B);
+	near(f.center[0], 10); near(f.center[1], 10);
+	same(f.tA.map((v) => Math.round(v * 1e6) / 1e6), [10, 0]);
+	same(f.tB.map((v) => Math.round(v * 1e6) / 1e6), [0, 10]);
+	near(f.arc.length > 4 ? 1 : 0, 1);
+	assert.equal(m.editorFilletArc(m.editorElementAt(A, 0.5), m.editorElementAt(B, 0.5), 200, [50, 0], [0, 50], A, B), null);   // the touching point would be off the lines
+	assert.equal(m.editorFilletArc(m.editorElementAt(A, 0.5), m.editorElementAt(B, 0.5), 0, [50, 0], [0, 50], A, B), null);
+});
+
+test('editorFilletJoin: both lines are trimmed and joined with the arc into one polyline', () => {
+	const A = [[0, 0], [100, 0]], B = [[0, 0], [0, 100]];
+	const f = m.editorFilletArc(m.editorElementAt(A, 0.5), m.editorElementAt(B, 0.5), 10, [50, 0], [0, 50], A, B);
+	const j = m.editorFilletJoin(A, 0.5, f, B, 0.5);
+	same(j[0], [100, 0]);
+	same(j[j.length - 1], [0, 100]);
+	assert.ok(j.some((p) => Math.abs(p[0] - 10) < 1e-6 && Math.abs(p[1]) < 1e-6));
+	assert.ok(!j.some((p) => Math.abs(p[0]) < 1e-9 && Math.abs(p[1]) < 1e-9));                  // the old corner is gone
+	// the other sides clicked: the pieces on the far side of the touching points stay instead
+	const k = m.editorFilletJoin(A, 0.05, f, B, 0.05);
+	same(k[0], [0, 0]);
+});

@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.12.0] - 2026-11-06
+### Added
+- **Tangent** tool (SAPS "tangent under an angle"): point at a circle or arc, the tangent line in the set angle and length is previewed in red, click draws it.
+- **Tangent arc** tool (SAPS "tangential arc"): an arc of a set radius between any two lines or arcs; both are trimmed to the touching points and joined with the arc into one polyline. Works with line + line, line + arc / circle and arc / circle + arc / circle (circles through three points are recognised as arcs).
+- Pure maths in `editor-model.js` (`editorTangentLine`, `editorFilletCenters`, `editorFilletArc`, `editorFilletJoin`, `editorArcFit`, ...) with unit tests, plus Playwright tests.
+
 ## [1.11.0] - 2026-11-06
 ### Added
 - **Save one file per tool**: a button next to Save G-Code lists the files (8.3 names like `plat_01d.nc`, tool letter d = drill, m = mill) with their tool and toolpath count, then writes them into one chosen folder. Toolpaths with the same tool and diameter go into one file. The window reminds you to change the bit and touch off Z between files (GRBL has no tool length offset). No `M0` / `M6` is written - that waits for a test on the offline controller.

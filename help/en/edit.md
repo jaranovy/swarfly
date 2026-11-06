@@ -25,6 +25,11 @@ Two tools in the ribbon, next to Move A-B. Both work on any unlocked line of the
 
 Trimmed or split shapes lose their shape parameters (a circle with an arc missing is no longer a circle). Undo restores everything in one step.
 
+### Tangent and tangent arc
+
+- **Tangent** - set the *Angle* (direction of the line, 0 = horizontal) and *Length* in the box that appears, then point at a circle or an arc: the tangent line touching it in that direction is previewed (of the two possible lines the one on the pointer's side). Click to draw it as a new line.
+- **Tangent arc** - set the *Radius*, click the first line or arc **on the part that should stay**, then the second one. A circle of that radius that touches both is found (the one nearest to your clicks); both lines are trimmed to the touching points and joined with the arc into one open line, like a rounded corner between two separate lines. For an arc or circle as one of the elements, the radius may be smaller or larger than theirs. If no such arc fits, a message says so. Closed outlines (a rectangle, a circle) are not trimmed - the arc is added as a separate line; for a corner of one outline use *Corners*.
+
 *Erase by window*: drag a window around objects (left to right: whole objects inside, right to left: everything the window touches) and press **Del**. *Erase everything outside a window*: drag the window, press **Invert** in the Documents panel, then **Del**.
 
 ### Pocket (mill out an area)

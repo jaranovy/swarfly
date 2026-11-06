@@ -242,6 +242,14 @@ function editorBuildPanel() {
     if (e.key === "Enter") { e.preventDefault(); editorCoordSubmit(); }
     if (e.key === "Escape") { editorCancelMoveAB(); if (editorState.me) editorMeasureEnd(); }
   });
+  var tool = document.createElement("div");
+  tool.id = "editorToolBox";
+  tool.style.cssText = "position:absolute;left:64px;bottom:34px;z-index:7;display:none;background:rgba(0,0,0,.7);padding:6px 10px;border-radius:4px;color:#fff;font:12px sans-serif;white-space:nowrap";
+  tool.innerHTML = '<div id="etTangentRow"><span>Angle</span> <input type="text" id="etAngle" value="0" style="width:60px"> <span>deg</span> &nbsp; <span>Length</span> <input type="text" id="etLength" value="40" style="width:60px"> <span>mm</span></div>' +
+    '<div id="etArcRow"><span>Radius</span> <input type="text" id="etRadius" value="5" style="width:60px"> <span>mm</span></div>';
+  area.appendChild(tool);
+  ["mousedown", "mouseup", "mousemove", "wheel", "dblclick", "contextmenu", "keydown"].forEach(function(t) { tool.addEventListener(t, function(e) { e.stopPropagation(); }); });
+  Array.prototype.forEach.call(tool.querySelectorAll("input"), function(i) { i.style.cssText += ";background:#fff;color:#000;border:0;border-radius:3px;padding:2px 4px;width:64px;height:24px;min-height:0;display:inline-block;margin:0 3px;font-size:12px"; });
   var status = document.createElement("div");
   status.id = "editorStatus";
   status.innerHTML = '<span id="editorCoords"></span><span id="editorPrompt"></span>';   // prompt alone, so the Czech translation can match it
@@ -752,6 +760,102 @@ function editorSecondClickUp(event) {
   editorDrawHandles();
 }
 
+// ---- 1.12.0: tangent line and tangent arc ---------------------------------------------------------------------------------------
+// Tangent: the line that touches a circle / arc in a set direction. Tangent arc: a circle of a set radius that touches two lines or
+// arcs; both are trimmed to the touching points and joined with the arc into one polyline (like SAPS "tangential arc").
+function editorToolOptions() {
+  var angle = Number(String(document.getElementById("etAngle").value).replace(",", ".")), length = Number(String(document.getElementById("etLength").value).replace(",", ".")), radius = Number(String(document.getElementById("etRadius").value).replace(",", "."));
+  return { angle: isFinite(angle) ? angle : 0, length: isFinite(length) && length > 0 ? length : 40, radius: isFinite(radius) && radius > 0 ? radius : 5 };
+}
+
+function editorToolBoxShow(mode) {
+  var box = document.getElementById("editorToolBox");
+  if (!box) return;
+  box.style.display = mode === "tangent" || mode === "arc" ? "block" : "none";
+  document.getElementById("etTangentRow").style.display = mode === "tangent" ? "block" : "none";
+  document.getElementById("etArcRow").style.display = mode === "arc" ? "block" : "none";
+}
+
+function editorTangentPreview(e) {
+  var tg = editorCutTarget(e);
+  if (!tg) return null;
+  var el = editorElementAt(tg.pts, tg.t);
+  if (el.type !== "circle") return null;
+  var o = editorToolOptions(), w = mouseToWorldCoord(e);
+  return { target: tg, points: editorTangentLine(el, o.angle, [w.x, w.y], o.length) };
+}
+
+function editorArcPreview(e) {
+  var first = editorState.cut.first, tg = editorCutTarget(e);
+  if (!first || !tg || tg.line === first.line) return null;
+  var w = mouseToWorldCoord(e), o = editorToolOptions();
+  var fillet = editorFilletArc(editorElementAt(first.pts, first.t), editorElementAt(tg.pts, tg.t), o.radius, first.point, [w.x, w.y], first.pts, tg.pts);
+  return fillet ? { fillet: fillet, a: first, b: tg, click: [w.x, w.y] } : { fillet: null };
+}
+
+function editorTangentClick(e) {
+  var p = editorTangentPreview(e);
+  if (!p) { editorToast("Point at a circle or arc"); return; }
+  var line = p.target.line;
+  storeUndo(true);
+  var g = new THREE.Geometry();
+  p.points.forEach(function(q) { g.vertices.push(new THREE.Vector3(q[0], q[1], 0)); });
+  var copy = new THREE.Line(g, line.material.clone());
+  copy.name = "Tangent";
+  if (line.userData.layer) copy.userData.layer = line.userData.layer;
+  line.parent.add(copy);
+  editorCutDone();
+}
+
+function editorArcClick(e) {
+  var cut = editorState.cut;
+  var tg = editorCutTarget(e), w = mouseToWorldCoord(e);
+  if (!tg) { editorToast("No line under the pointer"); return; }
+  if (!cut.first) {
+    cut.first = { line: tg.line, pts: tg.pts, t: tg.t, point: [w.x, w.y] };
+    editorState.cutStep = 2;
+    editorStatusUpdate(null);
+    return;
+  }
+  if (tg.line === cut.first.line) { editorToast("Click two different lines - for a corner of one outline use Corners"); return; }
+  var pr = editorArcPreview(e);
+  if (!pr || !pr.fillet) { editorToast("No tangent arc of this radius fits between the two lines"); return; }
+  var a = pr.a, b = pr.b, bothOpen = !editorPolyClosed(a.pts) && !editorPolyClosed(b.pts);
+  var joined = bothOpen ? editorFilletJoin(a.pts, a.t, pr.fillet, b.pts, b.t) : null;
+  storeUndo(true);
+  var write = function(line, pts) {
+    var parent = line.parent, ox = line.position.x + (parent ? parent.position.x : 0), oy = line.position.y + (parent ? parent.position.y : 0);
+    var g = new THREE.Geometry();
+    pts.forEach(function(q) { g.vertices.push(new THREE.Vector3(q[0] - ox, q[1] - oy, 0)); });
+    return g;
+  };
+  if (joined) {
+    a.line.geometry.dispose();
+    a.line.geometry = write(a.line, joined);
+    delete a.line.userData.shape;
+    b.line.parent.remove(b.line);
+  } else {
+    var arcLine = new THREE.Line(write(a.line, pr.fillet.arc), a.line.material.clone());
+    arcLine.name = "Tangent arc";
+    if (a.line.userData.layer) arcLine.userData.layer = a.line.userData.layer;
+    a.line.parent.add(arcLine);
+    editorToast("A closed outline is not trimmed - the arc was added as a separate line");
+  }
+  cut.first = null;
+  editorState.cutStep = 1;
+  editorCutDone();
+}
+
+// common tail of the tools that change the drawing
+function editorCutDone() {
+  if (typeof fillTree === "function") fillTree();
+  if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+  clearSceneFlag = true;
+  editorState.snapCache = null;
+  editorCutPreview(null);
+  editorRefresh(true);
+}
+
 // ---- 1.9.0: trim between crossings and split -----------------------------------------------------------------------------------
 // Tools like SAPS "erase part of a section" and "divide a section". The click picks the line under the pointer (any unlocked line of
 // the drawing); the crossings with all other lines decide where the cut goes.
@@ -763,15 +867,19 @@ function editorStartCut(mode) {
   editorEndCut();
   if (same) return;
   editorState.cut = { mode: mode };
-  var b = document.getElementById(mode === "trim" ? "editorTrimButton" : "editorSplitButton");
+  var b = document.getElementById({ trim: "editorTrimButton", split: "editorSplitButton", tangent: "editorTangentButton", arc: "editorArcButton" }[mode]);
   if (b) b.classList.add("ed-on");
+  editorState.cutStep = 1;
+  editorToolBoxShow(mode);
   document.getElementById("renderArea").style.cursor = "crosshair";
   editorStatusUpdate(null);
 }
 
 function editorEndCut() {
   editorState.cut = null;
-  ["editorTrimButton", "editorSplitButton"].forEach(function(id) { var b = document.getElementById(id); if (b) b.classList.remove("ed-on"); });
+  ["editorTrimButton", "editorSplitButton", "editorTangentButton", "editorArcButton"].forEach(function(id) { var b = document.getElementById(id); if (b) b.classList.remove("ed-on"); });
+  editorState.cutStep = 0;
+  editorToolBoxShow(null);
   var area = document.getElementById("renderArea");
   if (area) area.style.cursor = "";
   editorCutPreview(null);
@@ -804,7 +912,20 @@ function editorCutPreview(pts) {
 }
 
 function editorCutMove(e) {
-  var cut = editorState.cut, tg = editorCutTarget(e);
+  var cut = editorState.cut;
+  if (cut.mode === "tangent") {
+    var tp = editorTangentPreview(e);
+    editorShowSnap(null);
+    editorCutPreview(tp ? tp.points : null);
+    return;
+  }
+  if (cut.mode === "arc") {
+    var ap = editorArcPreview(e);
+    editorShowSnap(null);
+    editorCutPreview(ap && ap.fillet ? ap.fillet.arc : null);
+    return;
+  }
+  var tg = editorCutTarget(e);
   if (!tg) { editorCutPreview(null); editorShowSnap(null); return; }
   if (cut.mode === "trim") {
     var range = editorTrimRange(tg.pts, tg.ts, tg.t);
@@ -828,7 +949,10 @@ function editorSplitPosition(tg) {
 }
 
 function editorCutClick(e) {
-  var cut = editorState.cut, tg = editorCutTarget(e);
+  var cut = editorState.cut;
+  if (cut.mode === "tangent") { editorTangentClick(e); return; }
+  if (cut.mode === "arc") { editorArcClick(e); return; }
+  var tg = editorCutTarget(e);
   if (!tg) { editorToast("No line under the pointer"); return; }
   var pieces, message;
   if (cut.mode === "trim") {
@@ -1319,7 +1443,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep(), cut: editorState.cut ? editorState.cut.mode : "" });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep(), cut: editorState.cut ? editorState.cut.mode : "", cutStep: editorState.cutStep || 0 });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }
@@ -1350,7 +1474,7 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     document.addEventListener("mousedown", function(e) {
       if (editorState.cut) {
         var onCanvas4 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
-        if (!onCanvas4) { if (!(e.target.closest && e.target.closest("#editorTrimButton, #editorSplitButton"))) editorEndCut(); return; }
+        if (!onCanvas4) { if (!(e.target.closest && e.target.closest("#editorTrimButton, #editorSplitButton, #editorTangentButton, #editorArcButton, #editorToolBox"))) editorEndCut(); return; }
         e.preventDefault(); e.stopImmediatePropagation();
         if (e.button === 2) editorEndCut(); else if (e.button === 0) editorCutClick(e);
         return;

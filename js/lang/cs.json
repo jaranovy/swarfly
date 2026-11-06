@@ -447,5 +447,16 @@
  "Only one tool is used - use Save G-Code": "Používá se jen jeden nástroj - použij Uložit G-kód",
  "Save one file per tool": "Uložit jeden soubor na nástroj",
  "Run the files in this order. Before each next file: change the bit, then touch off Z again (the machine has no tool length offset).": "Spouštěj soubory v tomto pořadí. Před každým dalším souborem vyměň nástroj a znovu nastav nulu Z (stroj nemá korekci délky nástroje).",
- "Save files": "Uložit soubory"
+ "Save files": "Uložit soubory",
+ "Tangent": "Tečna",
+ "Tangent arc": "Tečný oblouk",
+ "Tangent line to a circle or arc in a set direction (SAPS: tangent under an angle)": "Tečna ke kružnici nebo oblouku v nastaveném směru",
+ "Tangent arc of a set radius between two lines or arcs (SAPS: tangential arc)": "Tečný oblouk nastaveného poloměru mezi dvěma čárami nebo oblouky",
+ "Tangent: point at a circle or arc - the tangent line in the set direction is previewed - click to draw it - Esc ends": "Tečna: ukaž na kružnici nebo oblouk - tečna v nastaveném směru se ukáže náhledem - kliknutím se nakreslí - Esc ukončí",
+ "Tangent arc: click the first line or arc (on the part that stays) - Esc ends": "Tečný oblouk: klikni na první čáru nebo oblouk (na část, která zůstane) - Esc ukončí",
+ "Tangent arc: click the second line or arc (on the part that stays) - Esc ends": "Tečný oblouk: klikni na druhou čáru nebo oblouk (na část, která zůstane) - Esc ukončí",
+ "Point at a circle or arc": "Ukaž na kružnici nebo oblouk",
+ "Click two different lines - for a corner of one outline use Corners": "Klikni na dvě různé čáry - pro roh jednoho obrysu použij Rohy",
+ "No tangent arc of this radius fits between the two lines": "Mezi oběma čárami se tečný oblouk tohoto poloměru nevejde",
+ "A closed outline is not trimmed - the arc was added as a separate line": "Uzavřený obrys se neořezává - oblouk se přidal jako samostatná čára"
 }

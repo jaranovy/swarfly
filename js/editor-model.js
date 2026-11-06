@@ -156,6 +156,8 @@ function editorPrompt(state) {
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
   if (state.measure) return EDITOR_MEASURE_PROMPTS[state.measure];
   if (state.cut === "trim") return "Trim: click the part of a line that should go (between two crossings) - Esc ends";
+  if (state.cut === "tangent") return "Tangent: point at a circle or arc - the tangent line in the set direction is previewed - click to draw it - Esc ends";
+  if (state.cut === "arc") return state.cutStep === 1 ? "Tangent arc: click the first line or arc (on the part that stays) - Esc ends" : "Tangent arc: click the second line or arc (on the part that stays) - Esc ends";
   if (state.cut === "split") return "Split: click a line where it should be cut (crossings attract) - Esc ends";
   if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
   if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
@@ -674,4 +676,156 @@ function editorSplitPolyline(points, ts) {
     for (var j = 0; j < bounds.length - 1; j++) pieces.push(editorSubPolyline(points, bounds[j], bounds[j + 1]));
   }
   return pieces.filter(function(p) { return p.length >= 2; });
+}
+
+// ---- 1.12.0: tangent line under an angle, tangent arc between two elements (SAPS 8.3.14, 8.3.15) ----------------------------------
+// An element is {type: "line", p, q} (a straight segment) or {type: "circle", cx, cy, r}.
+
+// Circle through three points, or null when they are (nearly) on one line.
+function editorCircleThrough(a, b, c) {
+  var d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
+  if (Math.abs(d) < 1e-9) return null;
+  var a2 = a[0] * a[0] + a[1] * a[1], b2 = b[0] * b[0] + b[1] * b[1], c2 = c[0] * c[0] + c[1] * c[1];
+  var cx = (a2 * (b[1] - c[1]) + b2 * (c[1] - a[1]) + c2 * (a[1] - b[1])) / d;
+  var cy = (a2 * (c[0] - b[0]) + b2 * (a[0] - c[0]) + c2 * (b[0] - a[0])) / d;
+  return { cx: cx, cy: cy, r: Math.hypot(a[0] - cx, a[1] - cy) };
+}
+
+// An open polyline that is an arc: at least 5 points, all within tol (relative to the radius) of the circle through its first, middle and
+// last point. Returns {cx, cy, r} or null.
+function editorArcFit(points, tol) {
+  tol = tol || 0.01;
+  if (!points || points.length < 5 || editorPolyClosed(points)) return null;
+  var c = editorCircleThrough(points[0], points[Math.floor(points.length / 2)], points[points.length - 1]);
+  if (!c || !(c.r > 0) || c.r > 1e6) return null;
+  for (var i = 0; i < points.length; i++) if (Math.abs(Math.hypot(points[i][0] - c.cx, points[i][1] - c.cy) - c.r) > tol * c.r) return null;
+  return c;
+}
+
+// What is under position t of a polyline: a circle / arc (the whole polyline is round) or the straight segment at t.
+function editorElementAt(points, t) {
+  var fit = editorPolyClosed(points) ? editorCircleFit(points, 0.01) : editorArcFit(points, 0.01);
+  if (fit) return { type: "circle", cx: fit.cx, cy: fit.cy, r: fit.r };
+  var i = Math.max(0, Math.min(points.length - 2, Math.floor(t)));
+  return { type: "line", p: [points[i][0], points[i][1]], q: [points[i + 1][0], points[i + 1][1]] };
+}
+
+// The tangent lines of a circle that run in direction angleDeg touch it at two points; the one nearer to `near` is returned as a
+// segment of `length` centred on the touching point: [[x1, y1], [x2, y2]].
+function editorTangentLine(circle, angleDeg, near, length) {
+  var a = angleDeg * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
+  var t1 = [circle.cx + circle.r * nx, circle.cy + circle.r * ny], t2 = [circle.cx - circle.r * nx, circle.cy - circle.r * ny];
+  var t = Math.hypot(near[0] - t1[0], near[1] - t1[1]) <= Math.hypot(near[0] - t2[0], near[1] - t2[1]) ? t1 : t2, h = length / 2;
+  return [[t[0] - ux * h, t[1] - uy * h], [t[0] + ux * h, t[1] + uy * h]];
+}
+
+// Centres of the circles with radius R that touch both elements: the intersections of the offset curves of the two elements
+// (a line gives two parallels, a circle gives r + R and |r - R|).
+function editorFilletCenters(a, b, R) {
+  function offsets(el) {
+    if (el.type === "line") {
+      var dx = el.q[0] - el.p[0], dy = el.q[1] - el.p[1], len = Math.hypot(dx, dy);
+      if (len < 1e-12) return [];
+      var nx = -dy / len * R, ny = dx / len * R;
+      return [{ line: true, p: [el.p[0] + nx, el.p[1] + ny], d: [dx / len, dy / len] }, { line: true, p: [el.p[0] - nx, el.p[1] - ny], d: [dx / len, dy / len] }];
+    }
+    var out = [{ line: false, cx: el.cx, cy: el.cy, r: el.r + R }];
+    if (Math.abs(el.r - R) > 1e-9) out.push({ line: false, cx: el.cx, cy: el.cy, r: Math.abs(el.r - R) });
+    return out;
+  }
+  function meet(u, v) {
+    var out = [];
+    if (u.line && v.line) {
+      var den = u.d[0] * v.d[1] - u.d[1] * v.d[0];
+      if (Math.abs(den) < 1e-12) return out;
+      var s = ((v.p[0] - u.p[0]) * v.d[1] - (v.p[1] - u.p[1]) * v.d[0]) / den;
+      out.push([u.p[0] + u.d[0] * s, u.p[1] + u.d[1] * s]);
+    } else if (u.line !== v.line) {
+      var l = u.line ? u : v, c = u.line ? v : u;
+      var fx = l.p[0] - c.cx, fy = l.p[1] - c.cy, bb = fx * l.d[0] + fy * l.d[1], cc = fx * fx + fy * fy - c.r * c.r, disc = bb * bb - cc;
+      if (disc < -1e-9) return out;
+      var sq = Math.sqrt(Math.max(0, disc));
+      [-bb - sq, -bb + sq].forEach(function(s2, k) { if (k === 0 || sq > 1e-9) out.push([l.p[0] + l.d[0] * s2, l.p[1] + l.d[1] * s2]); });
+    } else {
+      var dx = v.cx - u.cx, dy = v.cy - u.cy, d = Math.hypot(dx, dy);
+      if (d < 1e-12 || d > u.r + v.r + 1e-9 || d < Math.abs(u.r - v.r) - 1e-9) return out;
+      var aa = (u.r * u.r - v.r * v.r + d * d) / (2 * d), hh = Math.sqrt(Math.max(0, u.r * u.r - aa * aa));
+      var mx = u.cx + dx * aa / d, my = u.cy + dy * aa / d;
+      out.push([mx - dy * hh / d, my + dx * hh / d]);
+      if (hh > 1e-9) out.push([mx + dy * hh / d, my - dx * hh / d]);
+    }
+    return out;
+  }
+  var found = [];
+  offsets(a).forEach(function(u) { offsets(b).forEach(function(v) {
+    meet(u, v).forEach(function(c) { if (!found.some(function(f) { return Math.hypot(f[0] - c[0], f[1] - c[1]) < 1e-7; })) found.push(c); });
+  }); });
+  return found;
+}
+
+// Where the circle of radius R at `center` touches the element.
+function editorTangentPoint(el, center, R) {
+  if (el.type === "line") {
+    var dx = el.q[0] - el.p[0], dy = el.q[1] - el.p[1], len2 = dx * dx + dy * dy;
+    var s = ((center[0] - el.p[0]) * dx + (center[1] - el.p[1]) * dy) / len2;
+    return [el.p[0] + dx * s, el.p[1] + dy * s];
+  }
+  var vx = el.cx - center[0], vy = el.cy - center[1], d = Math.hypot(vx, vy);
+  if (d < 1e-12) return [center[0] + R, center[1]];
+  var k = el.r > R + 1e-9 && Math.abs(d - (el.r - R)) < 1e-6 ? -1 : 1;     // the fillet circle lies inside the bigger circle: touch beyond the centre
+  return [center[0] + k * vx / d * R, center[1] + k * vy / d * R];
+}
+
+// Points of the shorter arc from t1 to t2 around centre (both on the circle), step about stepDeg.
+function editorArcBetween(center, t1, t2, stepDeg) {
+  var a1 = Math.atan2(t1[1] - center[1], t1[0] - center[0]), a2 = Math.atan2(t2[1] - center[1], t2[0] - center[0]);
+  var da = a2 - a1;
+  while (da > Math.PI) da -= 2 * Math.PI;
+  while (da < -Math.PI) da += 2 * Math.PI;
+  var R = Math.hypot(t1[0] - center[0], t1[1] - center[1]), n = Math.max(2, Math.ceil(Math.abs(da) * 180 / Math.PI / (stepDeg || 3))), out = [];
+  for (var i = 0; i <= n; i++) out.push([center[0] + R * Math.cos(a1 + da * i / n), center[1] + R * Math.sin(a1 + da * i / n)]);
+  out[0] = [t1[0], t1[1]]; out[n] = [t2[0], t2[1]];
+  return out;
+}
+
+// The tangent arc of radius R between the elements under two clicks. polyA / polyB: the polylines the elements come from (the touching
+// points must lie on them). Of all possible circles the one whose touching points are nearest to the clicks wins.
+// Returns {center, tA, tB, arc: [[x, y], ...]} or null.
+function editorFilletArc(elA, elB, R, clickA, clickB, polyA, polyB) {
+  if (!(R > 0)) return null;
+  var best = null;
+  function onPoly(poly, p) {
+    if (!poly) return true;
+    var near = editorNearestPosition(poly, p);
+    return near && near.dist < 0.05 + 0.002 * R;
+  }
+  editorFilletCenters(elA, elB, R).forEach(function(c) {
+    var ta = editorTangentPoint(elA, c, R), tb = editorTangentPoint(elB, c, R);
+    if (!onPoly(polyA, ta) || !onPoly(polyB, tb)) return;
+    var score = Math.hypot(ta[0] - clickA[0], ta[1] - clickA[1]) + Math.hypot(tb[0] - clickB[0], tb[1] - clickB[1]);
+    if (!best || score < best.score) best = { center: c, tA: ta, tB: tb, score: score };
+  });
+  if (!best) return null;
+  return { center: best.center, tA: best.tA, tB: best.tB, arc: editorArcBetween(best.center, best.tA, best.tB, 3) };
+}
+
+// The part of the open polyline that stays when the arc is attached at position tT and the click was at tClick: the side with the click,
+// oriented so that it ENDS at the touching point (reversed = true when it had to be turned round). null when nothing is left.
+function editorPieceEndingAt(points, tT, tClick) {
+  var n = points.length, piece, reversed = false;
+  if (tClick <= tT) piece = editorSubPolyline(points, 0, tT);
+  else { piece = editorSubPolyline(points, tT, n - 1).reverse(); reversed = true; }
+  return piece.length >= 2 ? { points: piece, reversed: reversed } : null;
+}
+
+// Puts the tangent arc between two polylines: both are trimmed to the touching points and joined with the arc into ONE open polyline.
+// pointsA / pointsB: the two polylines (open); clickTA / clickTB: positions of the clicks on them. Returns the joined polyline or null.
+function editorFilletJoin(pointsA, clickTA, fillet, pointsB, clickTB) {
+  var tA = editorNearestPosition(pointsA, fillet.tA).t, tB = editorNearestPosition(pointsB, fillet.tB).t;
+  var a = editorPieceEndingAt(pointsA, tA, clickTA), b = editorPieceEndingAt(pointsB, tB, clickTB);
+  if (!a || !b) return null;
+  var out = a.points.slice(0, a.points.length - 1).concat(fillet.arc, b.points.slice(0, b.points.length - 1).reverse());
+  var clean = [];
+  out.forEach(function(p) { var q = clean[clean.length - 1]; if (!q || Math.hypot(q[0] - p[0], q[1] - p[1]) > 1e-9) clean.push(p); });
+  return clean;
 }
