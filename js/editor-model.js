@@ -150,3 +150,66 @@ function editorPrompt(state) {
   if (state.count === 1) return "1 object selected - change X / Y / W / H in the panel";
   return state.count + " objects selected - the panel moves, resizes and rotates them together";
 }
+
+// ---- 1.5.0: mirror, copies, handles, arrow keys ---------------------------------------------------------------------
+
+// Mirror a point: axis "x" flips left-right about the vertical line x = value, axis "y" flips up-down about y = value.
+function editorMirrorPoint(p, axis, value) {
+  if (axis === "x") return [2 * value - p[0], p[1]];
+  if (axis === "y") return [p[0], 2 * value - p[1]];
+  throw new Error("Axis must be x or y");
+}
+
+// Offsets of the extra copies of a linear copy: count = number of objects in total (original included) -> count-1 offsets.
+function editorLinearOffsets(count, dx, dy) {
+  count = Math.round(Number(count));
+  if (!(count >= 2) || count > 500) throw new Error("Number of objects must be between 2 and 500");
+  if (!isFinite(dx) || !isFinite(dy)) throw new Error("Distance must be a number");
+  if (dx === 0 && dy === 0) throw new Error("Distance X and Y are both zero");
+  var out = [];
+  for (var i = 1; i < count; i++) out.push([dx * i, dy * i]);
+  return out;
+}
+
+// Angles (degrees) of the extra copies of a circular copy. totalAngle 360 = full circle (the copies are spread evenly and the last
+// one does not land on the original); any other total angle puts the last copy exactly at that angle.
+function editorPolarAngles(count, totalAngle) {
+  count = Math.round(Number(count));
+  totalAngle = Number(totalAngle);
+  if (!(count >= 2) || count > 500) throw new Error("Number of objects must be between 2 and 500");
+  if (!isFinite(totalAngle) || totalAngle === 0) throw new Error("Angle must be a non-zero number");
+  var step = Math.abs(totalAngle) >= 360 ? totalAngle / count : totalAngle / (count - 1);
+  var out = [];
+  for (var i = 1; i < count; i++) out.push(step * i);
+  return out;
+}
+
+// The 8 handles of the selection box (the centre has none). A handle is dragged to the mouse point (mx, my);
+// the OPPOSITE point of the box stays fixed. Corners keep the proportions unless `free`; edge handles change one side only.
+// Returns {fx, fy, fixed:[x,y]}; the factors never fall below 0.01 (no flipping inside out).
+var EDITOR_OPPOSITE = { ul: "lr", uc: "lc", ur: "ll", ml: "mr", mr: "ml", ll: "ur", lc: "uc", lr: "ul" };
+function editorHandleFactors(box, handle, mx, my, free) {
+  if (!EDITOR_OPPOSITE[handle]) throw new Error("Unknown handle: " + handle);
+  var fixed = editorRefPoint(box, EDITOR_OPPOSITE[handle]), h = editorRefPoint(box, handle);
+  var vx = h[0] - fixed[0], vy = h[1] - fixed[1];
+  var fx = 1, fy = 1;
+  if (vx !== 0 && vy !== 0) {
+    if (free) { fx = (mx - fixed[0]) / vx; fy = (my - fixed[1]) / vy; }
+    else {                                                    // project the mouse on the diagonal
+      var f = ((mx - fixed[0]) * vx + (my - fixed[1]) * vy) / (vx * vx + vy * vy);
+      fx = f; fy = f;
+    }
+  } else if (vx !== 0) fx = (mx - fixed[0]) / vx;
+  else if (vy !== 0) fy = (my - fixed[1]) / vy;
+  return { fx: Math.max(0.01, fx), fy: Math.max(0.01, fy), fixed: fixed };
+}
+
+// Arrow key step in mm: 1 mm, Shift = 10 mm, Alt = 0.1 mm. Returns [dx, dy] or null for other keys.
+function editorArrowDelta(key, shift, alt) {
+  var s = shift ? 10 : alt ? 0.1 : 1;
+  if (key === "ArrowLeft") return [-s, 0];
+  if (key === "ArrowRight") return [s, 0];
+  if (key === "ArrowUp") return [0, s];
+  if (key === "ArrowDown") return [0, -s];
+  return null;
+}

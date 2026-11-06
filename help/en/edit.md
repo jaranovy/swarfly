@@ -8,7 +8,15 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 - **Width / Height** and **Keep proportions**: type a size, the object is scaled; the chosen reference point stays where it is. With several objects selected they scale and move together as one.
 - **Rotate**: angle in degrees, *Anticlockwise* or *Clockwise*, around the centre of the selection.
 - **Shape parameters** (one star, polygon, ellipse ... selected): change the number of points, radii, sides and press *Apply parameters*; the lower-left corner stays. Scaling or rotating a shape afterwards removes its parameters (it is then an ordinary outline).
+- **Mirror left-right / up-down** flips the selection about its centre; **Move to X0 Y0** puts its lower-left corner on the origin.
+- **Copies**: *Copy in a row* makes the given total number of objects (the original included) with the step X / Y between them; *Copy around a point* turns the copies about the centre X / Y (default X0 Y0), 360 = a full circle spread evenly, any other angle ends exactly there. The copies become the selection; copies of one shape keep its parameters.
 - Every change is one undo step (Ctrl+Z).
+
+### Handles and arrow keys
+
+The selection is framed by a dashed box with eight handles. Drag a **corner** to scale proportionally (hold **Shift** to change width and height separately); drag the **middle of an edge** to change one side. The opposite corner or edge stays where it is, and the panel follows while you drag. Click on a handle without moving does nothing.
+
+The **arrow keys** nudge the selection by 1 mm (Shift 10 mm, Alt 0.1 mm); they do nothing while you type in a field.
 
 The **Properties** button in the *Edit* group hides or shows the panel. The **Dimensions** button draws the overall width and height of the selection (or of the whole drawing when nothing is selected) on the part. The line at the bottom of the drawing shows the cursor position and what to do next.
 

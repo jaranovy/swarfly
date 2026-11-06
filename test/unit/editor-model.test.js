@@ -139,3 +139,57 @@ test('status line prompts', () => {
 	assert.match(m.editorPrompt({ placing: false, count: 1 }), /1 object selected/);
 	assert.match(m.editorPrompt({ placing: false, count: 4 }), /4 objects selected/);
 });
+
+test('mirror: a point mirrored twice is itself; the mirror line keeps its points', () => {
+	assert.deepEqual(Array.from(m.editorMirrorPoint([3, 4], 'x', 10)), [17, 4]);
+	assert.deepEqual(Array.from(m.editorMirrorPoint([3, 4], 'y', 10)), [3, 16]);
+	assert.deepEqual(Array.from(m.editorMirrorPoint([10, 4], 'x', 10)), [10, 4]);
+	assert.deepEqual(Array.from(m.editorMirrorPoint(m.editorMirrorPoint([3, 4], 'x', 7), 'x', 7)), [3, 4]);
+	assert.throws(() => m.editorMirrorPoint([1, 1], 'z', 0));
+});
+
+test('linear copy offsets: count includes the original', () => {
+	assert.deepEqual(JSON.parse(JSON.stringify(m.editorLinearOffsets(4, 10, 5))), [[10, 5], [20, 10], [30, 15]]);
+	assert.throws(() => m.editorLinearOffsets(1, 10, 0), /between 2 and 500/);
+	assert.throws(() => m.editorLinearOffsets(501, 10, 0), /between 2 and 500/);
+	assert.throws(() => m.editorLinearOffsets(3, 0, 0), /both zero/);
+	assert.throws(() => m.editorLinearOffsets(3, NaN, 1), /number/);
+});
+
+test('polar copy angles: full circle spreads evenly, partial arc ends at the angle', () => {
+	assert.deepEqual(JSON.parse(JSON.stringify(m.editorPolarAngles(4, 360))), [90, 180, 270]);
+	assert.deepEqual(JSON.parse(JSON.stringify(m.editorPolarAngles(3, 90))), [45, 90]);
+	assert.deepEqual(JSON.parse(JSON.stringify(m.editorPolarAngles(3, -90))), [-45, -90]);
+	assert.throws(() => m.editorPolarAngles(1, 90));
+	assert.throws(() => m.editorPolarAngles(4, 0));
+});
+
+test('handles: a corner keeps proportions, the opposite corner stays fixed', () => {
+	const r = m.editorHandleFactors(BOX, 'ur', 90, 60, false);         // BOX is 40 x 20 at (10,20); ur corner is (50,40)
+	assert.deepEqual(Array.from(r.fixed), [10, 20]);
+	near(r.fx, r.fy);
+	// dragging exactly along the diagonal to twice the size
+	const d = m.editorHandleFactors(BOX, 'ur', 90, 60, false);
+	near(d.fx, 2, 1e-9);
+	const free = m.editorHandleFactors(BOX, 'ur', 90, 40, true);
+	near(free.fx, 2); near(free.fy, 1);
+	const free2 = m.editorHandleFactors(BOX, 'ur', 90, 30, true);
+	near(free2.fx, 2); near(free2.fy, 0.5);
+});
+
+test('handles: edge handles change one side only; the factor never goes below 0.01', () => {
+	const e = m.editorHandleFactors(BOX, 'mr', 70, 999, false);
+	near(e.fx, 1.5); near(e.fy, 1);
+	const t = m.editorHandleFactors(BOX, 'uc', 0, 60, false);
+	near(t.fx, 1); near(t.fy, 2);
+	const tiny = m.editorHandleFactors(BOX, 'mr', -500, 0, false);
+	near(tiny.fx, 0.01);
+	assert.throws(() => m.editorHandleFactors(BOX, 'mc', 0, 0, false));
+});
+
+test('arrow keys: 1 mm, Shift 10 mm, Alt 0.1 mm, other keys ignored', () => {
+	assert.deepEqual(Array.from(m.editorArrowDelta('ArrowLeft', false, false)), [-1, 0]);
+	assert.deepEqual(Array.from(m.editorArrowDelta('ArrowUp', true, false)), [0, 10]);
+	assert.deepEqual(Array.from(m.editorArrowDelta('ArrowDown', false, true)), [0, -0.1]);
+	assert.equal(m.editorArrowDelta('a', false, false), null);
+});

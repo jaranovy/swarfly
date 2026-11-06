@@ -128,7 +128,7 @@ function editorBuildPanel() {
   p.innerHTML = '<style>' +
     '#editorPanel{--ed-bg:#ffffff;--ed-fg:#1d2530;--ed-bar:#e3e9f1;--ed-border:#9fb0c3;--ed-input:#f4f7fb;--ed-accent:#0b6bcb}' +
     'body.theme_dark #editorPanel{--ed-bg:#1d2530;--ed-fg:#dfe6ee;--ed-bar:#2b3645;--ed-border:#4a5a70;--ed-input:#141a22;--ed-accent:#6cc0ff}' +
-    '#editorPanel{position:absolute;top:10px;left:64px;z-index:6;width:236px;display:none;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px}' +
+    '#editorPanel{position:absolute;top:10px;left:64px;z-index:6;width:236px;max-height:calc(100% - 50px);overflow:auto;display:none;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px}' +
     '#editorPanel .ep-head{padding:5px 10px;background:var(--ed-bar);border-radius:6px 6px 0 0;font-weight:600;cursor:default}' +
     '#editorPanel .ep-body{padding:8px 10px}#editorPanel .ep-row{display:flex;align-items:center;gap:6px;margin:4px 0}' +
     '#editorPanel .ep-row label{width:70px;flex:0 0 70px}' +
@@ -152,6 +152,17 @@ function editorBuildPanel() {
     '<div class="ep-row"><label style="width:auto;flex:1"><input type="checkbox" id="epLock" checked> Keep proportions</label></div><hr>' +
     '<div class="ep-row"><label for="epAngle">Rotate</label><input type="text" id="epAngle" value="45" autocomplete="off"></div>' +
     '<div class="ep-row"><button type="button" id="epCCW" style="flex:1">Anticlockwise</button><button type="button" id="epCW" style="flex:1">Clockwise</button></div>' +
+    '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
+    '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
+    '<b>Copies</b>' +
+    '<div class="ep-row"><label for="epCopyCount">Objects</label><input type="text" id="epCopyCount" value="3" autocomplete="off" title="Total number of objects, the original included"></div>' +
+    '<div class="ep-row"><label for="epCopyDX">Step X</label><input type="text" id="epCopyDX" value="10" autocomplete="off"></div>' +
+    '<div class="ep-row"><label for="epCopyDY">Step Y</label><input type="text" id="epCopyDY" value="0" autocomplete="off"></div>' +
+    '<div class="ep-row"><button type="button" id="epCopyLinear" style="flex:1">Copy in a row</button></div>' +
+    '<div class="ep-row"><label for="epCopyAngle">Angle</label><input type="text" id="epCopyAngle" value="360" autocomplete="off" title="360 = full circle, spread evenly"></div>' +
+    '<div class="ep-row"><label for="epCopyCX">Centre X</label><input type="text" id="epCopyCX" value="0" autocomplete="off" title="Point the copies turn around"></div>' +
+    '<div class="ep-row"><label for="epCopyCY">Centre Y</label><input type="text" id="epCopyCY" value="0" autocomplete="off"></div>' +
+    '<div class="ep-row"><button type="button" id="epCopyPolar" style="flex:1" title="Copies rotated about the centre point">Copy around a point</button></div>' +
     '<div id="epParams"></div></div>';
   var area = document.getElementById("renderArea");
   area.appendChild(p);
@@ -171,6 +182,11 @@ function editorBuildPanel() {
     document.getElementById("epRefNote").textContent = names[editorState.ref];
     editorRefresh(true);
   });
+  document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
+  document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
+  document.getElementById("epToZero").addEventListener("click", editorToZero);
+  document.getElementById("epCopyLinear").addEventListener("click", editorCopyLinear);
+  document.getElementById("epCopyPolar").addEventListener("click", editorCopyPolar);
   p.addEventListener("keydown", function(e) { e.stopPropagation(); });   // Delete / Backspace in a field must not delete objects
 
   var status = document.createElement("div");
@@ -181,6 +197,21 @@ function editorBuildPanel() {
   var svg = document.createElementNS(ns, "svg");
   svg.id = "editorDims";
   area.appendChild(svg);
+  // selection box with 8 handles; the svg itself ignores the mouse, only the handles take it
+  var hs = document.createElementNS(ns, "svg");
+  hs.id = "editorHandles";
+  hs.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none";
+  var cursors = { ul: "nwse-resize", lr: "nwse-resize", ur: "nesw-resize", ll: "nesw-resize", uc: "ns-resize", lc: "ns-resize", ml: "ew-resize", mr: "ew-resize" };
+  var html = '<rect id="editorBoxLine" fill="none" stroke="#0b9bff" stroke-width="1" stroke-dasharray="5 4"/>';
+  Object.keys(cursors).forEach(function(h) {
+    html += '<rect class="editorHandle" data-h="' + h + '" width="9" height="9" fill="#fff" stroke="#0b6bcb" stroke-width="1.5" style="pointer-events:all;cursor:' + cursors[h] + '"/>';
+  });
+  hs.innerHTML = html;
+  area.appendChild(hs);
+  Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
+    r.addEventListener("mousedown", function(e) { editorHandleDown(e, r.getAttribute("data-h")); });
+    ["mouseup", "wheel", "dblclick", "contextmenu"].forEach(function(t) { r.addEventListener(t, function(e) { e.stopPropagation(); }); });
+  });
 }
 
 function editorParamsHtml(line) {
@@ -217,6 +248,139 @@ function editorRefresh(force) {
     var btn = document.getElementById("epApplyParams");
     if (btn) btn.addEventListener("click", editorApplyParams);
   }
+}
+
+// ---- 1.5.0: mirror, move to zero, copies --------------------------------------------------------------------------------
+function editorMirror(axis) {
+  var lines = editorSelection(), box = editorSelectionBox(lines);
+  if (!box) return;
+  var c = editorRefPoint(box, "mc"), value = axis === "x" ? c[0] : c[1];
+  editorTransform(lines, function(p) { return editorMirrorPoint(p, axis, value); }, "mirror");
+}
+
+function editorToZero() {
+  var lines = editorSelection(), box = editorSelectionBox(lines);
+  if (!box) return;
+  var d = editorMoveDelta(box, "ll", 0, 0);
+  editorTransform(lines, function(p) { return [p[0] + d[0], p[1] + d[1]]; }, "move");
+}
+
+// one copy of every selected line for each transform; the copies become the selection. keepShape: copies of a pure move keep their parameters.
+function editorMakeCopies(lines, transforms, keepShape) {
+  storeUndo(true);                         // one undo step for the whole set
+  var created = [];
+  transforms.forEach(function(fn) {
+    lines.forEach(function(line) {
+      var g = line.geometry.clone();
+      for (var i = 0; i < g.vertices.length; i++) {
+        var q = fn([g.vertices[i].x, g.vertices[i].y]);
+        g.vertices[i].x = q[0]; g.vertices[i].y = q[1];
+      }
+      var copy = new THREE.Line(g, line.material.clone());
+      copy.name = line.name;
+      if (keepShape && line.userData.shape) copy.userData.shape = JSON.parse(JSON.stringify(line.userData.shape));
+      line.parent.add(copy);
+      created.push(copy);
+    });
+  });
+  lines.forEach(function(l) { l.userData.selected = false; });
+  created.forEach(function(c) { c.userData.selected = true; });
+  if (typeof fillTree === "function") fillTree();
+  if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+  clearSceneFlag = true;
+  editorRefresh(true);
+}
+
+function editorCopyLinear() {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  try {
+    var offs = editorLinearOffsets(editorRead("epCopyCount"), editorRead("epCopyDX"), editorRead("epCopyDY"));
+    editorMakeCopies(lines, offs.map(function(o) { return function(p) { return [p[0] + o[0], p[1] + o[1]]; }; }), true);
+  } catch (e) { editorToast(e.message); }
+}
+
+function editorCopyPolar() {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  try {
+    var angles = editorPolarAngles(editorRead("epCopyCount"), editorRead("epCopyAngle")), c = [editorRead("epCopyCX"), editorRead("epCopyCY")];
+    editorMakeCopies(lines, angles.map(function(a) { return function(p) { return editorRotatePoint(p, c, a); }; }), false);
+  } catch (e) { editorToast(e.message); }
+}
+
+// ---- 1.5.0: handles on the selection box ---------------------------------------------------------------------------------
+var editorDrag = null;
+
+function editorDrawHandles() {
+  var hs = document.getElementById("editorHandles");
+  if (!hs) return;
+  var lines = editorState.placing ? [] : editorSelection();
+  var box = lines.length ? editorSelectionBox(lines) : null;
+  if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; return; }
+  hs.style.display = "block";
+  var a = editorToScreen(box.minX, box.maxY), b = editorToScreen(box.maxX, box.minY);
+  var line = document.getElementById("editorBoxLine");
+  line.setAttribute("x", Math.min(a[0], b[0])); line.setAttribute("y", Math.min(a[1], b[1]));
+  line.setAttribute("width", Math.abs(b[0] - a[0])); line.setAttribute("height", Math.abs(b[1] - a[1]));
+  Array.prototype.forEach.call(hs.querySelectorAll(".editorHandle"), function(r) {
+    var p = editorRefPoint(box, r.getAttribute("data-h")), q = editorToScreen(p[0], p[1]);
+    r.setAttribute("x", q[0] - 4.5); r.setAttribute("y", q[1] - 4.5);
+  });
+}
+
+function editorHandleDown(e, handle) {
+  if (e.button !== 0) return;
+  e.preventDefault(); e.stopPropagation();
+  var lines = editorSelection(), box = editorSelectionBox(lines);
+  if (!box) return;
+  storeUndo(true);
+  editorDrag = {
+    handle: handle, lines: lines, box: box, changed: false,
+    snap: lines.map(function(l) { return l.geometry.vertices.map(function(v) { return [v.x, v.y]; }); })
+  };
+}
+
+function editorHandleMove(e) {
+  if (!editorDrag) return;
+  var d = editorDrag, w = mouseToWorldCoord(e), r = editorHandleFactors(d.box, d.handle, w.x, w.y, e.shiftKey);
+  d.lines.forEach(function(line, li) {
+    var g = line.geometry;
+    for (var i = 0; i < g.vertices.length; i++) {
+      var q = editorScalePoint(d.snap[li][i], r.fixed, r.fx, r.fy);
+      g.vertices[i].x = q[0]; g.vertices[i].y = q[1];
+    }
+    g.verticesNeedUpdate = true;
+  });
+  d.changed = d.changed || Math.abs(r.fx - 1) > 1e-9 || Math.abs(r.fy - 1) > 1e-9;
+  clearSceneFlag = true;
+}
+
+function editorHandleUp() {
+  if (!editorDrag) return;
+  var d = editorDrag;
+  editorDrag = null;
+  d.lines.forEach(function(line) {
+    if (line.geometry.computeBoundingSphere) line.geometry.computeBoundingSphere();
+    if (line.geometry.computeBoundingBox) line.geometry.computeBoundingBox();
+    if (d.changed) delete line.userData.shape;
+  });
+  if (!d.changed && typeof undoStore !== "undefined") undoStore.shift();      // a click on a handle without dragging is not an edit
+  if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+  clearSceneFlag = true;
+  editorRefresh(true);
+}
+
+// arrow keys nudge the selection: 1 mm, Shift 10 mm, Alt 0.1 mm
+function editorArrowKey(e) {
+  var t = e.target && e.target.nodeName ? e.target.nodeName.toLowerCase() : "";
+  if (t === "input" || t === "textarea" || t === "select" || editorState.placing) return;
+  var d = editorArrowDelta(e.key, e.shiftKey, e.altKey);
+  if (!d) return;
+  var lines = editorSelection();
+  if (!lines.length) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  editorTransform(lines, function(p) { return [p[0] + d[0], p[1] + d[1]]; }, "move");
 }
 
 // ---- dimensions ------------------------------------------------------------------------------------------------------
@@ -365,7 +529,11 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       if (e.key === "Escape" && editorState.placing) { e.preventDefault(); e.stopImmediatePropagation(); editorDropAtOrigin(); }
     }, true);
 
+    document.addEventListener("mousemove", editorHandleMove);
+    document.addEventListener("mouseup", editorHandleUp, true);   // capture: the handles stop the event from bubbling
+    document.addEventListener("keydown", editorArrowKey, true);
+
     setInterval(function() { editorRefresh(false); editorStatusUpdate(null); }, 150);
-    setInterval(editorDrawDims, 100);
+    setInterval(function() { editorDrawDims(); editorDrawHandles(); }, 100);
   });
 }

@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.5.0] - 2026-11-06
+### Added
+- Handles on the selection box: drag a corner to scale proportionally (Shift = width and height separately), drag an edge middle to change one side; the opposite side stays; one undo step per drag, a plain click on a handle changes nothing.
+- Arrow keys nudge the selection (1 mm, Shift 10 mm, Alt 0.1 mm).
+- Panel: Mirror left-right / up-down, Move to X0 Y0, copies in a row (count, step X / Y) and copies around a point (count, angle, centre X / Y); copies keep the shape parameters when they are only moved; one undo step for a whole set of copies.
+- Unit tests for mirror, copy offsets / angles, handle maths and arrow steps; 13 e2e tests for the new commands and the handles.
+
 ## [1.4.0] - 2026-11-06
 ### Added
 - Properties panel for the selection: X / Y of a chosen reference point (3x3 picker), width, height with "Keep proportions", rotation, several objects together; every change is one undo step.

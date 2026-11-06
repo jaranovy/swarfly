@@ -8,7 +8,15 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Šířka / Výška** a **Zachovat poměr stran**: zadej rozměr, objekt se změní; zvolený vztažný bod zůstane na místě. Při výběru více objektů se mění a posouvají společně jako jeden celek.
 - **Otočit**: úhel ve stupních, *Proti směru hodin* nebo *Po směru hodin*, kolem středu výběru.
 - **Parametry tvaru** (vybraná jedna hvězda, mnohoúhelník, elipsa ...): změň počet cípů, poloměry, počet stran a stiskni *Použít parametry*; levý dolní roh zůstane. Pozdější změna velikosti nebo otočení parametry odstraní (je to pak obyčejný obrys).
+- **Zrcadlit vlevo-vpravo / nahoru-dolů** překlopí výběr kolem jeho středu; **Přesunout na X0 Y0** dá jeho levý dolní roh na počátek.
+- **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
+
+### Úchyty a šipky
+
+Výběr obklopuje čárkovaný rámeček s osmi úchyty. Táhni za **roh** pro poměrné zvětšení (s klávesou **Shift** se šířka a výška mění zvlášť); táhni za **střed hrany** pro změnu jedné strany. Protější roh nebo hrana zůstanou na místě a panel se při tažení mění s tebou. Kliknutí na úchyt bez tažení nic neudělá.
+
+**Šipky** posunou výběr o 1 mm (Shift 10 mm, Alt 0,1 mm); při psaní do pole nic nedělají.
 
 Tlačítko **Vlastnosti** ve skupině *Upravit* panel skryje nebo zobrazí. Tlačítko **Kóty** nakreslí na díl celkovou šířku a výšku výběru (nebo celého výkresu, když nic není vybráno). Řádek dole ve výkresu ukazuje polohu kurzoru a co dělat dál.
 
