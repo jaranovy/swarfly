@@ -381,5 +381,14 @@
  "Only closed outlines can be offset": "Odsadit lze jen uzavřené obrysy",
  "Offset must be a non-zero number": "Odsazení musí být nenulové číslo",
  "Size must be positive": "Velikost musí být kladná",
- "An outline needs at least 3 points": "Obrys potřebuje aspoň 3 body"
+ "An outline needs at least 3 points": "Obrys potřebuje aspoň 3 body",
+ "Hole": "Otvor",
+ "Diameter": "Průměr",
+ "Set": "Nastavit",
+ "Resize the circle round its centre": "Změnit velikost kruhu okolo jeho středu",
+ "Apply points": "Použít body",
+ "Move the outline points to the typed positions": "Přesunout body obrysu na zadané polohy",
+ "The point list is out of date": "Seznam bodů je zastaralý",
+ "Diameter must be positive": "Průměr musí být kladný",
+ "Outline points": "Body obrysu"
 }

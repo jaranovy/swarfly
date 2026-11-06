@@ -19,6 +19,10 @@ Sekce panelu *Rohy a odsazení* (vyber jeden nebo více obrysů):
 - **Velikost** + **Zaoblit rohy**: každý roh se změní na oblouk o tomto poloměru. **Zkosit**: každý roh se odřízne v této vzdálenosti na obou hranách. Roh smí využít nejvýš polovinu sousední hrany; kde velikost nevyjde, použije se menší a zpráva to oznámí. Otevřené čáry si ponechají koncové body. Obrys je pak obyčejný (parametry tvaru se zahodí); krok zpět vrátí původní.
 - **Odsazení** + **Odsazená kopie**: přidá rovnoběžný obrys v dané vzdálenosti, ve vypouklých rozích s oblouky. Kladné číslo obrys zvětší, záporné zmenší (třeba přídavek na průměr frézy nebo vnitřní čára kapsy). Originál zůstane, nový obrys je vybraný. Odsadit lze jen uzavřené obrysy; když po zmenšení nic nezbyde, dostaneš zprávu.
 
+### Body a průměr otvoru
+
+Je-li vybraný jeden obrys, panel vypíše jeho rohové body (uzavřený obrys ukáže první bod jen jednou; nejvýš 40 bodů). Přepiš hodnoty X / Y a stiskni **Použít body**; obrys se přetvaří (jeden krok zpět, parametry tvaru se zahodí, zamčený obrys se odmítne). Uzavřený obrys, který je kruh, ukáže i **Otvor - Průměr**: zadej nový průměr a stiskni **Nastavit**; kruh se zvětší nebo zmenší okolo svého středu.
+
 ### Kóty, měření a body zadané číslem
 
 - Tlačítko **Kóty** (skupina Upravit) přepíná tři stavy: vypnuto, **Celkový rozměr** (šířka a výška výběru, nebo celého výkresu, když nic není vybráno) a **Každý objekt** (každý obrys dostane vlastní šířku a výšku, kruh průměr).

@@ -3,6 +3,11 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.6.2] - 2026-11-06
+### Added
+- Properties panel: table of the corner points of the selected outline (X / Y editable, Apply points), and Hole - Diameter for circles. One undo step each.
+- 5 e2e tests.
+
 ## [1.6.1] - 2026-11-06
 ### Added
 - Properties panel, section "Corners and offset": Round corners (radius) and Chamfer (distance) for every corner of the selected outlines, Offset copy (positive grows, negative shrinks, round joins, Clipper) for closed outlines.

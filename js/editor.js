@@ -168,6 +168,7 @@ function editorBuildPanel() {
     '<div class="ep-row"><label style="width:auto;flex:1" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label></div>' +
     '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
     '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
+    '<div id="epPointsBox"></div>' +
     '<b>Corners and offset</b>' +
     '<div class="ep-row"><label for="epCornerSize">Size</label><input type="text" id="epCornerSize" value="3" autocomplete="off" title="Radius of the rounded corners, or the length cut off along both edges for a chamfer"></div>' +
     '<div class="ep-row"><button type="button" id="epFillet" style="flex:1" title="Round every corner of the selected outlines">Round corners</button><button type="button" id="epChamfer" style="flex:1" title="Cut every corner of the selected outlines">Chamfer</button></div>' +
@@ -285,6 +286,7 @@ function editorRefresh(force) {
   document.getElementById("epY").value = editorFormat(ref[1]);
   document.getElementById("epW").value = editorFormat(s.w);
   document.getElementById("epH").value = editorFormat(s.h);
+  editorRefreshPoints(lines);
   var box2 = document.getElementById("epParams");
   var key = lines.length === 1 && lines[0].userData.shape ? lines[0].uuid + JSON.stringify(lines[0].userData.shape) : "";
   if (key !== editorState.paramsFor) {
@@ -657,6 +659,81 @@ function editorEscape(e) {
   objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
   clearSceneFlag = true;
   editorRefresh(true);
+}
+
+// ---- 1.6.2: edit single points, hole diameter -----------------------------------------------------------------------------
+var EDITOR_MAX_POINT_ROWS = 40;
+
+// a closed outline repeats its first point at the end; the table shows that point once
+function editorOutlineRows(pts) {
+  var closed = pts.length > 3 && Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-9;
+  return { rows: closed ? pts.slice(0, -1) : pts, closed: closed };
+}
+
+function editorRefreshPoints(lines) {
+  var host = document.getElementById("epPointsBox");
+  if (!host) return;
+  var key = "";
+  if (lines.length === 1) key = lines[0].uuid + ":" + editorLinePoints(lines[0]).map(function(p) { return p[0].toFixed(4) + "," + p[1].toFixed(4); }).join(";");
+  if (key === editorState.pointsFor) return;
+  editorState.pointsFor = key;
+  if (!key) { host.innerHTML = ""; return; }
+  var pts = editorLinePoints(lines[0]), info = editorOutlineRows(pts), fit = info.closed ? editorCircleFit(pts, 0.01) : null, h = "";
+  if (fit) {
+    h += '<b>Hole</b><div class="ep-row"><label for="epDia">Diameter</label><input type="text" id="epDia" value="' + editorFormat(2 * fit.r) + '" autocomplete="off" title="Resize the circle round its centre"><button type="button" id="epApplyDia">Set</button></div><hr>';
+  }
+  if (info.rows.length <= EDITOR_MAX_POINT_ROWS) {
+    h += '<b>Outline points</b><div style="max-height:150px;overflow:auto">';
+    info.rows.forEach(function(p, i) {
+      h += '<div class="ep-row"><span style="width:22px">' + (i + 1) + '</span><input type="text" class="epPtX" value="' + editorFormat(p[0]) + '" autocomplete="off"><input type="text" class="epPtY" value="' + editorFormat(p[1]) + '" autocomplete="off"></div>';
+    });
+    h += '</div><div class="ep-row"><button type="button" id="epApplyPoints" style="flex:1" title="Move the outline points to the typed positions">Apply points</button></div><hr>';
+  } else {
+    h += '<div class="ep-row" style="opacity:.7">Too many points to list (' + info.rows.length + ')</div><hr>';
+  }
+  host.innerHTML = h;
+  var a = document.getElementById("epApplyPoints"); if (a) a.addEventListener("click", editorApplyPoints);
+  var d = document.getElementById("epApplyDia"); if (d) d.addEventListener("click", editorApplyDiameter);
+}
+
+function editorApplyPoints() {
+  var lines = editorSelection();
+  if (lines.length !== 1) return;
+  var line = lines[0];
+  if (editorLocked(lines).length) { editorToast("Locked objects are not changed - untick Locked first"); return; }
+  try {
+    var xs = document.querySelectorAll("#epPointsBox .epPtX"), ys = document.querySelectorAll("#epPointsBox .epPtY"), pts = editorLinePoints(line), info = editorOutlineRows(pts);
+    if (xs.length !== info.rows.length) throw new Error("The point list is out of date");
+    var out = [];
+    for (var i = 0; i < xs.length; i++) {
+      var x = Number(String(xs[i].value).trim().replace(",", ".")), y = Number(String(ys[i].value).trim().replace(",", "."));
+      if (!isFinite(x) || !isFinite(y) || xs[i].value.trim() === "" || ys[i].value.trim() === "") throw new Error("Not a number: point " + (i + 1));
+      out.push([x, y]);
+    }
+    if (info.closed) out.push([out[0][0], out[0][1]]);
+    storeUndo(true);
+    // the line's own position was baked into the geometry by storeUndo, so absolute and geometry coordinates now agree
+    var ox = line.position.x + (line.parent ? line.parent.position.x : 0), oy = line.position.y + (line.parent ? line.parent.position.y : 0);
+    editorReplaceGeometry(line, out.map(function(p) { return [p[0] - ox, p[1] - oy]; }));
+    delete line.userData.shape;
+    if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+    clearSceneFlag = true;
+    editorState.snapCache = null;
+    editorRefresh(true);
+  } catch (e) { editorToast(e.message); }
+}
+
+function editorApplyDiameter() {
+  var lines = editorSelection();
+  if (lines.length !== 1) return;
+  try {
+    var d = editorRead("epDia");
+    if (!(d > 0)) throw new Error("Diameter must be positive");
+    var fit = editorCircleFit(editorLinePoints(lines[0]), 0.01);
+    if (!fit) return;
+    var f = d / (2 * fit.r);
+    editorTransform(lines, function(p) { return [fit.cx + (p[0] - fit.cx) * f, fit.cy + (p[1] - fit.cy) * f]; }, "scale");
+  } catch (e) { editorToast(e.message); }
 }
 
 // ---- 1.6.1: rounded corners, chamfers, offset ---------------------------------------------------------------------------

@@ -19,6 +19,10 @@ Panel section *Corners and offset* (select one or more outlines):
 - **Size** + **Round corners**: every corner becomes an arc of that radius. **Chamfer**: every corner is cut off at that distance along both edges. A corner may use at most half of each neighbouring edge; where the size does not fit, a smaller one is used and a message says so. Open lines keep their end points. The outline is then an ordinary outline (its shape parameters are dropped); undo brings the original back.
 - **Offset** + **Offset copy**: adds a parallel outline at that distance, with round corners at convex bends. A positive number grows the outline, a negative one shrinks it (use it for a cutter-diameter allowance or an inner pocket line). The original stays, the new outline is selected. Only closed outlines can be offset; if shrinking leaves nothing you get a message.
 
+### Points and hole diameter
+
+With one outline selected the panel lists its corner points (a closed outline shows its first point once; up to 40 points). Type new X / Y values and press **Apply points**; the outline is reshaped (one undo step, shape parameters dropped, locked outlines refused). A closed outline that is a circle also shows **Hole - Diameter**: type the new diameter and press **Set**; the circle is resized round its centre.
+
 ### Dimensions, measuring and typed points
 
 - **Dimensions** button (Edit group) cycles three states: off, **Overall size** (width and height of the selection, or of the whole drawing when nothing is selected) and **Every object** (each outline gets its own width and height, a circle gets its diameter).
