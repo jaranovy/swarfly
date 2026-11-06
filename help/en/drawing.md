@@ -10,7 +10,7 @@ The **Shapes** menu (Project tab, Insert group) adds a ready-made closed outline
 - **Star**: points, outer radius, inner radius
 - **Slot**: overall length, width (round ends)
 
-New shapes (except the circle) are placed with the lower-left corner of their bounding box at X0 Y0, so their coordinates are never negative.
+All shapes, the circle included, are placed with the lower-left corner of their bounding box at X0 Y0, so their coordinates are never negative.
 
 ## Text
 

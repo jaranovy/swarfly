@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.3.5] - 2026-11-06
+### Changed
+- The circle is placed like every other shape: lower-left corner of its bounding box at X0 Y0 (it used to be centred on 0,0, so half of it had negative coordinates).
+
 ## [1.3.4] - 2026-11-06
 ### Fixed
 - The help window follows the application theme (light and dark) instead of always being dark; it switches live when the theme is toggled.

@@ -24,9 +24,10 @@ function addCircle(radius, segments) {
 
   var geometry2 = new THREE.Geometry();
 
+  var r = parseFloat(radius);   // Swarfly: lower-left corner of the bounding box at X0 Y0, like every other shape
   for (i = 0; i < geometry.vertices.length; i++) {
-    var x = parseFloat(geometry.vertices[i].x)
-    var y = parseFloat(geometry.vertices[i].y)
+    var x = parseFloat(geometry.vertices[i].x) + r
+    var y = parseFloat(geometry.vertices[i].y) + r
     var z = parseFloat(geometry.vertices[i].z)
     geometry2.vertices.push(
       new THREE.Vector3(x, y, z),

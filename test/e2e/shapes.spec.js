@@ -32,11 +32,28 @@ async function create(buttonId, fields) {
 		const target = objectsInScene[objectsInScene.length - 1];
 		const mesh = target.children[target.children.length - 1];
 		const box = new THREE.Box3().setFromObject(mesh);
-		return { name: mesh.name, w: box.max.x - box.min.x, h: box.max.y - box.min.y, verts: mesh.geometry.vertices.length };
+		return { name: mesh.name, minX: box.min.x, minY: box.min.y, w: box.max.x - box.min.x, h: box.max.y - box.min.y, verts: mesh.geometry.vertices.length };
 	}, { buttonId, fields });
 }
 
 const near = (a, b, tol = 0.01) => expect(Math.abs(a - b)).toBeLessThan(tol);
+
+test('every shape (circle included) sits with its lower-left corner at X0 Y0', async () => {
+	const all = [
+		['CreateCircle', { circleRadius: 12, circleSegments: 32 }],
+		['CreateRect', { rectX: 30, rectY: 20 }],
+		['CreateRoundRect', { rrW: 80, rrH: 40, rrR: 6 }],
+		['CreateEllipse', { elRX: 25, elRY: 10, elSeg: 72 }],
+		['CreatePolygon', { pgN: 6, pgR: 20 }],
+		['CreateStar', { stN: 5, stR: 25, str: 10 }],
+		['CreateSlot', { slL: 60, slW: 12 }],
+	];
+	for (const [id, fields] of all) {
+		const r = await create(id, fields);
+		near(r.minX, 0, 0.05); near(r.minY, 0, 0.05);
+		if (id === 'CreateCircle') { near(r.w, 24); near(r.h, 24); }
+	}
+});
 
 test('rounded rectangle has the requested size', async () => {
 	const r = await create('CreateRoundRect', { rrW: 80, rrH: 40, rrR: 6 });
