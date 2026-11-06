@@ -1,0 +1,181 @@
+/* Swarfly UI tokens and unified chrome (1.7.1). Light values first; the dark values sit under body.theme_dark. */
+
+:root {
+  --sw-bg: #f3f5f8;
+  --sw-surface: #ffffff;
+  --sw-surface-2: #e9edf3;
+  --sw-border: #cfd6e0;
+  --sw-text: #1f2933;
+  --sw-muted: #5f6b7a;
+  --sw-accent: #0b6bcb;
+  --sw-accent-soft: #e3effb;
+  --sw-radius: 6px;
+  --sw-shadow: 0 1px 3px rgba(20, 30, 50, .18);
+  --sw-bar-h: 38px;
+}
+
+body.theme_dark {
+  --sw-bg: #1b2129;
+  --sw-surface: #232b35;
+  --sw-surface-2: #2c3642;
+  --sw-border: #3d4a5a;
+  --sw-text: #dfe6ee;
+  --sw-muted: #9aa8b8;
+  --sw-accent: #6cc0ff;
+  --sw-accent-soft: #263a50;
+  --sw-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+/* ---- one status bar at the bottom of the drawing area ---------------------------------------------------------------------- */
+#swBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 10px;
+  padding: 3px 8px;
+  box-sizing: border-box;
+  background: var(--sw-surface);
+  color: var(--sw-text);
+  border: 1px solid var(--sw-border);
+  border-radius: var(--sw-radius);
+  z-index: 3;
+  font-size: 12px;}
+
+#swBar > * { flex: 0 0 auto; }
+#swBar #editorStatus { order: 1; }
+#swBar #simoverlay { order: 2; margin-left: auto; }
+#swBar .viewer-checkboxes { order: 3; }
+
+#swBar #editorStatus {
+  position: static;
+  display: inline-block;
+  min-width: 150px;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  font: 12px/1.4 Consolas, "Courier New", monospace;
+  padding: 1px 8px;
+  background: var(--sw-surface-2);
+  color: var(--sw-text);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+#swBar #helpoverlay {
+  position: static;
+  order: 4;
+  flex: 0 0 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--sw-muted);
+  white-space: normal;
+  font-size: 11px;
+  line-height: 1.35;
+  text-shadow: none;
+}
+
+#swBar #helpoverlay > kbd {
+  background: var(--sw-surface-2);
+  color: var(--sw-text);
+  border: 1px solid var(--sw-border);
+  border-radius: 3px;
+  padding: 0 4px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* simulation buttons and view switches live in the same bar */
+#swBar #simoverlay {
+  position: static;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-shadow: none;
+}
+
+#swBar #simoverlay .button {
+  height: 22px;
+  min-height: 0;
+  padding: 0 8px;
+  line-height: 20px;
+  font-size: 12px;
+  background: var(--sw-surface-2);
+  color: var(--sw-text);
+  border: 1px solid var(--sw-border);
+  border-radius: 4px;
+  box-shadow: none;
+  margin: 0;
+}
+
+#swBar #simoverlay .button:hover:not(:disabled) { background: var(--sw-accent-soft); border-color: var(--sw-accent); }
+#swBar #simoverlay .button:disabled { opacity: .5; }
+
+#swBar .viewer-checkboxes {
+  position: static;
+  width: auto;
+  background: transparent;
+  box-shadow: none;
+  z-index: auto;
+}
+
+#swBar .viewer-checkboxes [data-role="collapse"] { display: flex; gap: 10px; align-items: center; }
+#swBar .viewer-checkboxes .checkbox { margin: 0; font-size: 12px; }
+#swBar .viewer-checkboxes .checkbox .check { width: 16px; height: 16px; }
+#swBar .viewer-checkboxes .checkbox .caption { padding-left: 4px; line-height: 16px; }
+
+/* the drawing area leaves room for the bar, no overlay floats above the canvas any more */
+#col1 { position: relative; }
+
+/* ---- right dock: light headers instead of black ---------------------------------------------------------------------------- */
+#col2 .window-caption,
+#col2 .window-caption.bg-black {
+  background: var(--sw-surface-2) !important;
+  color: var(--sw-text) !important;
+  border-bottom: 1px solid var(--sw-border);
+  box-shadow: none;
+}
+
+#col2 .window-caption .title,
+#col2 .window-caption i { color: var(--sw-text) !important; }
+
+#col2 .window,
+#col2 .window-content {
+  background: var(--sw-surface);
+  color: var(--sw-text);
+  border-color: var(--sw-border);
+}
+
+#col2 .window { border-radius: var(--sw-radius); box-shadow: var(--sw-shadow); }
+
+#col2 .button {
+  background: var(--sw-surface-2);
+  color: var(--sw-text);
+  border: 1px solid var(--sw-border);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+#col2 .button:hover:not(:disabled):not(.disabled) { background: var(--sw-accent-soft); border-color: var(--sw-accent); }
+
+/* ---- floating editor panel and other cards share the tokens ------------------------------------------------------------------ */
+#editorPanel {
+  --ed-bg: var(--sw-surface);
+  --ed-fg: var(--sw-text);
+  --ed-bar: var(--sw-surface-2);
+  --ed-border: var(--sw-border);
+  --ed-input: var(--sw-bg);
+  --ed-accent: var(--sw-accent);
+  border-radius: var(--sw-radius);
+  box-shadow: var(--sw-shadow);
+}

@@ -27,6 +27,7 @@
 		<link type="text/css" rel="stylesheet" media="all" href="css/grpblock.css" />
 		<link type="text/css" rel="stylesheet" media="all" href="lib/jquery/jquery-ui.css" />
 		<link rel="stylesheet" href="lib/metro4/css/metro-all.css" />
+		<link type="text/css" rel="stylesheet" media="all" href="css/swarfly-ui.css" />
 		<!-- <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css"> -->
 		<link type="text/css" rel="stylesheet" media="all" href="css/sidebarmenu.css" />
 		<link type="text/css" rel="stylesheet" media="all" href="css/iconlib.css" />
@@ -376,7 +377,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.7.0</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.7.1</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -431,6 +432,7 @@
 
 
 						</div>
+						<div id="swBar">
 						<div id="helpoverlay">
 							<kbd>Left Mouse</kbd> = Select / <kbd>Alt+Left Mouse Drag</kbd> or <kbd>Middle Mouse</kbd> = Orbit / <kbd>Right Mouse</kbd> = Pan / <kbd>Wheel</kbd> = Zoom / <kbd>Ctrl</kbd> = Multiple Select / <kbd>Del</kbd> = Delete Selected
 						</div>
@@ -446,6 +448,7 @@
 								<input type="checkbox" data-role="checkbox" data-caption="Toolpaths" checked data-style="2" id="view-toolpath">
 								<input type="checkbox" data-role="checkbox" data-caption="GCODE" checked data-style="2" id="view-gcode">
 							</div>
+						</div>
 						</div>
 					</div>
 				</div>

@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.7.1] - 2026-11-06
+### Changed
+- New `css/swarfly-ui.css`: one set of colour / radius / shadow tokens (light values, dark values under `body.theme_dark`) shared by the new chrome.
+- One status bar at the bottom of the drawing: coordinates and prompt, simulation buttons, view switches (Documents / Toolpaths / G-code) and the mouse help line, in two rows. Nothing floats above the canvas any more and the prompt no longer covers the mouse help.
+- Right panels 1-4 get light headers instead of black ones; buttons, borders and radii follow the tokens. The Properties panel uses the same tokens.
+- Plan for the rest of the redesign: `docs/ui-redesign.md` (compact toolbar and context bar 1.8.0, dialogs 1.8.1, dark theme 1.9.0).
+
 ## [1.7.0] - 2026-11-06
 ### Added
 - Resizing with the handles goes in whole millimetres (an edge snaps that side; a corner snaps the longer side, or each side with Shift). Object snapping still wins when it finds a point.

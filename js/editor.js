@@ -139,8 +139,6 @@ function editorBuildPanel() {
     grid += '<input type="radio" name="epRef" value="' + r + '" id="epRef_' + r + '" title="Reference point"' + (r === "ll" ? " checked" : "") + ">";
   });
   p.innerHTML = '<style>' +
-    '#editorPanel{--ed-bg:#ffffff;--ed-fg:#1d2530;--ed-bar:#e3e9f1;--ed-border:#9fb0c3;--ed-input:#f4f7fb;--ed-accent:#0b6bcb}' +
-    'body.theme_dark #editorPanel{--ed-bg:#1d2530;--ed-fg:#dfe6ee;--ed-bar:#2b3645;--ed-border:#4a5a70;--ed-input:#141a22;--ed-accent:#6cc0ff}' +
     '#editorPanel{position:absolute;top:10px;left:64px;z-index:6;width:236px;max-height:calc(100% - 50px);overflow:auto;display:none;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px}' +
     '#editorPanel .ep-head{padding:5px 10px;background:var(--ed-bar);border-radius:6px 6px 0 0;font-weight:600;cursor:default}' +
     '#editorPanel .ep-body{padding:8px 10px}#editorPanel .ep-row{display:flex;align-items:center;gap:6px;margin:4px 0}' +
@@ -152,7 +150,7 @@ function editorBuildPanel() {
     '#editorPanel hr{border:0;border-top:1px solid var(--ed-border);margin:8px 0}' +
     '#editorPanel .ep-note{opacity:.75;font-size:12px}' +
     '.ed-on{outline:2px solid #0b6bcb;outline-offset:-2px;border-radius:4px}' +
-    '#editorStatus{position:absolute;left:64px;bottom:6px;z-index:5;pointer-events:none;font:12px/1.4 monospace;padding:2px 8px;border-radius:3px;background:rgba(0,0,0,.55);color:#fff;white-space:nowrap}' +
+    '#editorStatus{position:absolute;left:64px;bottom:6px;z-index:5;pointer-events:none;font:12px/1.4 monospace;padding:2px 8px;border-radius:3px;background:rgba(0,0,0,.55);color:#fff;white-space:nowrap}' +   // fallback when the bar is missing
     '#editorDims{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;display:none}' +
     '</style>' +
     '<div class="ep-head"><i class="fas fa-fw fa-sliders-h"></i> <span id="epTitle">Properties</span></div><div class="ep-body">' +
@@ -231,7 +229,8 @@ function editorBuildPanel() {
   var status = document.createElement("div");
   status.id = "editorStatus";
   status.innerHTML = '<span id="editorCoords"></span><span id="editorPrompt"></span>';   // prompt alone, so the Czech translation can match it
-  area.appendChild(status);
+  var bar = document.getElementById("swBar");
+  if (bar) bar.insertBefore(status, bar.firstChild); else area.appendChild(status);
   var ns = "http://www.w3.org/2000/svg";
   var svg = document.createElementNS(ns, "svg");
   svg.id = "editorDims";
