@@ -8,6 +8,7 @@
 const { app, BrowserWindow, protocol, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { readDefaults, defaultLangScript } = require('./defaults');
 const { pathToFileURL } = require('url');
 
 const SCHEME = 'app';
@@ -87,6 +88,11 @@ async function handleAppRequest(request) {
 	if (relPath === '') relPath = 'index.html';
 	splashFileLoading(relPath);
 
+	// default UI language comes from swarfly-defaults.json next to the program (English when the file is missing)
+	if (relPath === 'js/default-lang.js') {
+		return new Response(defaultLangScript(readDefaults()), { headers: { 'content-type': 'text/javascript', 'cache-control': 'no-store' } });
+	}
+
 	const absPath = path.normalize(path.join(ROOT, relPath));
 	if (!absPath.startsWith(ROOT + path.sep) && absPath !== ROOT) {
 		return notFound(403, 'Forbidden');
@@ -119,7 +125,7 @@ function splashFileLoading(relPath) {
 	const now = Date.now();
 	if (now - splashLast < 70) return;
 	splashLast = now;
-	splashStatus('Načítám ' + relPath);
+	splashStatus('Loading ' + relPath);
 }
 
 function createSplash() {
@@ -168,11 +174,11 @@ function createWindow() {
 		win.show();
 		closeSplash();
 	};
-	splashStatus('Otevírám hlavní okno…');
-	win.webContents.on('did-start-loading', () => splashStatus('Načítám rozhraní (index.html)…'));
-	win.webContents.on('dom-ready', () => splashStatus('Spouštím aplikaci, sestavuji 3D scénu a nastavení 3018…'));
+	splashStatus('Opening the main window...');
+	win.webContents.on('did-start-loading', () => splashStatus('Loading the interface (index.html)...'));
+	win.webContents.on('dom-ready', () => splashStatus('Starting the application, building the 3D scene and the 3018 settings...'));
 	win.webContents.on('did-finish-load', () => {
-		splashStatus('Hotovo');
+		splashStatus('Done');
 		setTimeout(reveal, 1200);          // the app finishes its own set-up (3D view, settings) shortly after the load event
 	});
 	setTimeout(reveal, 30000);            // never keep the splash forever

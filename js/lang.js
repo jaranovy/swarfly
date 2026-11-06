@@ -1,10 +1,11 @@
-// Swarfly UI language. Default = DEFAULT_LANG below (Czech for this build); Czech is a dictionary in js/lang/cs.json (exact visible strings -> Czech).
+// Swarfly UI language. Order: ?en / ?cs in the URL, the choice saved by the Language button, window.SWARFLY_DEFAULT_LANG
+// (js/default-lang.js; in the Electron app generated from swarfly-defaults.json next to the program), otherwise English. Czech is a dictionary in js/lang/cs.json (exact visible strings -> Czech).
 // Switch: Settings tab -> Language button (stored in localStorage "swarflyLang"), or ?en / ?cs in the URL for one session.
 // Only visible UI text is replaced (text nodes, title/placeholder, <option> labels - option VALUES stay English because the app
 // reads them, e.g. "CNC: Pocket"). Generated G-code and its comments stay English on purpose.
 // Terms: sousledne/nesousledne frezovani = climb/conventional (checked in Czech sources); fix wording in js/lang/cs.json only.
 (function () {
-  var DEFAULT_LANG = "cs";   // change to "en" for an English-first build
+  var DEFAULT_LANG = window.SWARFLY_DEFAULT_LANG === "cs" ? "cs" : "en";
   var lang = DEFAULT_LANG;
   try { var saved = localStorage.getItem("swarflyLang"); if (saved === "cs" || saved === "en") lang = saved; } catch (e) { /* storage blocked: default */ }
   if (/[?&]en/.test(location.search)) lang = "en";

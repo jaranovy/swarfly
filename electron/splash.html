@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Swarfly</title>
@@ -24,7 +24,7 @@
 <div class="box">
   <div class="head">
     <img src="splash-logo.png" alt="">
-    <div><h1>Swarfly</h1><h2>Příprava G-kódu pro frézu a laser</h2></div>
+    <div><h1>Swarfly</h1><h2>G-code for milling and laser</h2></div>
     <div class="spin"></div>
   </div>
   <div class="log" id="log"></div>
@@ -39,7 +39,7 @@
     log.innerHTML = '';
     lines.forEach(function (l) { var d = document.createElement('div'); d.textContent = l; log.appendChild(d); });
   }
-  setStatus('Spouštím aplikaci…');
+  setStatus('Starting...');
 </script>
 </body>
 </html>
