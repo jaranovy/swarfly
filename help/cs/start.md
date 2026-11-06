@@ -16,6 +16,7 @@ Program se uloží jako soubor `.nc` a na stroj se přenese SD kartou.
 ## Kde co je
 
 - **Záložka Projekt**: otevřít, nový projekt, uložit/otevřít projekt, text, tvary, zpět/znovu.
-- **Záložka Nastavení**: nastavení, záloha, jazyk, vzhled, nápověda.
+- **Záložka Nastavení**: nastavení, záloha, jazyk, vzhled.
+- **Záložka Nápověda**: tlačítko *Nápověda* a tlačítko *Verze* (co je nového).
 - **Panely vpravo**: 1 výkres, 2 dráhy nástroje, 3 vytvoření G-kódu (s časem a statistikami), 4 export G-kódu.
-- **Nápověda**: tlačítko *Nápověda* v záložce Nastavení nebo klávesa F1.
+- **Nápověda**: tlačítko *Nápověda* v záložce Nápověda nebo klávesa F1. Nápověda je volné okno: přetáhneš ho za záhlaví, zvětšíš z rohu a můžeš dál pracovat v aplikaci; pamatuje si velikost i místo.

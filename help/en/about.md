@@ -4,5 +4,5 @@
 
 - **Licence**: GNU Affero General Public License v3 (AGPL-3.0), like the original. The text is in the file `LICENSE`. If you give the program to someone else you must also give them the source code under the same licence.
 - **Credit**: the CAM engine, viewer and most of the interface come from the OpenBuilds CAM authors.
-- **Version**: shown in the Settings tab; the list of changes is under *What's new*.
+- **Version**: shown on the *Version* button in the Help tab; the list of changes opens when you press it (*What's new*).
 - **Status**: experimental. Programs made with it were checked by the built-in G-code check and by tests, but not yet cut on the real machine. Laser modules are class 4: read [Laser](topic:laser) before use.

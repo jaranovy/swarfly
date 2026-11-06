@@ -3,6 +3,11 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.3.3] - 2026-11-06
+### Changed
+- Help has its own ribbon tab with two buttons: Help and Version (the Version button shows the version and opens What's new). They are gone from the Settings tab.
+- The help is a free floating window instead of a modal dialog: wider by default, draggable by the title bar, resizable, remembers its size and place, and you can keep working in the application while it is open.
+
 ## [1.3.2] - 2026-11-06
 ### Added
 - In-app Help (Settings tab, key F1): 10 topics in English and Czech (Markdown files in `help/`), "What's new" shows this changelog.

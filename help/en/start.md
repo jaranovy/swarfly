@@ -16,6 +16,7 @@ The program is saved as a `.nc` file and carried to the machine on an SD card.
 ## Where things are
 
 - **Project tab**: open, new project, save/open project, text, shapes, undo/redo.
-- **Settings tab**: settings, backup, language, theme, help.
+- **Settings tab**: settings, backup, language, theme.
+- **Help tab**: the *Help* button and the *Version* button (what is new).
 - **Panels on the right**: 1 drawing, 2 toolpaths, 3 create G-code (with time and statistics), 4 export G-code.
-- **Help**: the *Help* button in the Settings tab or the F1 key.
+- **Help**: the *Help* button in the Help tab or the F1 key. The help is a free window: drag it by the title bar, resize it from the corner, and keep working in the application; it remembers its size and place.

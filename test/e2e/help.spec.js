@@ -77,3 +77,46 @@ test('no console errors while opening help', async ({ page }) => {
 	await page.waitForSelector('#helpContent h1');
 	expect(errors).toEqual([]);
 });
+
+test('Help has its own ribbon tab with two buttons (Help, Version); Settings has neither', async ({ page }) => {
+	await fresh(page, 'en');
+	expect(await page.locator('#section-help #helpGroup button').count()).toBe(2);
+	expect(await page.locator('#section-settings #helpGroup').count()).toBe(0);
+	expect(await page.locator('#section-settings #appVersionNo').count()).toBe(0);
+	expect(await page.locator('#appVersionNo').textContent()).toBe('v' + version);
+	// the Version button opens What's new
+	await page.evaluate(() => document.getElementById('versionButton3018').click());
+	await expect(page.locator('#helpContent h2').first()).toContainText('[' + version + ']');
+});
+
+test('help is a free window: wide enough, does not block the application, movable, remembers its place', async ({ page }) => {
+	await fresh(page, 'en');
+	await page.evaluate(() => openHelp());
+	await page.waitForSelector('#helpContent h1');
+	const box = await page.locator('#helpWindow').boundingBox();
+	expect(box.width).toBeGreaterThanOrEqual(700);
+	// not modal: the ribbon still answers while the help is open
+	await page.locator('a[href="#section-settings"]').click();
+	await expect(page.locator('#section-settings')).toBeVisible();
+	await expect(page.locator('#helpWindow')).toBeVisible();
+	// drag the title bar
+	await page.mouse.move(box.x + 200, box.y + 12);
+	await page.mouse.down();
+	await page.mouse.move(box.x + 120, box.y + 92, { steps: 5 });
+	await page.mouse.up();
+	const moved = await page.locator('#helpWindow').boundingBox();
+	expect(Math.abs(moved.x - (box.x - 80))).toBeLessThan(3);
+	expect(Math.abs(moved.y - (box.y + 80))).toBeLessThan(3);
+	// geometry is remembered after a reload
+	await page.goto('/index.html');
+	await page.waitForTimeout(1500);
+	await page.evaluate(() => openHelp());
+	await page.waitForSelector('#helpContent h1');
+	const again = await page.locator('#helpWindow').boundingBox();
+	expect(Math.abs(again.x - moved.x)).toBeLessThan(3);
+	expect(Math.abs(again.y - moved.y)).toBeLessThan(3);
+	expect(Math.abs(again.width - moved.width)).toBeLessThan(3);
+	// close button hides it
+	await page.locator('#helpCloseBtn').click();
+	await expect(page.locator('#helpWindow')).toBeHidden();
+});
