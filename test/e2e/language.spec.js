@@ -4,7 +4,9 @@
 
 const { test, expect } = require('@playwright/test');
 
-async function reloaded(page, ms) {
+// waits for the page that the language switch navigates to (not for the old page that is still loaded)
+async function reloaded(page, ms, lang) {
+	await page.waitForFunction((l) => window.swarflyLang === l, lang);
 	await page.waitForLoadState('load');
 	await page.waitForTimeout(ms);
 }
@@ -22,14 +24,14 @@ test('default UI is English, one theme button, language button switches to Czech
 	expect(await page.locator('body').innerText()).toContain('Redo');
 
 	await page.evaluate(() => swarflySwitchLanguage());
-	await reloaded(page, 2500);
+	await reloaded(page, 2500, 'cs');
 	expect(await page.evaluate(() => window.swarflyLang)).toBe('cs');
 	expect(await page.locator('#languageButtonCaption').textContent()).toBe('English');
 	expect(await page.locator('body').innerText()).toContain('Znovu');                 // Redo
 	expect(await page.locator('#languageGroup').textContent()).toContain('Jazyk');     // Settings tab is not visible, read textContent
 
 	await page.evaluate(() => swarflySwitchLanguage());
-	await reloaded(page, 2000);
+	await reloaded(page, 2000, 'en');
 	expect(await page.evaluate(() => window.swarflyLang)).toBe('en');
 	expect(await page.locator('body').innerText()).toContain('Redo');
 });

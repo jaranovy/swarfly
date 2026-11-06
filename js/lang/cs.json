@@ -278,5 +278,8 @@
  "Inner radius": "Vnitřní poloměr",
  "Length": "Délka",
  "Keep proportions": "Zachovat poměr stran",
- "Scale %": "Měřítko %"
+ "Scale %": "Měřítko %",
+ "Help": "Nápověda",
+ "Version": "Verze",
+ "Help (F1)": "Nápověda (F1)"
 }

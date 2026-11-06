@@ -28,7 +28,7 @@ const OPERATIONS = [
 	{ op: 'Pen Plotter: (no offset)' },
 	{ op: 'Pen Plotter: (path inside)' },
 	{ op: 'Pen Plotter: (path outside)' },
-	{ op: 'Pen Plotter: (lines fill)' }
+	{ op: 'Pen Plotter: (lines fill)', wait: 6000 }
 ];
 
 test.describe.configure({ mode: 'serial' });

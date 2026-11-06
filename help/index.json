@@ -1,0 +1,54 @@
+{
+  "topics": [
+    {
+      "id": "start",
+      "en": "Getting started",
+      "cs": "Začínáme"
+    },
+    {
+      "id": "drawing",
+      "en": "Drawing and shapes",
+      "cs": "Kreslení a tvary"
+    },
+    {
+      "id": "edit",
+      "en": "Move, scale, rotate",
+      "cs": "Posun, měřítko, otočení"
+    },
+    {
+      "id": "toolpath",
+      "en": "Toolpaths and operations",
+      "cs": "Dráhy nástroje a operace"
+    },
+    {
+      "id": "simulation",
+      "en": "Simulation and statistics",
+      "cs": "Simulace a statistiky"
+    },
+    {
+      "id": "output",
+      "en": "Saving the program (.nc, SD card)",
+      "cs": "Uložení programu (.nc, SD karta)"
+    },
+    {
+      "id": "laser",
+      "en": "Laser: settings and safety",
+      "cs": "Laser: nastavení a bezpečnost"
+    },
+    {
+      "id": "settings",
+      "en": "Settings and language",
+      "cs": "Nastavení a jazyk"
+    },
+    {
+      "id": "troubleshooting",
+      "en": "Troubleshooting",
+      "cs": "Řešení potíží"
+    },
+    {
+      "id": "about",
+      "en": "About and licence",
+      "cs": "O programu a licence"
+    }
+  ]
+}
