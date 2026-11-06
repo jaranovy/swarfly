@@ -235,3 +235,13 @@ body.theme_dark .dialog.dark .button.success,
 body.theme_dark .dialog.dark .button.primary,
 body.theme_dark .dialog.dark .button.info { color: #0b1b2b !important; }
 body.theme_dark #editorPanel button { color: #0b1b2b; }
+
+/* the Open button (file input inside) was taller than the compact ribbon and drew a grey block under it */
+nav[data-role="ribbonmenu"] .ribbon-button.btn-file {
+  height: 48px !important;
+  max-height: 48px !important;
+  min-height: 0 !important;
+  overflow: hidden;
+  background: transparent !important;
+}
+nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }

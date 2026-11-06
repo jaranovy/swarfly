@@ -16,6 +16,10 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 
 Když je něco vybráno, nahoře nad výkresem se objeví lišta: vztažný bod (3x3 tečky), **X**, **Y**, **W**, **H**, *Zachovat poměr stran*, **Otočit** se dvěma tlačítky, dvě tlačítka zrcadlení, **X0 Y0** (přesun do počátku) a *Zamknuto*. Vše ostatní popsané níže (kopie, rohy a odsazení, body, prodloužení / zkrácení, parametry tvaru) je v zásuvce **Více** na pravém konci lišty.
 
+### Kapsa (vyfrézování plochy)
+
+Vyber jeden nebo více **uzavřených** obrysů a stiskni **Kapsa** v liště vlastností: vytvoří se dráha a otevře se její dialog s předvolenou operací *CNC: Pocket*. Nastav průměr frézy, hloubku a záběr do hloubky a dej Použít a zobrazit. Kapsa odebere celou plochu uvnitř obrysu; chceš-li řezat jen po čáře, použij *CNC: Vector (path inside)*. Vnitřní rohy nemohou být ostřejší než poloměr frézy.
+
 ### Rohy a odsazení
 
 Sekce panelu *Rohy a odsazení* (vyber jeden nebo více obrysů):

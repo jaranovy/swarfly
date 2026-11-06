@@ -16,6 +16,10 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 
 When something is selected a bar appears across the top of the drawing: reference point (the 3x3 dots), **X**, **Y**, **W**, **H**, *Keep proportions*, **Rotate** with the two turn buttons, the two mirror buttons, **X0 Y0** (move to the origin) and *Locked*. Everything else described below (copies, corners and offset, points, extend / trim, shape parameters) is in the **More** drawer at the right end of the bar.
 
+### Pocket (mill out an area)
+
+Select one or more **closed** outlines and press **Pocket** in the properties bar: the toolpath is created and its dialog opens with *CNC: Pocket* chosen. Set the cutter diameter, depth and step down, then Apply and Preview. Pocket removes the whole area inside the outline; use *CNC: Vector (path inside)* instead to cut only along the line. Inner corners cannot be sharper than the cutter radius.
+
 ### Corners and offset
 
 Panel section *Corners and offset* (select one or more outlines):

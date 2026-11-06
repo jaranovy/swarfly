@@ -170,6 +170,7 @@ function editorBuildPanel() {
     '<div class="ep-grp"><label for="epAngle">Rotate</label><input type="text" id="epAngle" value="45" autocomplete="off" title="Angle in degrees"><button type="button" id="epCCW" title="Anticlockwise"><i class="fas fa-undo"></i></button><button type="button" id="epCW" title="Clockwise"><i class="fas fa-redo"></i></button></div>' +
     '<div class="ep-grp"><button type="button" id="epMirrorX" title="Mirror left-right: flip left-right about the centre of the selection"><i class="fas fa-arrows-alt-h"></i></button><button type="button" id="epMirrorY" title="Mirror up-down: flip up-down about the centre of the selection"><i class="fas fa-arrows-alt-v"></i></button><button type="button" id="epToZero" title="Move the selection so its lower-left corner is at X0 Y0">X0 Y0</button></div>' +
     '<label class="ep-grp" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label>' +
+    '<button type="button" id="epPocket" title="Mill out the whole area inside the selected closed outlines (opens the toolpath dialog with CNC: Pocket)"><i class="fas fa-fill-drip"></i> Pocket</button>' +
     '<button type="button" id="epMoreBtn" title="Copies, corners, offset, points, shape parameters">More <i class="fas fa-caret-down"></i></button>' +
     '</div><div id="epMore">' +
     '<div id="epPointsBox"></div>' +
@@ -222,6 +223,7 @@ function editorBuildPanel() {
   document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
   document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
   document.getElementById("epToZero").addEventListener("click", editorToZero);
+  document.getElementById("epPocket").addEventListener("click", editorPocket);
   document.getElementById("epMoreBtn").addEventListener("click", function() { editorState.more = !editorState.more; editorApplyMore(); });
   document.getElementById("epCopyLinear").addEventListener("click", editorCopyLinear);
   document.getElementById("epCopyPolar").addEventListener("click", editorCopyPolar);
@@ -734,6 +736,28 @@ function editorSecondClickUp(event) {
   if (editorLocked(editorSelection()).length) return;
   editorState.rotate = !editorState.rotate;
   editorDrawHandles();
+}
+
+// ---- 1.8.2: pocket shortcut --------------------------------------------------------------------------------------------------
+// Creates a toolpath from the selected closed outlines and opens its dialog with the operation "CNC: Pocket" already chosen.
+function editorIsClosed(points) {
+  return points.length > 3 && Math.hypot(points[0][0] - points[points.length - 1][0], points[0][1] - points[points.length - 1][1]) < 1e-6;
+}
+
+function editorPocket() {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  if (!lines.every(function(l) { return editorIsClosed(editorLinePoints(l)); })) { editorToast("A pocket needs closed outlines - an open line is selected"); return; }
+  var index = toolpathsInScene.length;
+  addJob(-1);                                         // the toolpath dialog opens about 800 ms later
+  var tries = 0, timer = setInterval(function() {
+    var select = document.getElementById("toperation" + index);
+    if (select) {
+      clearInterval(timer);
+      select.value = "CNC: Pocket";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (++tries > 60) clearInterval(timer);
+  }, 150);
 }
 
 // ---- 1.6.3: extend / trim ends -----------------------------------------------------------------------------------------------
