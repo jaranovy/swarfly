@@ -502,3 +502,25 @@ function editorOffsetOutlines(Clipper, outlines, delta) {
     return pts;
   });
 }
+
+// ---- 1.6.3: extend / trim the ends of an open polyline -----------------------------------------------------------------------------
+// Moves the first point (startDelta) and the last point (endDelta) along the direction of the first / last segment: positive extends,
+// negative trims. Trimming cannot eat more than the segment minus 0.001 (the segment would vanish). Closed outlines are refused.
+function editorExtendEnds(points, startDelta, endDelta) {
+  startDelta = Number(startDelta); endDelta = Number(endDelta);
+  if (!isFinite(startDelta) || !isFinite(endDelta)) throw new Error("Extension must be a number");
+  if (!points || points.length < 2) throw new Error("An open line needs at least 2 points");
+  var n = points.length;
+  if (n > 3 && Math.hypot(points[0][0] - points[n - 1][0], points[0][1] - points[n - 1][1]) < 1e-9) throw new Error("Only open lines can be extended");
+  var out = points.map(function(p) { return [p[0], p[1]]; });
+  function move(i, j, delta) {                          // point i moves along the segment j -> i
+    if (!delta) return;
+    var dx = out[i][0] - out[j][0], dy = out[i][1] - out[j][1], len = Math.hypot(dx, dy);
+    if (len < 1e-9) throw new Error("Cannot extend a zero-length segment");
+    if (delta < 0 && -delta > len - 0.001) throw new Error("Cannot trim more than the length of the end segment");
+    out[i] = [out[i][0] + dx / len * delta, out[i][1] + dy / len * delta];
+  }
+  move(0, 1, startDelta);
+  move(n - 1, n - 2, endDelta);
+  return out;
+}

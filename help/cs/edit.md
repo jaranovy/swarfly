@@ -23,6 +23,10 @@ Sekce panelu *Rohy a odsazení* (vyber jeden nebo více obrysů):
 
 Je-li vybraný jeden obrys, panel vypíše jeho rohové body (uzavřený obrys ukáže první bod jen jednou; nejvýš 40 bodů). Přepiš hodnoty X / Y a stiskni **Použít body**; obrys se přetvaří (jeden krok zpět, parametry tvaru se zahodí, zamčený obrys se odmítne). Uzavřený obrys, který je kruh, ukáže i **Otvor - Průměr**: zadej nový průměr a stiskni **Nastavit**; kruh se zvětší nebo zmenší okolo svého středu.
 
+### Prodloužení a zkrácení konců
+
+U jedné otevřené čáry zadej délku pro **Začátek** a/nebo **Konec** a stiskni **Prodloužit / zkrátit konce**. Kladné číslo posune koncový bod dál po poslední úsečce, záporné ho vrátí zpět. Uzavřené obrysy se odmítnou. Jeden krok zpět.
+
 ### Kóty, měření a body zadané číslem
 
 - Tlačítko **Kóty** (skupina Upravit) přepíná tři stavy: vypnuto, **Celkový rozměr** (šířka a výška výběru, nebo celého výkresu, když nic není vybráno) a **Každý objekt** (každý obrys dostane vlastní šířku a výšku, kruh průměr).
@@ -77,3 +81,5 @@ Zadej levý, střední nebo pravý okraj (X) a spodní, střední nebo horní ok
 Zadej úhel a stiskni *Proti směru hodin* nebo *Po směru hodin*.
 
 > Drž všechny díly na X 0 a víc a Y 0 a víc. Swarfly upozorní, když uložený program zasahuje do záporných souřadnic, protože je stroj nemusí dosáhnout.
+
+Měření nástrojem Měřit se ukládají do souboru projektu (.obc) a po jeho otevření se vrátí.

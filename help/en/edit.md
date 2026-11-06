@@ -23,6 +23,10 @@ Panel section *Corners and offset* (select one or more outlines):
 
 With one outline selected the panel lists its corner points (a closed outline shows its first point once; up to 40 points). Type new X / Y values and press **Apply points**; the outline is reshaped (one undo step, shape parameters dropped, locked outlines refused). A closed outline that is a circle also shows **Hole - Diameter**: type the new diameter and press **Set**; the circle is resized round its centre.
 
+### Extend / trim ends
+
+For one open line: type a length for **Start** and/or **End** and press **Extend / trim ends**. A positive number moves that end point further along its last segment, a negative one trims it back. Closed outlines are refused. One undo step.
+
 ### Dimensions, measuring and typed points
 
 - **Dimensions** button (Edit group) cycles three states: off, **Overall size** (width and height of the selection, or of the whole drawing when nothing is selected) and **Every object** (each outline gets its own width and height, a circle gets its diameter).
@@ -77,3 +81,5 @@ Type the left, centre or right edge (X) and the bottom, centre or top edge (Y) i
 Type the angle and press *Anticlockwise* or *Clockwise*.
 
 > Keep every part at X 0 or more and Y 0 or more. Swarfly warns when a saved program goes into negative coordinates, because the machine may not reach them.
+
+Measurements made with the Measure tool are saved in the project file (.obc) and come back when it is opened.

@@ -169,6 +169,9 @@ function editorBuildPanel() {
     '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
     '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
     '<div id="epPointsBox"></div>' +
+    '<b>Extend / trim</b>' +
+    '<div class="ep-row"><label for="epExtStart">Start</label><input type="text" id="epExtStart" value="0" autocomplete="off" title="Positive extends the first end, negative trims it"><label for="epExtEnd">End</label><input type="text" id="epExtEnd" value="0" autocomplete="off" title="Positive extends the last end, negative trims it"></div>' +
+    '<div class="ep-row"><button type="button" id="epExtend" style="flex:1" title="Move the ends of an open line along its end segments">Extend / trim ends</button></div><hr>' +
     '<b>Corners and offset</b>' +
     '<div class="ep-row"><label for="epCornerSize">Size</label><input type="text" id="epCornerSize" value="3" autocomplete="off" title="Radius of the rounded corners, or the length cut off along both edges for a chamfer"></div>' +
     '<div class="ep-row"><button type="button" id="epFillet" style="flex:1" title="Round every corner of the selected outlines">Round corners</button><button type="button" id="epChamfer" style="flex:1" title="Cut every corner of the selected outlines">Chamfer</button></div>' +
@@ -206,6 +209,7 @@ function editorBuildPanel() {
   document.getElementById("epFillet").addEventListener("click", function() { editorCorners("fillet"); });
   document.getElementById("epChamfer").addEventListener("click", function() { editorCorners("chamfer"); });
   document.getElementById("epOffsetCopy").addEventListener("click", editorOffsetCopy);
+  document.getElementById("epExtend").addEventListener("click", editorExtendTrim);
   document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
   document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
   document.getElementById("epToZero").addEventListener("click", editorToZero);
@@ -659,6 +663,32 @@ function editorEscape(e) {
   objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
   clearSceneFlag = true;
   editorRefresh(true);
+}
+
+// ---- 1.6.3: extend / trim ends -----------------------------------------------------------------------------------------------
+function editorExtendTrim() {
+  var lines = editorSelection();
+  if (lines.length !== 1) { editorToast("Select one open line"); return; }
+  if (editorLocked(lines).length) { editorToast("Locked objects are not changed - untick Locked first"); return; }
+  try {
+    var pts = editorExtendEnds(editorLinePoints(lines[0]), editorRead("epExtStart"), editorRead("epExtEnd")), line = lines[0];
+    storeUndo(true);
+    var ox = line.position.x + (line.parent ? line.parent.position.x : 0), oy = line.position.y + (line.parent ? line.parent.position.y : 0);
+    editorReplaceGeometry(line, pts.map(function(p) { return [p[0] - ox, p[1] - oy]; }));
+    delete line.userData.shape;
+    if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+    clearSceneFlag = true;
+    editorState.snapCache = null;
+    editorRefresh(true);
+  } catch (e) { editorToast(e.message); }
+}
+
+// ---- 1.6.3: measurements travel with the project ----------------------------------------------------------------------------
+// called when a project is loaded; anything that is not a list of known measures is ignored
+function editorSetMeasures(list) {
+  var ok = Array.isArray(list) ? list.filter(function(m) { return m && (m.type === "dist" || m.type === "angle" || m.type === "dia"); }) : [];
+  editorState.measures = ok;
+  if (typeof editorDrawDims === "function") editorDrawDims();
 }
 
 // ---- 1.6.2: edit single points, hole diameter -----------------------------------------------------------------------------

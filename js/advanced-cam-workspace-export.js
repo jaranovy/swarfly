@@ -162,6 +162,8 @@ function saveExportWorkspace(filename) {
   for (j = 0; j < toolpathsInScene.length; j++) {
     obspace.toolpaths[j] = toolpathsInScene[j].toJSON();
   }
+  // manual measurements of the editor travel with the project (optional key, older versions ignore it)
+  if (typeof editorState !== "undefined" && editorState.measures && editorState.measures.length) obspace.measures = editorState.measures;
   var data = JSON.stringify(obspace, inflatedReplacer)
   var blob = new Blob([data], {
     type: "text/plain"
@@ -243,6 +245,7 @@ function parseLoadWorkspace(json, resetViewAfter) {
     toolpathsInScene.push(object)
   }
   fillTree();
+  if (typeof editorSetMeasures === "function") editorSetMeasures(newWorkspace.measures);
   if (resetViewAfter) {
     resetView();
   }

@@ -473,3 +473,15 @@ test('offset of a circle grows its radius by the distance', () => {
 	const fit = m.editorCircleFit(o[0], 0.01);
 	assert.ok(fit);
 });
+
+test('extend ends: positive extends along the end segment, negative trims, closed outlines refused', () => {
+	const line = [[0, 0], [10, 0], [10, 10]];
+	const e = m.editorExtendEnds(line, 2, 3);
+	near(e[0][0], -2); near(e[0][1], 0); near(e[2][0], 10); near(e[2][1], 13);
+	const t = m.editorExtendEnds(line, -4, -1);
+	near(t[0][0], 4); near(t[2][1], 9);
+	assert.deepEqual(m.editorExtendEnds(line, 0, 0).map((p) => Array.from(p)), line);
+	assert.throws(() => m.editorExtendEnds(line, -10, 0), /Cannot trim/);
+	assert.throws(() => m.editorExtendEnds([[0, 0], [5, 0], [5, 5], [0, 0]], 1, 1), /open lines/);
+	assert.throws(() => m.editorExtendEnds(line, 'x', 0), /number/);
+});

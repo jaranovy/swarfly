@@ -390,5 +390,18 @@
  "Move the outline points to the typed positions": "Přesunout body obrysu na zadané polohy",
  "The point list is out of date": "Seznam bodů je zastaralý",
  "Diameter must be positive": "Průměr musí být kladný",
- "Outline points": "Body obrysu"
+ "Outline points": "Body obrysu",
+ "Extend / trim": "Prodloužit / zkrátit",
+ "Start": "Začátek",
+ "End": "Konec",
+ "Positive extends the first end, negative trims it": "Kladné číslo prodlouží první konec, záporné ho zkrátí",
+ "Positive extends the last end, negative trims it": "Kladné číslo prodlouží poslední konec, záporné ho zkrátí",
+ "Move the ends of an open line along its end segments": "Posunout konce otevřené čáry podél jejích koncových úseček",
+ "Extend / trim ends": "Prodloužit / zkrátit konce",
+ "Select one open line": "Vyber jednu otevřenou čáru",
+ "Extension must be a number": "Prodloužení musí být číslo",
+ "An open line needs at least 2 points": "Otevřená čára potřebuje aspoň 2 body",
+ "Only open lines can be extended": "Prodloužit lze jen otevřené čáry",
+ "Cannot extend a zero-length segment": "Nelze prodloužit úsečku nulové délky",
+ "Cannot trim more than the length of the end segment": "Nelze zkrátit o víc, než je délka koncové úsečky"
 }
