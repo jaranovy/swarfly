@@ -60,6 +60,11 @@
     [/^(\d+) outlines$/, "Obrysů: $1"],
     [/^Nothing was traced from (.+)$/, "Z $1 se nic nevektorizovalo"],
     [/^The picture (.+) could not be read$/, "Obrázek $1 se nepodařilo přečíst"],
+    [/^(\d+) toolpaths$/, "$1 drah"],
+    [/^Drill ([\d.]+) mm$/, "Vrták $1 mm"],
+    [/^Mill ([\d.]+) mm$/, "Fréza $1 mm"],
+    [/^(\d+) toolpath$/, "$1 dráha"],
+    [/^(\d+) files saved\. Run them in order; change the bit and set Z between them\.$/, "Uloženo souborů: $1. Spouštěj je popořadě; mezi nimi vyměň nástroj a nastav Z."],
     [/^This toolpath contains (\d+) open vector\(s\), and (\d+) closed vector\(s\)$/, "Dráha obsahuje otevřených vektorů: $1, uzavřených: $2"]
   ];
   var OPS = Object.keys(D).filter(function (k) { return /^(CNC|Laser: Vector|Plasma: Vector|Drill|Drag Knife: Cutout|Pen Plotter)/.test(k); })

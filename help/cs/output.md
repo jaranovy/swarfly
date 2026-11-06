@@ -16,6 +16,10 @@ Program se zapisuje jako programy, které už na stroji běží:
 
 Pokud souřadnice klesne pod nulu (X nebo Y), objeví se upozornění; stroj to místo nemusí dosáhnout.
 
+## Jeden soubor na nástroj
+
+Stroj sám nástroj nevymění. Když výkres používá víc nástrojů (například vrták 3 mm a frézu 3,175 mm), stiskni tlačítko s **vrstvami** vedle Uložit G-kód: okno vypíše soubory (`plat_01d.nc` = první soubor, vrták; `plat_02m.nc` = druhý soubor, fréza) a kolik drah který obsahuje. *Uložit soubory* je zapíše do jedné složky, kterou vybereš. Spouštěj je v uvedeném pořadí; před každým dalším souborem **vyměň nástroj a znovu nastav nulu Z** - stroj nemá korekci délky nástroje, takže stará nula Z pro nový nástroj neplatí. Když se používá jen jeden nástroj, stačí běžné Uložit G-kód.
+
 ## Na stroj
 
 1. Zkopíruj soubor `.nc` na SD kartu (kořenová složka nebo složka, kterou používá tvůj ovladač).

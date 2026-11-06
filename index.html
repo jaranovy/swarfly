@@ -392,7 +392,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.10.0</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.11.0</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -570,6 +570,7 @@
 							<div class="window-content p-1 text-center  mt-1" style="overflow-y:hidden;">
 
 								<button class="button drop-shadow" title="Save G-Code" id="gcodesavebtn2" onclick="saveFile();"><span class="fa fa-save fa-fw icon"></span>Save G-Code</button>
+								<button class="button drop-shadow" title="Save one file per tool (drill, mill ...): you change the bit between the files" id="gcodesavetoolbtn" onclick="saveFilePerTool();"><span class="fa fa-layer-group fa-fw icon"></span></button>
 								<button class="button drop-shadow" title="Preview G-Code" id="gcodeviewbtn2" onclick="previewFile();"><span id="gcodepreviewicon" class="fa fa-eye fa-fw icon fg-gray"></span></button>
 								<button class="button drop-shadow" title="Clear G-Code" id="gcodetrashbtn2" onclick="trashGcode();"><span id="trashicon" class="fa fa-trash fa-fw fg-gray icon"></span></button>
 
@@ -709,6 +710,7 @@
 	<!-- Bitmap Tracing -->
 	<script type="text/javascript" src="lib/potrace/potrace.js"></script>
 	<script type="text/javascript" src="js/trace-model.js"></script>
+	<script type="text/javascript" src="js/tool-split-model.js"></script>
 	<script type="text/javascript" src="js/potrace.js"></script>
 
 	<!--Settings Widgets -->

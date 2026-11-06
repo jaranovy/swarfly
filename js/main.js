@@ -286,6 +286,56 @@ function saveFile() {
   saveFileGcode(nc83Name(window.lastLoadedFileName));
 }
 
+// ---- 1.11.0: one file per tool -----------------------------------------------------------------------------------------------
+// The offline controller cannot change a bit, so the program is split where the tool changes. A window lists the files in the order
+// to run them; the bit is changed by hand and Z is touched off again between the files (GRBL has no tool length offset).
+function toolSplitInfo() {
+  var items = [];
+  toolpathsInScene.forEach(function(tp, i) {
+    if (tp.userData.visible && tp.userData.camOperation && typeof tp.userData.gcode !== "undefined") items.push({ index: i, operation: tp.userData.camOperation, toolDia: tp.userData.camToolDia });
+  });
+  var groups = toolGroups(items), names = toolFileNames(window.lastLoadedFileName, groups);
+  return groups.map(function(g, i) { return { file: names[i], label: g.label, indexes: g.indexes, count: g.indexes.length }; });
+}
+
+function saveFilePerTool() {
+  var files = toolSplitInfo();
+  if (!files.length) { Metro.toast.create("Generate the G-code first", null, 4000, 'bg-orange'); return; }
+  if (files.length < 2) { Metro.toast.create("Only one tool is used - use Save G-Code", null, 5000, 'bg-orange'); return; }
+  var rows = files.map(function(f, i) {
+    return "<tr><td>" + (i + 1) + ".</td><td><b>" + f.file + "</b></td><td>" + f.label + "</td><td>" + f.count + (f.count === 1 ? " toolpath" : " toolpaths") + "</td></tr>";
+  }).join("");
+  Metro.dialog.create({
+    title: "Save one file per tool",
+    content: "<table id='toolSplitTable' style='width:100%;font-size:13px'>" + rows + "</table>" +
+      "<p style='font-size:12px;margin-top:10px'>Run the files in this order. Before each next file: change the bit, then touch off Z again (the machine has no tool length offset).</p>",
+    actions: [
+      { caption: "<span class='fas fa-save fa-fw'></span> Save files", cls: "js-dialog-close primary", onclick: function() { saveToolFiles(files); } },
+      { caption: "Cancel", cls: "js-dialog-close" }
+    ]
+  });
+}
+
+async function saveToolFiles(files) {
+  var texts = files.map(function(f) { return prepgcodefile(f.indexes); });
+  try {
+    if (window.showDirectoryPicker) {
+      var dir = await window.showDirectoryPicker({ mode: "readwrite" });          // one folder for all files
+      for (var i = 0; i < files.length; i++) {
+        var handle = await dir.getFileHandle(files[i].file, { create: true });
+        var w = await handle.createWritable();
+        await w.write(texts[i]);
+        await w.close();
+      }
+    } else {
+      files.forEach(function(f, k) { invokeSaveAsDialog(new Blob([texts[k]], { type: "text/plain" }), f.file); });
+    }
+    Metro.toast.create(files.length + " files saved. Run them in order; change the bit and set Z between them.", null, 9000, 'bg-green');
+  } catch (e) {
+    if (e && e.name !== "AbortError") Metro.toast.create("Saving failed: " + e.message, null, 8000, 'bg-red');
+  }
+}
+
 function saveFileGcode(filename) {
   if (!filename.toLowerCase().endsWith('.nc')) {
     filename = filename += '.nc'

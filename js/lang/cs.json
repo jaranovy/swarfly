@@ -441,5 +441,11 @@
  "Ignore specks up to": "Ignorovat tečky do",
  "Width of the result": "Šířka výsledku",
  "Import": "Importovat",
- "Nothing to trace - change the threshold or tick Invert": "Není co vektorizovat - změň práh nebo zaškrtni Obrátit"
+ "Nothing to trace - change the threshold or tick Invert": "Není co vektorizovat - změň práh nebo zaškrtni Obrátit",
+ "Save one file per tool (drill, mill ...): you change the bit between the files": "Uložit jeden soubor na nástroj (vrták, fréza ...): mezi soubory vyměníš nástroj",
+ "Generate the G-code first": "Nejdřív vygeneruj G-kód",
+ "Only one tool is used - use Save G-Code": "Používá se jen jeden nástroj - použij Uložit G-kód",
+ "Save one file per tool": "Uložit jeden soubor na nástroj",
+ "Run the files in this order. Before each next file: change the bit, then touch off Z again (the machine has no tool length offset).": "Spouštěj soubory v tomto pořadí. Před každým dalším souborem vyměň nástroj a znovu nastav nulu Z (stroj nemá korekci délky nástroje).",
+ "Save files": "Uložit soubory"
 }
