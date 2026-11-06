@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.9.0] - 2026-11-06
+### Added
+- **Trim** tool (ribbon, scissors): click the part of a line between two crossings to remove it; the part that goes turns red while you point. Works on open lines and on closed outlines (a circle crossed by a line loses the arc between the crossings).
+- **Split** tool: cut a line or outline where you click; crossings attract the cut; a closed outline is opened at that point.
+- Pure maths in `editor-model.js` (`editorCrossingPositions`, `editorTrimPolyline`, `editorTrimRange`, `editorSplitPolyline`, ...) with unit tests, plus Playwright tests.
+- Help: trim / split, erase by window, erase outside a window.
+
 ## [1.8.4] - 2026-11-06
 ### Changed
 - Right dock: Documents panel has small icon buttons (select all / none / invert / delete) with tooltips instead of four big buttons; the tree shows readable names with icons ("Rectangle 60x30", "Circle 20x20", "Drawing") and starts expanded; the panel is taller (38 %) and the toolpath hint paragraph is gone; the buttons of panels 2-4 use the full width.

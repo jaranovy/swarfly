@@ -579,3 +579,12 @@ test('editorNearestPosition / editorPointAt', () => {
 	near(r.t, 0.5); near(r.dist, 3);
 	same(m.editorPointAt(SQ, 2.5), [20, 40]);
 });
+
+test('editorTrimRange: the range a trim removes', () => {
+	same(m.editorTrimRange(LINE, [0.3, 0.7], 0.5), [0.3, 0.7]);
+	same(m.editorTrimRange(LINE, [0.3, 0.7], 0.1), [0, 0.3]);
+	same(m.editorTrimRange(LINE, [], 0.5), [0, 1]);
+	same(m.editorTrimRange(SQ, [0.5, 2.5], 1.5), [0.5, 2.5]);
+	same(m.editorTrimRange(SQ, [0.5, 2.5], 3.5), [2.5, 0.5]);                                  // through the start
+	same(m.editorPrompt({ cut: 'trim' }).slice(0, 5), 'Trim:');
+});

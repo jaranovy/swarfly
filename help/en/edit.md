@@ -16,6 +16,17 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 
 When something is selected a bar appears across the top of the drawing: reference point (the 3x3 dots), **X**, **Y**, **W**, **H**, *Keep proportions*, **Rotate** with the two turn buttons, the two mirror buttons, **X0 Y0** (move to the origin) and *Locked*. Everything else described below (copies, corners and offset, points, extend / trim, shape parameters) is in the **More** drawer at the right end of the bar.
 
+### Trim and split (like SAPS "erase part" and "divide")
+
+Two tools in the ribbon, next to Move A-B. Both work on any unlocked line of the drawing; Esc or a right click ends the tool.
+
+- **Trim** - point at a line: the part that would go turns red. It is the part between the two crossings next to the pointer (a crossing is where another line cuts or touches it). Click to remove it. On an open line the parts outside the crossings stay; on a closed outline (circle, rectangle) the rest becomes one open line. A line without crossings is removed completely.
+- **Split** - click a line where it should be cut; a crossing within 10 pixels attracts the cut. A closed outline is opened at that point. The pieces are separate lines that you can move, delete or give different toolpaths.
+
+Trimmed or split shapes lose their shape parameters (a circle with an arc missing is no longer a circle). Undo restores everything in one step.
+
+*Erase by window*: drag a window around objects (left to right: whole objects inside, right to left: everything the window touches) and press **Del**. *Erase everything outside a window*: drag the window, press **Invert** in the Documents panel, then **Del**.
+
 ### Pocket (mill out an area)
 
 Select one or more **closed** outlines and press **Pocket** in the properties bar: the toolpath is created and its dialog opens with *CNC: Pocket* chosen. Set the cutter diameter, depth and step down, then Apply and Preview. Pocket removes the whole area inside the outline; use *CNC: Vector (path inside)* instead to cut only along the line. Inner corners cannot be sharper than the cutter radius.

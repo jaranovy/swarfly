@@ -6,7 +6,7 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { more: false, placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null };
+var editorState = { more: false, placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null, cut: null };
 
 function editorLoadSnapSettings() {
   try {
@@ -265,7 +265,8 @@ function editorBuildPanel() {
   var sm = document.createElementNS(ns, "svg");
   sm.id = "editorSnapMark";
   sm.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none";
-  sm.innerHTML = '<line id="editorRubber" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4" style="display:none"/>' +
+  sm.innerHTML = '<polyline id="editorCutPreview" fill="none" stroke="#ff3355" stroke-width="3" stroke-linecap="round" style="display:none"/>' +
+    '<line id="editorRubber" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4" style="display:none"/>' +
     '<circle id="editorSnapDot" r="7" fill="none" stroke="#ff4fd8" stroke-width="2.5"/>' +
     '<text id="editorSnapText" fill="#ff4fd8" font-size="12" font-family="Segoe UI, Arial, sans-serif" font-weight="normal" paint-order="stroke" stroke="#000" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"></text>';
   area.appendChild(sm);
@@ -751,6 +752,125 @@ function editorSecondClickUp(event) {
   editorDrawHandles();
 }
 
+// ---- 1.9.0: trim between crossings and split -----------------------------------------------------------------------------------
+// Tools like SAPS "erase part of a section" and "divide a section". The click picks the line under the pointer (any unlocked line of
+// the drawing); the crossings with all other lines decide where the cut goes.
+function editorStartCut(mode) {
+  editorEndPlacement();
+  editorCancelMoveAB(true);
+  if (editorState.me) editorMeasureEnd();
+  var same = editorState.cut && editorState.cut.mode === mode;
+  editorEndCut();
+  if (same) return;
+  editorState.cut = { mode: mode };
+  var b = document.getElementById(mode === "trim" ? "editorTrimButton" : "editorSplitButton");
+  if (b) b.classList.add("ed-on");
+  document.getElementById("renderArea").style.cursor = "crosshair";
+  editorStatusUpdate(null);
+}
+
+function editorEndCut() {
+  editorState.cut = null;
+  ["editorTrimButton", "editorSplitButton"].forEach(function(id) { var b = document.getElementById(id); if (b) b.classList.remove("ed-on"); });
+  var area = document.getElementById("renderArea");
+  if (area) area.style.cursor = "";
+  editorCutPreview(null);
+  editorShowSnap(null);
+  editorStatusUpdate(null);
+}
+
+// The line nearest to the cursor (within 10 px) with its crossings and the position of the cursor on it, or null.
+function editorCutTarget(e) {
+  var w = mouseToWorldCoord(e), tol = 10 * editorMmPerPixel(), best = null, all = editorAllLines();
+  var polys = all.map(editorLinePoints);
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].userData.locked) continue;
+    var r = editorNearestPosition(polys[i], [w.x, w.y]);
+    if (r && r.dist <= tol && (!best || r.dist < best.dist)) best = { index: i, line: all[i], pts: polys[i], t: r.t, dist: r.dist, point: r.point };
+  }
+  if (!best) return null;
+  best.others = polys.filter(function(p, i) { return i !== best.index; });
+  best.ts = editorCrossingPositions(best.pts, best.others);
+  return best;
+}
+
+function editorCutPreview(pts) {
+  var pl = document.getElementById("editorCutPreview");
+  if (!pl) return;
+  if (!pts || pts.length < 2) { pl.style.display = "none"; return; }
+  pl.setAttribute("points", pts.map(function(p) { var q = editorToScreen(p[0], p[1]); return q[0] + "," + q[1]; }).join(" "));
+  pl.style.display = "block";
+  document.getElementById("editorSnapMark").style.display = "block";
+}
+
+function editorCutMove(e) {
+  var cut = editorState.cut, tg = editorCutTarget(e);
+  if (!tg) { editorCutPreview(null); editorShowSnap(null); return; }
+  if (cut.mode === "trim") {
+    var range = editorTrimRange(tg.pts, tg.ts, tg.t);
+    editorShowSnap(null);
+    editorCutPreview(editorSubPolyline(tg.pts, range[0], range[1]));
+  } else {
+    var at = editorSplitPosition(tg);
+    editorCutPreview(null);
+    editorShowSnap(editorPointAt(tg.pts, at.t), at.cross ? "intersection" : "mid");
+  }
+}
+
+// Where a split goes: a crossing within 10 px attracts, otherwise the clicked position.
+function editorSplitPosition(tg) {
+  var tol = 10 * editorMmPerPixel(), best = null;
+  tg.ts.forEach(function(t) {
+    var q = editorPointAt(tg.pts, t), d = Math.hypot(q[0] - tg.point[0], q[1] - tg.point[1]);
+    if (d <= tol && (!best || d < best.d)) best = { t: t, d: d };
+  });
+  return best ? { t: best.t, cross: true } : { t: tg.t, cross: false };
+}
+
+function editorCutClick(e) {
+  var cut = editorState.cut, tg = editorCutTarget(e);
+  if (!tg) { editorToast("No line under the pointer"); return; }
+  var pieces, message;
+  if (cut.mode === "trim") {
+    pieces = editorTrimPolyline(tg.pts, tg.ts, tg.t);
+    if (!tg.ts.length) message = "The line has no crossing, so all of it was removed";
+  } else {
+    var at = editorSplitPosition(tg);
+    pieces = editorSplitPolyline(tg.pts, [at.t]);
+    if (!pieces) { editorToast("Click inside the line, not at its end"); return; }
+  }
+  editorCutApply(tg.line, pieces);
+  if (message) editorToast(message);
+}
+
+// The first piece takes the geometry of the line, further pieces become new lines of the same document; no piece removes the line.
+function editorCutApply(line, pieces) {
+  storeUndo(true);                                    // also bakes the positions into the geometry
+  var parent = line.parent, ox = line.position.x + (parent ? parent.position.x : 0), oy = line.position.y + (parent ? parent.position.y : 0);
+  var local = function(pts) { return pts.map(function(p) { return [p[0] - ox, p[1] - oy]; }); };
+  if (!pieces.length) {
+    parent.remove(line);
+  } else {
+    editorReplaceGeometry(line, local(pieces[0]));
+    delete line.userData.shape;
+    line.userData.selected = false;
+    for (var i = 1; i < pieces.length; i++) {
+      var g = new THREE.Geometry();
+      local(pieces[i]).forEach(function(p) { g.vertices.push(new THREE.Vector3(p[0], p[1], 0)); });
+      var copy = new THREE.Line(g, line.material.clone());
+      copy.name = line.name;
+      if (line.userData.layer) copy.userData.layer = line.userData.layer;
+      parent.add(copy);
+    }
+  }
+  if (typeof fillTree === "function") fillTree();
+  if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+  clearSceneFlag = true;
+  editorState.snapCache = null;
+  editorCutPreview(null);
+  editorRefresh(true);
+}
+
 // ---- 1.8.2: pocket shortcut --------------------------------------------------------------------------------------------------
 // Creates a toolpath from the selected closed outlines and opens its dialog with the operation "CNC: Pocket" already chosen.
 function editorIsClosed(points) {
@@ -1199,7 +1319,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep() });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep(), cut: editorState.cut ? editorState.cut.mode : "" });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }
@@ -1222,11 +1342,19 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       if (editorState.placing) editorMovePlacement(e);
       if (editorState.mv) editorMoveABMove(e);
       if (editorState.me) editorMeasureMove(e);
+      if (editorState.cut) editorCutMove(e);
       editorStatusUpdate(e);
     });
 
     // capture phase on the document: while a shape is being placed the first click / right click / Esc belongs to the placement
     document.addEventListener("mousedown", function(e) {
+      if (editorState.cut) {
+        var onCanvas4 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
+        if (!onCanvas4) { if (!(e.target.closest && e.target.closest("#editorTrimButton, #editorSplitButton"))) editorEndCut(); return; }
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (e.button === 2) editorEndCut(); else if (e.button === 0) editorCutClick(e);
+        return;
+      }
       if (editorState.me) {
         var onCanvas3 = e.target && e.target.tagName === "CANVAS" && area.contains(e.target);
         if (!onCanvas3) { if (!(e.target.closest && e.target.closest("#editorMeasureMenu, #editorCoordBox"))) editorMeasureEnd(); return; }
@@ -1249,8 +1377,9 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       if (e.button === 2) editorCancelPlacement();
       else if (e.button === 0) { editorMovePlacement(e); editorEndPlacement(); }
     }, true);
-    document.addEventListener("contextmenu", function(e) { if (editorState.placing || editorState.mv || editorState.me) e.preventDefault(); }, true);
+    document.addEventListener("contextmenu", function(e) { if (editorState.placing || editorState.mv || editorState.me || editorState.cut) e.preventDefault(); }, true);
     document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && editorState.cut) { e.preventDefault(); e.stopImmediatePropagation(); editorEndCut(); return; }
       if (e.key === "Escape" && editorState.me) { e.preventDefault(); e.stopImmediatePropagation(); editorMeasureEnd(); return; }
       if (e.key === "Escape" && editorState.mv) { e.preventDefault(); e.stopImmediatePropagation(); editorCancelMoveAB(); return; }
       if (e.key === "Escape" && editorState.placing) { e.preventDefault(); e.stopImmediatePropagation(); editorDropAtOrigin(); }

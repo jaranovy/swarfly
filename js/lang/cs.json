@@ -420,5 +420,15 @@
  "Delete selected objects": "Smazat vybrané objekty",
  "No toolpaths yet.": "Zatím žádné dráhy nástroje.",
  "Line": "Čára",
- "Outline": "Obrys"
+ "Outline": "Obrys",
+ "Trim": "Oříznout",
+ "Split": "Rozdělit",
+ "Trim: click the part of a line between two crossings to remove it (SAPS: erase part)": "Oříznout: klikni na část čáry mezi dvěma křížení a ta zmizí",
+ "Split: click on a line where it should be cut": "Rozdělit: klikni na čáru nebo kruh tam, kde se má přeříznout",
+ "Split: cut a line or circle into two parts where you click": "Rozdělit: přeřízne čáru nebo kruh v místě kliknutí na dvě části",
+ "Trim: click the part of a line that should go (between two crossings) - Esc ends": "Oříznout: klikni na část čáry, která má zmizet (mezi dvěma křížení) - Esc ukončí",
+ "Split: click a line where it should be cut (crossings attract) - Esc ends": "Rozdělit: klikni na čáru, kde se má přeříznout (křížení přitahují) - Esc ukončí",
+ "No line under the pointer": "Pod ukazatelem není žádná čára",
+ "Click inside the line, not at its end": "Klikni dovnitř čáry, ne na její konec",
+ "The line has no crossing, so all of it was removed": "Čára nemá žádné křížení, proto zmizela celá"
 }

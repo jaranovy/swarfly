@@ -155,6 +155,8 @@ var EDITOR_MEASURE_PROMPTS = {
 function editorPrompt(state) {
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
   if (state.measure) return EDITOR_MEASURE_PROMPTS[state.measure];
+  if (state.cut === "trim") return "Trim: click the part of a line that should go (between two crossings) - Esc ends";
+  if (state.cut === "split") return "Split: click a line where it should be cut (crossings attract) - Esc ends";
   if (state.moveStep === 1) return "Click the point to move from (Esc cancels)";
   if (state.moveStep === 2) return "Click the point to move to (Esc cancels)";
   if (state.pick > 1) return state.pick + " objects under the pointer - click again to pick the next one";
@@ -616,6 +618,19 @@ function editorSubPolyline(points, t0, t1) {
   for (var k = Math.floor(t0 + 1e-9) + 1; k < t1 - 1e-9; k++) push(at(k));
   push(at(t1));
   return out;
+}
+
+// The range [from, to] that a trim at clickT removes (positions; for a closed outline `to` may be smaller than `from`: the range runs
+// through the start). The whole line when there is nothing to stop at.
+function editorTrimRange(points, ts, clickT) {
+  var n = points.length, closed = editorPolyClosed(points), eps = 1e-9, lo = null, hi = null;
+  ts.forEach(function(t) { if (t <= clickT + eps) lo = t; });
+  for (var i = 0; i < ts.length; i++) if (ts[i] > clickT + eps) { hi = ts[i]; break; }
+  if (closed) {
+    if (ts.length < 2) return [0, n - 1];
+    return [lo === null ? ts[ts.length - 1] : lo, hi === null ? ts[0] : hi];
+  }
+  return [lo === null ? 0 : lo, hi === null ? n - 1 : hi];
 }
 
 // Removes the part of the line under position clickT that lies between the nearest crossings (ts, sorted). Returns the pieces that

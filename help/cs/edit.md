@@ -16,6 +16,17 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 
 Když je něco vybráno, nahoře nad výkresem se objeví lišta: vztažný bod (3x3 tečky), **X**, **Y**, **W**, **H**, *Zachovat poměr stran*, **Otočit** se dvěma tlačítky, dvě tlačítka zrcadlení, **X0 Y0** (přesun do počátku) a *Zamknuto*. Vše ostatní popsané níže (kopie, rohy a odsazení, body, prodloužení / zkrácení, parametry tvaru) je v zásuvce **Více** na pravém konci lišty.
 
+### Oříznout a rozdělit (jako ve SAPS „smazat část“ a „rozdělit“)
+
+Dva nástroje na pásu karet vedle Posunu A-B. Oba fungují na každé odemčené čáře výkresu; Esc nebo pravé tlačítko nástroj ukončí.
+
+- **Oříznout** - ukaž na čáru: část, která by zmizela, zčervená. Je to část mezi dvěma křížení vedle ukazatele (křížení je místo, kde čáru protíná nebo se jí dotýká jiná čára). Kliknutím ji odstraníš. U otevřené čáry zůstanou části mimo křížení; u uzavřeného obrysu (kruh, obdélník) zbytek vznikne jako jedna otevřená čára. Čára bez křížení se odstraní celá.
+- **Rozdělit** - klikni na čáru tam, kde se má přeříznout; křížení do 10 pixelů přitahuje řez. Uzavřený obrys se v tom místě otevře. Kusy jsou samostatné čáry, které můžeš posouvat, mazat nebo jim dát jiné dráhy.
+
+Oříznutý nebo rozdělený tvar ztratí své parametry (kruh s chybějícím obloukem už není kruh). Zpět vrátí všechno jedním krokem.
+
+*Smazání oknem*: táhni okno kolem objektů (zleva doprava: celé objekty uvnitř, zprava doleva: vše, čeho se okno dotkne) a stiskni **Del**. *Smazání všeho mimo okno*: táhni okno, v panelu Dokumenty stiskni **Obrátit výběr** a pak **Del**.
+
 ### Kapsa (vyfrézování plochy)
 
 Vyber jeden nebo více **uzavřených** obrysů a stiskni **Kapsa** v liště vlastností: vytvoří se dráha a otevře se její dialog s předvolenou operací *CNC: Pocket*. Nastav průměr frézy, hloubku a záběr do hloubky a dej Použít a zobrazit. Kapsa odebere celou plochu uvnitř obrysu; chceš-li řezat jen po čáře, použij *CNC: Vector (path inside)*. Vnitřní rohy nemohou být ostřejší než poloměr frézy.
