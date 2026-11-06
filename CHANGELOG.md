@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.8.1] - 2026-11-06
+### Changed
+- Pop-up dialogs (new shapes, status, ...) use the same card style as the rest: light surface, titled header, accent button, tokens from `css/swarfly-ui.css`; the dark theme gets readable button text. The dark theme itself already follows the tokens (checked with the properties bar, drawer and dock).
+
 ## [1.8.0] - 2026-11-06
 ### Changed
 - Compact ribbon: icons only (no captions, no group titles), smaller buttons; every button shows its name as a tooltip.

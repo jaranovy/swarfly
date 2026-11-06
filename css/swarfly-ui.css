@@ -196,3 +196,42 @@ nav[data-role="ribbonmenu"] .ribbon-icon-button .icon { height: 20px !important;
 
 #swBar { flex-wrap: nowrap; }
 #swBar #editorStatus { max-width: none; flex: 1 1 auto; min-width: 0; }
+
+/* ---- pop-up dialogs (shapes, status, ...) share the card style ----------------------------------------------------------------- */
+.dialog.dark {
+  background: var(--sw-surface) !important;
+  color: var(--sw-text) !important;
+  border: 1px solid var(--sw-border);
+  border-radius: var(--sw-radius);
+  box-shadow: 0 8px 28px rgba(20, 30, 50, .35);
+}
+.dialog.dark .dialog-title {
+  background: var(--sw-surface-2) !important;
+  color: var(--sw-text) !important;
+  border-bottom: 1px solid var(--sw-border);
+  border-radius: var(--sw-radius) var(--sw-radius) 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.dialog.dark .dialog-content { color: var(--sw-text) !important; }
+.dialog.dark .dialog-actions { background: transparent !important; border-top: 1px solid var(--sw-border); }
+.dialog.dark .input,
+.dialog.dark .input input { background: var(--sw-bg) !important; color: var(--sw-text) !important; border-color: var(--sw-border) !important; }
+.dialog.dark .input .prepend,
+.dialog.dark .input .append,
+.dialog.dark .input .prepend *,
+.dialog.dark .input .append * { background: var(--sw-surface-2) !important; color: var(--sw-text) !important; }
+.dialog.dark .button {
+  background: var(--sw-surface-2);
+  color: var(--sw-text);
+  border: 1px solid var(--sw-border);
+  border-radius: 4px;
+  box-shadow: none;
+}
+.dialog.dark .button.success,
+.dialog.dark .button.primary,
+.dialog.dark .button.info { background: var(--sw-accent) !important; border-color: var(--sw-accent) !important; color: #fff !important; }
+body.theme_dark .dialog.dark .button.success,
+body.theme_dark .dialog.dark .button.primary,
+body.theme_dark .dialog.dark .button.info { color: #0b1b2b !important; }
+body.theme_dark #editorPanel button { color: #0b1b2b; }
