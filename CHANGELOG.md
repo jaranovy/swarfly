@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.14.0] - 2026-11-06
+### Changed
+- The properties bar is always open: with nothing selected it is greyed out instead of hidden (no jumping, nothing to look for).
+- Shapes menu: a shape no longer opens a pop-up dialog; the bar turns into a **New shape** form with the parameters of the shape, a blue ghost outline at the origin, Enter / Create to make it and Esc / Cancel to drop it. Values are remembered per shape kind. (The old dialogs stay in the page for scripts and tests.)
+- Export panel: the buttons under Save G-Code have space between them.
+
 ## [1.13.0] - 2026-11-06
 ### Added
 - **To corner** tool (SAPS "extension to the point of intersection"): two lines are extended or trimmed to where their lines meet; the click side of each stays. Pure maths `editorLineHit`, `editorReachPoint` with unit tests, Playwright test.

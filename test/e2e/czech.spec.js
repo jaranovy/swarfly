@@ -29,7 +29,7 @@ test('Czech: properties bar, drawer, measure and snap texts, prompts and tooltip
 	});
 	await cz.waitForTimeout(700);
 	await cz.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await cz.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await cz.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await cz.waitForTimeout(500);
 	expect(await text('#epTitle')).toBe('Vlastnosti');
 	const panel = await text('#editorPanel');
@@ -51,5 +51,18 @@ test('Czech: properties bar, drawer, measure and snap texts, prompts and tooltip
 	await cz.waitForTimeout(300);
 	expect(await text('#editorSnapText')).toBe('Koncový bod');
 	expect(await text('#editorPrompt')).toMatch(/Klikni na bod, kam/);
+	// 1.14.0: the bar is open without a selection and sets up new shapes; the new tools
+	await cz.evaluate(() => { editorMeasureEnd(); editorState.mv = null; objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = false; })); editorRefresh(true); });
+	await cz.waitForTimeout(500);
+	expect(await text('#epTitle')).toBe('Vlastnosti - nic není vybráno');
+	await cz.evaluate(() => editorNewShape('star'));
+	await cz.waitForTimeout(500);
+	expect(await text('#epNew')).toContain('Nový tvar:');
+	expect(await text('#epNew')).toContain('Vytvořit');
+	expect(await text('#editorPrompt')).toMatch(/Nový tvar: nastav hodnoty/);
+	await cz.evaluate(() => editorDraftCancel());
+	expect(await text('#editorTangentButton')).toContain('Tečna');
+	expect(await text('#editorReachButton')).toContain('Do rohu');
+	expect(await text('#editorTrimButton')).toContain('Oříznout');
 	await cz.close();
 });

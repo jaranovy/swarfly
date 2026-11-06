@@ -153,6 +153,7 @@ var EDITOR_MEASURE_PROMPTS = {
 
 // Status line prompt for the current state.
 function editorPrompt(state) {
+  if (state.draft) return "New shape: set the values in the bar - Enter creates it, then place it with the mouse - Esc cancels";
   if (state.placing) return "Click to place the shape - Esc: place at X0 Y0 - right click: cancel";
   if (state.measure) return EDITOR_MEASURE_PROMPTS[state.measure];
   if (state.cut === "trim") return "Trim: click the part of a line that should go (between two crossings) - Esc ends";

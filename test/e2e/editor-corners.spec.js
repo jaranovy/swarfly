@@ -38,7 +38,7 @@ async function selectLast() {
 		const last = objectsInScene[objectsInScene.length - 1];
 		last.children[last.children.length - 1].userData.selected = true;
 	});
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.waitForTimeout(250);
 }
 

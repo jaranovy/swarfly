@@ -105,7 +105,7 @@ test('Esc clears the selection, but not while typing in a field', async () => {
 	await refit();
 	await drag([70, -5], [-5, 25]);
 	expect((await selectedStarts()).length).toBe(2);
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.focus('#epX');
 	await page.keyboard.press('Escape');
 	expect((await selectedStarts()).length).toBe(2);
@@ -163,7 +163,7 @@ test('lock: a locked object is not changed by the panel, arrow keys, handles or 
 	await create('CreateRect', { rectX: 40, rectY: 20 });
 	await refit();
 	await page.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.check('#epLocked');
 	await page.waitForTimeout(300);
 	const box = () => page.evaluate(() => { const b = editorSelectionBox(getSelectedObjects()); return [b.minX, b.minY, b.maxX, b.maxY]; });
@@ -191,7 +191,7 @@ test('lock survives undo / redo and copies of a locked object are not locked', a
 	await page.evaluate(() => undo());                                         // the lock itself is one undo step
 	await page.waitForTimeout(500);
 	await page.evaluate(() => { objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = true; })); });
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	expect(await page.isChecked('#epLocked')).toBe(false);
 	await page.check('#epLocked');
 	await page.waitForTimeout(200);
@@ -223,7 +223,7 @@ test('the drawing does not jump when the properties bar appears and disappears',
 	const top = () => page.evaluate(() => document.getElementById('renderArea').getBoundingClientRect().top);
 	const none = await top();
 	await page.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.waitForTimeout(300);
 	expect(await top()).toBe(none);
 });

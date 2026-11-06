@@ -16,6 +16,10 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 
 Když je něco vybráno, nahoře nad výkresem se objeví lišta: vztažný bod (3x3 tečky), **X**, **Y**, **W**, **H**, *Zachovat poměr stran*, **Otočit** se dvěma tlačítky, dvě tlačítka zrcadlení, **X0 Y0** (přesun do počátku) a *Zamknuto*. Vše ostatní popsané níže (kopie, rohy a odsazení, body, prodloužení / zkrácení, parametry tvaru) je v zásuvce **Více** na pravém konci lišty.
 
+### Lišta vlastností je vždy tady
+
+Lišta pod pásem karet nikdy nezmizí: když není nic vybráno, je zašedlá (aby kresba neskákala) a probudí se, jakmile něco vybereš. Když v nabídce **Tvary** zvolíš tvar, lišta se změní na formulář **Nový tvar** s parametry toho tvaru (u hvězdy: počet cípů, vnější poloměr, vnitřní poloměr) a modrým stínem výsledku v počátku. Napiš hodnoty (pole zčervená, když hodnota není platná), stiskni **Enter** nebo *Vytvořit* a tvar umísti myší jako dřív. **Esc** nebo *Zrušit* ho zahodí. Hodnoty se pamatují pro další tvar stejného druhu.
+
 ### Oříznout a rozdělit (jako ve SAPS „smazat část“ a „rozdělit“)
 
 Dva nástroje na pásu karet vedle Posunu A-B. Oba fungují na každé odemčené čáře výkresu; Esc nebo pravé tlačítko nástroj ukončí.

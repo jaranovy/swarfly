@@ -37,7 +37,7 @@ async function openLine() {
 		objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = false; }));
 		l.userData.selected = true;
 	});
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.waitForTimeout(300);
 }
 
@@ -64,7 +64,7 @@ test('a closed outline is refused and unchanged', async () => {
 	await page.evaluate(() => { document.getElementById('rectX').value = 40; document.getElementById('rectY').value = 20; document.getElementById('CreateRect').click(); });
 	await page.waitForTimeout(700);
 	await page.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.fill('#epExtStart', '3');
 	await page.click('#epExtend');
 	const n = await page.evaluate(() => editorSelection()[0].geometry.vertices.length);

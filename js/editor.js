@@ -6,7 +6,7 @@
 // Uses globals of the OpenBuilds code: getSelectedObjects, objectsInScene, storeUndo, undoStore, changePositionToGeoTranslate,
 // fillTree, mouseToWorldCoord, camera, clearSceneFlag, hoverShapesinScene, THREE.
 
-var editorState = { more: false, placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null, cut: null };
+var editorState = { more: false, placing: null, dims: 0, lock: true, ref: "ll", panelOn: true, sig: "", paramsFor: null, count: 0, snap: true, gridStep: 1, mv: null, snapCache: null, pick: null, pickCount: 0, measures: [], me: null, lastPoint: null, cut: null, draft: null, draftParams: null };
 
 function editorLoadSnapSettings() {
   try {
@@ -147,6 +147,8 @@ function editorBuildPanel() {
     '#editorPanel .ep-bar button{padding:2px 7px}' +
     '#editorPanel #epTitle{color:var(--sw-muted,#5f6b7a);min-width:70px}' +
     '#editorPanel .ep-note{display:none}' +
+    '#editorPanel .ep-idle input,#editorPanel .ep-idle button{opacity:.45}' +
+    '#editorPanel .epNewTitle{color:var(--sw-muted,#5f6b7a);min-width:90px}' +
     '#editorPanel #epMore{display:none;position:absolute;top:100%;right:8px;width:250px;max-height:calc(100vh - 260px);overflow:auto;background:var(--ed-bg);border:1px solid var(--ed-border);border-radius:var(--sw-radius,6px);box-shadow:0 4px 14px rgba(0,0,0,.28);padding:8px 10px}' +
     '#editorPanel.ep-open #epMore{display:block}' +
     '#editorPanel .ep-row{display:flex;align-items:center;gap:6px;margin:4px 0}' +
@@ -161,7 +163,8 @@ function editorBuildPanel() {
     '#editorStatus{position:absolute;left:64px;bottom:6px;z-index:5;pointer-events:none;font:12px/1.4 monospace;padding:2px 8px;border-radius:3px;background:rgba(0,0,0,.55);color:#fff;white-space:nowrap}' +   // fallback when the bar is missing
     '#editorDims{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;display:none}' +
     '</style>' +
-    '<div class="ep-bar">' +
+    '<div class="ep-bar" id="epNew" style="display:none"></div>' +
+    '<div class="ep-bar" id="epMainBar">' +
     '<span id="epTitle">Properties</span>' +
     '<div class="ep-grp"><div class="ep-grid" id="epGrid" title="Reference point for X and Y">' + grid + '</div><span class="ep-note" id="epRefNote">Lower-left corner</span></div>' +
     '<div class="ep-grp"><label for="epX">X</label><input type="text" id="epX" autocomplete="off"><label for="epY">Y</label><input type="text" id="epY" autocomplete="off"></div>' +
@@ -199,7 +202,7 @@ function editorBuildPanel() {
   slot.style.cssText = "position:relative;height:46px;z-index:6";
   area.parentNode.insertBefore(slot, area);
   slot.appendChild(p);
-  window.addEventListener("resize", editorReserveBar);
+  window.addEventListener("resize", function() { editorReserveBar(true); });
   setTimeout(editorReserveBar, 300);
   // the panel must not start a marquee or orbit in the viewer underneath
   ["mousedown", "mouseup", "mousemove", "wheel", "dblclick", "contextmenu"].forEach(function(t) {
@@ -229,7 +232,13 @@ function editorBuildPanel() {
   document.getElementById("epMoreBtn").addEventListener("click", function() { editorState.more = !editorState.more; editorApplyMore(); });
   document.getElementById("epCopyLinear").addEventListener("click", editorCopyLinear);
   document.getElementById("epCopyPolar").addEventListener("click", editorCopyPolar);
-  p.addEventListener("keydown", function(e) { e.stopPropagation(); });   // Delete / Backspace in a field must not delete objects
+  p.addEventListener("keydown", function(e) {
+    if (editorState.draft && e.target && e.target.closest && e.target.closest("#epNew")) {
+      if (e.key === "Enter") { e.preventDefault(); editorDraftCreate(); }
+      else if (e.key === "Escape") { e.preventDefault(); editorDraftCancel(); }
+    }
+    e.stopPropagation();
+  });   // Delete / Backspace in a field must not delete objects
 
   var coord = document.createElement("div");
   coord.id = "editorCoordBox";
@@ -273,7 +282,8 @@ function editorBuildPanel() {
   var sm = document.createElementNS(ns, "svg");
   sm.id = "editorSnapMark";
   sm.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none";
-  sm.innerHTML = '<polyline id="editorCutPreview" fill="none" stroke="#ff3355" stroke-width="3" stroke-linecap="round" style="display:none"/>' +
+  sm.innerHTML = '<polyline id="editorDraftPreview" fill="none" stroke="#0b9bff" stroke-width="2" stroke-dasharray="6 4" style="display:none"/>' +
+    '<polyline id="editorCutPreview" fill="none" stroke="#ff3355" stroke-width="3" stroke-linecap="round" style="display:none"/>' +
     '<line id="editorRubber" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4" style="display:none"/>' +
     '<circle id="editorSnapDot" r="7" fill="none" stroke="#ff4fd8" stroke-width="2.5"/>' +
     '<text id="editorSnapText" fill="#ff4fd8" font-size="12" font-family="Segoe UI, Arial, sans-serif" font-weight="normal" paint-order="stroke" stroke="#000" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"></text>';
@@ -293,20 +303,102 @@ function editorParamsHtml(line) {
   return '<hr><b>Shape: ' + info.kind + '</b>' + rows + '<div class="ep-row"><button type="button" id="epApplyParams" style="flex:1">Apply parameters</button></div>';
 }
 
-// The bar is hidden while nothing is selected; its slot keeps the height the bar needs, so the drawing never jumps up and down.
-function editorReserveBar() {
+// ---- 1.14.0: the properties bar is always open; a new shape is set up in it --------------------------------------------------------
+// With nothing selected the bar stays (greyed out), so the drawing never jumps. Choosing a shape in the Shapes menu turns the bar into a
+// "New shape" form with the parameters of that shape and a ghost outline at the origin; Enter creates it, Esc cancels.
+var EDITOR_SHAPE_DEFAULTS = {
+  circle: { radius: 10, segments: 32 }, rectangle: { width: 100, height: 50 }, "rounded rectangle": { width: 100, height: 50, radius: 8 },
+  ellipse: { rx: 30, ry: 20, segments: 64 }, polygon: { sides: 6, radius: 20 }, star: { points: 5, outer: 25, inner: 10 }, slot: { length: 60, width: 12 }
+};
+var EDITOR_SHAPE_TITLES = { circle: "Circle", rectangle: "Rectangle", "rounded rectangle": "Rounded rectangle", ellipse: "Ellipse", polygon: "Polygon", star: "Star", slot: "Slot" };
+
+function editorNewShape(kind) {
+  if (!EDITOR_SHAPES[kind]) return;
+  editorEndPlacement();
+  editorCancelMoveAB(true);
+  if (editorState.me) editorMeasureEnd();
+  if (editorState.cut) editorEndCut();
+  editorState.panelOn = true;
+  var remembered = editorState.draftParams && editorState.draftParams[kind] ? editorState.draftParams[kind] : EDITOR_SHAPE_DEFAULTS[kind];
+  editorState.draft = { kind: kind };
+  var rows = EDITOR_SHAPES[kind].fields.map(function(f) {
+    return '<div class="ep-grp"><label for="epN_' + f.key + '">' + f.label + '</label><input type="text" id="epN_' + f.key + '" value="' + remembered[f.key] + '" autocomplete="off"></div>';
+  }).join("");
+  var box = document.getElementById("epNew");
+  box.innerHTML = '<span class="epNewTitle"><span>New shape:</span> <b>' + EDITOR_SHAPE_TITLES[kind] + '</b></span>' + rows +
+    '<button type="button" id="epNewCreate" title="Create the shape and place it (Enter)"><i class="fas fa-check"></i> Create</button>' +
+    '<button type="button" id="epNewCancel" title="Cancel (Esc)">Cancel</button>';
+  document.getElementById("epNewCreate").addEventListener("click", editorDraftCreate);
+  document.getElementById("epNewCancel").addEventListener("click", editorDraftCancel);
+  Array.prototype.forEach.call(box.querySelectorAll("input"), function(i) { i.addEventListener("input", editorDraftPreview); });
+  editorRefresh(true);
+  editorDraftPreview();
+  var first = box.querySelector("input");
+  if (first) { first.focus(); first.select(); }
+  editorStatusUpdate(null);
+}
+
+function editorDraftParams() {
+  var d = editorState.draft, raw = {};
+  EDITOR_SHAPES[d.kind].fields.forEach(function(f) { raw[f.key] = editorRead("epN_" + f.key); });
+  return editorCheckParams(d.kind, raw);
+}
+
+// blue ghost of the shape at the origin while the values are typed; red fields when a value is not valid
+function editorDraftPreview() {
+  var pl = document.getElementById("editorDraftPreview");
+  if (!pl || !editorState.draft) return;
+  try {
+    var pts = editorBuildShape(editorState.draft.kind, editorDraftParams(), 0, 0);
+    pl.setAttribute("points", pts.map(function(p) { var q = editorToScreen(p[0], p[1]); return q[0] + "," + q[1]; }).join(" "));
+    pl.style.display = "block";
+    document.getElementById("editorSnapMark").style.display = "block";
+    Array.prototype.forEach.call(document.querySelectorAll("#epNew input"), function(i) { i.style.outline = ""; });
+  } catch (e) {
+    pl.style.display = "none";
+    Array.prototype.forEach.call(document.querySelectorAll("#epNew input"), function(i) { i.style.outline = Number.isFinite(Number(String(i.value).replace(",", "."))) && String(i.value).trim() !== "" ? "" : "2px solid #e0314b"; });
+  }
+}
+
+function editorDraftClose() {
+  editorState.draft = null;
+  var pl = document.getElementById("editorDraftPreview");
+  if (pl) pl.style.display = "none";
+  editorRefresh(true);
+  editorStatusUpdate(null);
+}
+
+function editorDraftCancel() {
+  if (!editorState.draft) return;
+  editorDraftClose();
+}
+
+function editorDraftCreate() {
+  var d = editorState.draft;
+  if (!d) return;
+  var p;
+  try { p = editorDraftParams(); } catch (e) { editorToast(e.message); return; }
+  editorState.draftParams = editorState.draftParams || {};
+  editorState.draftParams[d.kind] = p;
+  editorDraftClose();
+  if (d.kind === "circle") addCircle(p.radius, p.segments);
+  else if (d.kind === "rectangle") addRect(p.width, p.height);
+  else addPolyline(d.kind, editorBuildShape(d.kind, p, 0, 0), { kind: d.kind, params: p });
+}
+
+// The bar is always shown; its slot keeps the height the bar needs, so the drawing never jumps up and down.
+function editorReserveBar(reset) {
   var panel = document.getElementById("editorPanel"), slot = document.getElementById("editorBarSlot");
-  if (!panel || !slot) return;
-  var wasShown = panel.style.display === "block";
-  if (!wasShown) { panel.style.visibility = "hidden"; panel.style.display = "block"; }
+  if (!panel || !slot || panel.style.display === "none") return;
+  if (reset === true) slot._max = 0;
   var h = panel.offsetHeight;
-  if (!wasShown) { panel.style.display = "none"; panel.style.visibility = ""; }
-  if (h > 0) slot.style.height = h + "px";
+  if (h > (slot._max || 0)) { slot._max = h; slot.style.height = h + "px"; }       // only grows: the tallest state of the bar sets the slot
 }
 
 function editorApplyMore() {
   var panel = document.getElementById("editorPanel");
-  if (panel) panel.classList.toggle("ep-open", !!editorState.more);
+  // the drawer would cover the drawing while a point is being picked, so it folds away during the tools
+  if (panel) panel.classList.toggle("ep-open", !!editorState.more && !editorState.mv && !editorState.me && !editorState.placing && !editorState.cut && !editorState.draft);
 }
 
 // fills the fields from the selection; force = overwrite even when a field has the focus
@@ -315,11 +407,27 @@ function editorRefresh(force) {
   if (!panel) return;
   var lines = editorSelection(), box = editorSelectionBox(lines);
   editorState.count = lines.length;
-  if (!box || !editorState.panelOn || editorState.mv || editorState.me || editorState.placing) { panel.style.display = "none"; editorState.sig = ""; return; }   // out of the way while a point is being picked
+  if (!editorState.panelOn) { panel.style.display = "none"; editorState.sig = ""; return; }
+  panel.style.display = "block";
+  var main = document.getElementById("epMainBar"), news = document.getElementById("epNew");
+  news.style.display = editorState.draft ? "flex" : "none";
+  main.style.display = editorState.draft ? "none" : "flex";
+  var idle = !box;                       // only "nothing selected" greys the bar out (a flip while a tool runs would rewrite fields under the user's hands)
+  if (main.classList.contains("ep-idle") !== idle) {
+    main.classList.toggle("ep-idle", idle);
+    Array.prototype.forEach.call(main.querySelectorAll("input, button"), function(el) { el.disabled = idle; });
+    editorState.sig = "";
+  }
+  if (idle) {
+    panel.classList.remove("ep-open");
+    document.getElementById("epTitle").textContent = "Properties - nothing selected";
+    editorReserveBar();
+    return;
+  }
   var sig = lines.map(function(l) { return l.uuid; }).join() + [box.minX, box.minY, box.maxX, box.maxY].map(function(v) { return v.toFixed(4); }).join() + editorState.ref + lines.map(function(l) { return l.userData.locked ? "L" : "u"; }).join("");
+  editorApplyMore();
   if (sig === editorState.sig && !force) return;
   editorState.sig = sig;
-  panel.style.display = "block";
   editorApplyMore();
   document.getElementById("epTitle").textContent = lines.length === 1 ? "Properties" : "Properties - " + lines.length + " objects";
   var lockedCount = editorLocked(lines).length, lockBox = document.getElementById("epLocked");
@@ -339,6 +447,7 @@ function editorRefresh(force) {
     var btn = document.getElementById("epApplyParams");
     if (btn) btn.addEventListener("click", editorApplyParams);
   }
+  editorReserveBar();
 }
 
 // ---- 1.5.0: mirror, move to zero, copies --------------------------------------------------------------------------------
@@ -898,6 +1007,7 @@ function editorCutDone() {
 // Tools like SAPS "erase part of a section" and "divide a section". The click picks the line under the pointer (any unlocked line of
 // the drawing); the crossings with all other lines decide where the cut goes.
 function editorStartCut(mode) {
+  if (editorState.draft) editorDraftCancel();
   editorEndPlacement();
   editorCancelMoveAB(true);
   if (editorState.me) editorMeasureEnd();
@@ -1488,7 +1598,7 @@ function editorStatusUpdate(event) {
   if (!el) return;
   if (event) editorState.cursor = mouseToWorldCoord(event);
   var c = editorState.cursor, pos = c ? "X " + editorFormat(c.x) + "  Y " + editorFormat(c.y) + "   |   " : "";
-  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep(), cut: editorState.cut ? editorState.cut.mode : "", cutStep: editorState.cutStep || 0 });
+  var coords = document.getElementById("editorCoords"), prompt = document.getElementById("editorPrompt"), text = editorPrompt({ placing: !!editorState.placing, count: editorState.count, moveStep: editorState.mv ? editorState.mv.step : 0, pick: editorState.pickCount, measure: editorMeasureStep(), draft: !!editorState.draft, cut: editorState.cut ? editorState.cut.mode : "", cutStep: editorState.cutStep || 0 });
   if (coords.textContent !== pos) coords.textContent = pos;
   if (prompt.getAttribute("data-en") !== text) { prompt.setAttribute("data-en", text); prompt.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
 }

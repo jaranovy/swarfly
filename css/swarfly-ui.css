@@ -259,3 +259,8 @@ nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }
 #left-tree-view .node-toggle, #left-tree-view .checkbox .caption { color: var(--sw-text); }
 #left-tree-view .checkbox.checked .caption, #left-tree-view .checkbox input:checked ~ .caption { color: var(--sw-accent); font-weight: 600; }
 #left-tree-view li { line-height: 1.5; }
+
+/* ---- 1.14.0: export panel buttons get space between them; the properties bar is always there ------------------------------------ */
+#gcodesavebtn2 { margin: 4px 0 8px 0; }
+#gcodesavetoolbtn, #gcodeviewbtn2, #gcodetrashbtn2 { margin: 0 3px 6px 3px; }
+#gcodetimeestimate { margin-bottom: 6px; }

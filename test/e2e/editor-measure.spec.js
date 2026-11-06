@@ -167,7 +167,7 @@ test('Move A-B with typed points: absolute start, relative target', async () => 
 	await create('CreateRect', { rectX: 30, rectY: 10 });
 	await refit();
 	await page.evaluate(() => { objectsInScene[0].children[0].userData.selected = true; });
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	const depth = await page.evaluate(() => undoStore.length);
 	await page.evaluate(() => editorStartMoveAB());
 	await page.waitForSelector('#editorCoord', { state: 'visible' });

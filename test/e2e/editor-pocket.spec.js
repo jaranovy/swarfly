@@ -24,7 +24,7 @@ test('Pocket button: closed outline opens the toolpath dialog with CNC: Pocket; 
 		fillTree();
 		objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = c === l; }));
 	});
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.click('#epPocket');
 	await page.waitForTimeout(1500);
 	expect(await page.evaluate(() => toolpathsInScene.length)).toBe(0);

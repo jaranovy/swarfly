@@ -16,6 +16,10 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 
 When something is selected a bar appears across the top of the drawing: reference point (the 3x3 dots), **X**, **Y**, **W**, **H**, *Keep proportions*, **Rotate** with the two turn buttons, the two mirror buttons, **X0 Y0** (move to the origin) and *Locked*. Everything else described below (copies, corners and offset, points, extend / trim, shape parameters) is in the **More** drawer at the right end of the bar.
 
+### The properties bar is always there
+
+The bar under the ribbon never disappears: with nothing selected it is greyed out (so the drawing does not jump), and it wakes up when you select something. When you choose a shape in the **Shapes** menu, the bar becomes a **New shape** form with the parameters of that shape (for a star: points, outer radius, inner radius) and a blue ghost outline of the result at the origin. Type the values (the field turns red if a value is not valid), press **Enter** or *Create*, then place the shape with the mouse as before. **Esc** or *Cancel* drops it. The values are remembered for the next shape of the same kind.
+
 ### Trim and split (like SAPS "erase part" and "divide")
 
 Two tools in the ribbon, next to Move A-B. Both work on any unlocked line of the drawing; Esc or a right click ends the tool.

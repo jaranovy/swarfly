@@ -33,7 +33,7 @@ async function create(buttonId, fields) {
 
 async function selectAllLines() {
 	await page.evaluate(() => objectsInScene.forEach((o) => o.children.forEach((c) => { c.userData.selected = true; })));
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 }
 
 async function selectOnly(index) {
@@ -42,7 +42,7 @@ async function selectOnly(index) {
 		objectsInScene.forEach((o) => o.children.forEach((c) => all.push(c)));
 		all.forEach((c, i) => { c.userData.selected = i === index; });
 	}, index);
-	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block');
+	await page.waitForFunction(() => document.getElementById('editorPanel').style.display === 'block' && !document.getElementById('epX').disabled);
 	await page.waitForTimeout(250);
 }
 

@@ -465,5 +465,10 @@
  "To intersection: click the second line on the part that stays - Esc ends": "Do průsečíku: klikni na druhou čáru na část, která zůstane - Esc ukončí",
  "Lines only - an arc cannot be extended here": "Jen čáry - oblouk se tady prodloužit nedá",
  "The two lines are parallel - they never meet": "Čáry jsou rovnoběžné - nikdy se nepotkají",
- "A closed outline or a middle segment cannot be extended - click the end segment of an open line": "Uzavřený obrys nebo prostřední úsek nejde prodloužit - klikni na koncový úsek otevřené čáry"
+ "A closed outline or a middle segment cannot be extended - click the end segment of an open line": "Uzavřený obrys nebo prostřední úsek nejde prodloužit - klikni na koncový úsek otevřené čáry",
+ "Properties - nothing selected": "Vlastnosti - nic není vybráno",
+ "New shape:": "Nový tvar:",
+ "Create the shape and place it (Enter)": "Vytvořit tvar a umístit ho (Enter)",
+ "Cancel (Esc)": "Zrušit (Esc)",
+ "New shape: set the values in the bar - Enter creates it, then place it with the mouse - Esc cancels": "Nový tvar: nastav hodnoty v liště - Enter ho vytvoří, pak ho umístíš myší - Esc zruší"
 }
