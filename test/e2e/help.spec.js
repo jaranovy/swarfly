@@ -120,3 +120,28 @@ test('help is a free window: wide enough, does not block the application, movabl
 	await page.locator('#helpCloseBtn').click();
 	await expect(page.locator('#helpWindow')).toBeHidden();
 });
+
+test('help window follows the application theme (light and dark)', async ({ page }) => {
+	await fresh(page, 'en');
+	await page.evaluate(() => openHelp());
+	await page.waitForSelector('#helpContent h1');
+	const colors = async () => page.evaluate(() => {
+		const cs = getComputedStyle(document.getElementById('helpWindow'));
+		return { bg: cs.backgroundColor, fg: cs.color, theme: document.body.className.match(/theme_\w+/)[0] };
+	});
+	const lum = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; };
+	await page.evaluate(() => Theme.set('light'));
+	const light = await colors();
+	await page.evaluate(() => Theme.set('dark'));
+	const dark = await colors();
+	expect(light.theme).toBe('theme_light');
+	expect(dark.theme).toBe('theme_dark');
+	expect(lum(light.bg)).toBeGreaterThan(200);          // light background, dark text
+	expect(lum(light.fg)).toBeLessThan(80);
+	expect(lum(dark.bg)).toBeLessThan(80);                // dark background, light text
+	expect(lum(dark.fg)).toBeGreaterThan(180);
+	// and it switches live while open
+	await page.evaluate(() => Theme.toggle());
+	expect((await colors()).theme).toBe('theme_light');
+	expect(lum((await colors()).bg)).toBeGreaterThan(200);
+});

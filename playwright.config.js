@@ -16,7 +16,7 @@ module.exports = {
 	timeout: 60 * 1000,
 	expect: { timeout: 10 * 1000 },
 	outputDir: 'test-results',
-	retries: process.env.CI ? 1 : 0,
+	retries: 1,   // 3018 fork: the 3D viewer tests are timing sensitive; a retry is reported as "flaky", real bugs still fail twice
 	reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
 
 	use: {

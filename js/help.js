@@ -154,18 +154,21 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
     var w = document.createElement("div");
     w.id = "helpWindow";
     w.style.cssText = "display:none;position:fixed;flex-direction:column;min-width:480px;min-height:320px;resize:both;overflow:hidden;" +
-      "background:#1d2530;color:#dfe6ee;border:1px solid #4a5a70;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:5000;font-size:14px;";
-    w.innerHTML = '<div id="helpTitleBar" style="flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 10px;background:#2b3645;cursor:move;user-select:none;">' +
+      "background:var(--help-bg);color:var(--help-fg);border:1px solid var(--help-border);border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:5000;font-size:14px;";
+    w.innerHTML = '<div id="helpTitleBar" style="flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--help-bar);cursor:move;user-select:none;">' +
       '<i class="fas fa-fw fa-question-circle"></i><b style="flex:1">Help</b>' +
       '<button id="helpCloseBtn" type="button" title="Close" style="background:none;border:0;color:inherit;font-size:18px;cursor:pointer;line-height:1;">&times;</button></div>' +
       '<div style="flex:1;display:flex;min-height:0;">' +
-      '<nav id="helpTopicList" style="flex:0 0 210px;overflow:auto;border-right:1px solid #3a4656;padding:8px 0;"></nav>' +
+      '<nav id="helpTopicList" style="flex:0 0 210px;overflow:auto;border-right:1px solid var(--help-border);padding:8px 0;"></nav>' +
       '<div id="helpContent" style="flex:1;overflow:auto;padding:10px 18px;"></div></div>' +
       '<style>#helpTopicList a{display:block;padding:6px 14px;color:inherit;text-decoration:none}' +
-      '#helpTopicList a:hover{background:rgba(79,179,255,.15)}#helpTopicList a.active{background:rgba(79,179,255,.30);font-weight:600}' +
-      '#helpContent a{color:#6cc0ff}#helpContent h1{font-size:22px;margin:4px 0 10px}#helpContent h2{font-size:17px;margin:16px 0 6px}#helpContent h3{font-size:14px;margin:12px 0 4px}' +
-      '#helpContent p{margin:6px 0}#helpContent code{background:rgba(127,127,127,.25);padding:0 4px;border-radius:3px}' +
-      '#helpContent blockquote{margin:8px 0;padding:6px 12px;border-left:4px solid #4fb3ff;background:rgba(79,179,255,.10)}#helpContent li{margin:2px 0}</style>';
+      '#helpTopicList a:hover{background:var(--help-hover)}#helpTopicList a.active{background:var(--help-active);font-weight:600}' +
+      '#helpContent a{color:var(--help-link)}#helpContent h1{font-size:22px;margin:4px 0 10px}#helpContent h2{font-size:17px;margin:16px 0 6px}#helpContent h3{font-size:14px;margin:12px 0 4px}' +
+      '#helpContent p{margin:6px 0}#helpContent code{background:var(--help-code);padding:0 4px;border-radius:3px}' +
+      '#helpContent blockquote{margin:8px 0;padding:6px 12px;border-left:4px solid var(--help-link);background:var(--help-hover)}#helpContent li{margin:2px 0}' +
+      // colours follow the application theme (the app puts theme_light / theme_dark on <body>)
+      '#helpWindow{--help-bg:#ffffff;--help-fg:#1d2530;--help-bar:#e3e9f1;--help-border:#9fb0c3;--help-hover:rgba(11,107,203,.10);--help-active:rgba(11,107,203,.22);--help-link:#0b6bcb;--help-code:rgba(0,0,0,.08)}' +
+      'body.theme_dark #helpWindow{--help-bg:#1d2530;--help-fg:#dfe6ee;--help-bar:#2b3645;--help-border:#4a5a70;--help-hover:rgba(79,179,255,.15);--help-active:rgba(79,179,255,.30);--help-link:#6cc0ff;--help-code:rgba(127,127,127,.25)}</style>';
     document.body.appendChild(w);
 
     // drag by the title bar
