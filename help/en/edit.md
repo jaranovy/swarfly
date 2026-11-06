@@ -12,6 +12,13 @@ Click an object (or drag a window around several, Ctrl adds to the selection). T
 - **Copies**: *Copy in a row* makes the given total number of objects (the original included) with the step X / Y between them; *Copy around a point* turns the copies about the centre X / Y (default X0 Y0), 360 = a full circle spread evenly, any other angle ends exactly there. The copies become the selection; copies of one shape keep its parameters.
 - Every change is one undo step (Ctrl+Z).
 
+### Corners and offset
+
+Panel section *Corners and offset* (select one or more outlines):
+
+- **Size** + **Round corners**: every corner becomes an arc of that radius. **Chamfer**: every corner is cut off at that distance along both edges. A corner may use at most half of each neighbouring edge; where the size does not fit, a smaller one is used and a message says so. Open lines keep their end points. The outline is then an ordinary outline (its shape parameters are dropped); undo brings the original back.
+- **Offset** + **Offset copy**: adds a parallel outline at that distance, with round corners at convex bends. A positive number grows the outline, a negative one shrinks it (use it for a cutter-diameter allowance or an inner pocket line). The original stays, the new outline is selected. Only closed outlines can be offset; if shrinking leaves nothing you get a message.
+
 ### Dimensions, measuring and typed points
 
 - **Dimensions** button (Edit group) cycles three states: off, **Overall size** (width and height of the selection, or of the whole drawing when nothing is selected) and **Every object** (each outline gets its own width and height, a circle gets its diameter).

@@ -12,6 +12,13 @@ Klikni na objekt (nebo táhni okno kolem více objektů, Ctrl přidává do výb
 - **Kopie**: *Kopie v řadě* vytvoří zadaný celkový počet objektů (včetně originálu) s krokem X / Y; *Kopie kolem bodu* otáčí kopie kolem středu X / Y (výchozí X0 Y0), 360 = celý kruh rovnoměrně, jiný úhel končí přesně na něm. Kopie se stanou výběrem; kopie jednoho tvaru si ponechají jeho parametry.
 - Každá změna je jeden krok zpět (Ctrl+Z).
 
+### Rohy a odsazení
+
+Sekce panelu *Rohy a odsazení* (vyber jeden nebo více obrysů):
+
+- **Velikost** + **Zaoblit rohy**: každý roh se změní na oblouk o tomto poloměru. **Zkosit**: každý roh se odřízne v této vzdálenosti na obou hranách. Roh smí využít nejvýš polovinu sousední hrany; kde velikost nevyjde, použije se menší a zpráva to oznámí. Otevřené čáry si ponechají koncové body. Obrys je pak obyčejný (parametry tvaru se zahodí); krok zpět vrátí původní.
+- **Odsazení** + **Odsazená kopie**: přidá rovnoběžný obrys v dané vzdálenosti, ve vypouklých rozích s oblouky. Kladné číslo obrys zvětší, záporné zmenší (třeba přídavek na průměr frézy nebo vnitřní čára kapsy). Originál zůstane, nový obrys je vybraný. Odsadit lze jen uzavřené obrysy; když po zmenšení nic nezbyde, dostaneš zprávu.
+
 ### Kóty, měření a body zadané číslem
 
 - Tlačítko **Kóty** (skupina Upravit) přepíná tři stavy: vypnuto, **Celkový rozměr** (šířka a výška výběru, nebo celého výkresu, když nic není vybráno) a **Každý objekt** (každý obrys dostane vlastní šířku a výšku, kruh průměr).

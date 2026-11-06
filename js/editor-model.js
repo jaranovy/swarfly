@@ -439,3 +439,66 @@ function editorAutoDimensions(outlines) {
 
 // What the Dimensions button shows: 0 off, 1 overall size of the selection (or the drawing), 2 every object on its own.
 function editorNextDimsMode(current) { return (Number(current) + 1) % 3; }
+
+// ---- 1.6.1: rounded corners, chamfers, offset -----------------------------------------------------------------------------
+// Rounds (mode "fillet", size = radius) or cuts (mode "chamfer", size = distance along both edges) every corner of a polyline.
+// Open polylines keep their end points. A corner may use at most half of each adjacent edge, so neighbouring corners never
+// overlap: a bigger size is reduced for that corner (counted in `clamped`). Almost straight vertices (turn under 1 degree) are left alone.
+// Returns {points, corners, clamped}.
+function editorCornerCut(points, mode, size) {
+  if (mode !== "fillet" && mode !== "chamfer") throw new Error("Mode must be fillet or chamfer");
+  size = Number(size);
+  if (!(size > 0)) throw new Error("Size must be positive");
+  if (!points || points.length < 3) throw new Error("An outline needs at least 3 points");
+  var closed = points.length > 3 && Math.hypot(points[0][0] - points[points.length - 1][0], points[0][1] - points[points.length - 1][1]) < 1e-9;
+  var pts = closed ? points.slice(0, -1) : points.slice();
+  var n = pts.length, out = [], corners = 0, clamped = 0;
+  for (var i = 0; i < n; i++) {
+    var V = pts[i];
+    if (!closed && (i === 0 || i === n - 1)) { out.push(V); continue; }
+    var A = pts[(i - 1 + n) % n], B = pts[(i + 1) % n];
+    var lenA = Math.hypot(A[0] - V[0], A[1] - V[1]), lenB = Math.hypot(B[0] - V[0], B[1] - V[1]);
+    if (lenA < 1e-9 || lenB < 1e-9) { out.push(V); continue; }
+    var u = [(A[0] - V[0]) / lenA, (A[1] - V[1]) / lenA], w = [(B[0] - V[0]) / lenB, (B[1] - V[1]) / lenB];
+    var cosT = Math.max(-1, Math.min(1, u[0] * w[0] + u[1] * w[1])), theta = Math.acos(cosT);
+    if (theta > Math.PI - 0.0175 || theta < 0.0175) { out.push(V); continue; }
+    var tFull = mode === "fillet" ? size / Math.tan(theta / 2) : size, tMax = Math.min(lenA, lenB) / 2, t = Math.min(tFull, tMax);
+    if (t < tFull - 1e-9) clamped++;
+    corners++;
+    var P1 = [V[0] + u[0] * t, V[1] + u[1] * t], P2 = [V[0] + w[0] * t, V[1] + w[1] * t];
+    if (mode === "chamfer") { out.push(P1, P2); continue; }
+    var r = t * Math.tan(theta / 2), bx = u[0] + w[0], by = u[1] + w[1], bl = Math.hypot(bx, by);
+    var dC = r / Math.sin(theta / 2), C = [V[0] + bx / bl * dC, V[1] + by / bl * dC];
+    var a1 = Math.atan2(P1[1] - C[1], P1[0] - C[0]), a2 = Math.atan2(P2[1] - C[1], P2[0] - C[0]), da = a2 - a1;
+    while (da > Math.PI) da -= 2 * Math.PI;
+    while (da < -Math.PI) da += 2 * Math.PI;
+    var steps = Math.max(2, Math.ceil(Math.abs(da) / (Math.PI / 16)));
+    for (var k = 0; k <= steps; k++) {
+      var a = a1 + da * k / steps;
+      out.push(k === 0 ? P1 : k === steps ? P2 : [C[0] + r * Math.cos(a), C[1] + r * Math.sin(a)]);
+    }
+  }
+  if (closed) out.push([out[0][0], out[0][1]]);
+  return { points: out, corners: corners, clamped: clamped };
+}
+
+// Offsets closed outlines with the Clipper library (passed in, so this file stays free of globals): delta > 0 grows, < 0 shrinks.
+// Round joins. Returns an array of closed outlines (shrinking can split an outline in two or remove it).
+function editorOffsetOutlines(Clipper, outlines, delta) {
+  delta = Number(delta);
+  if (!isFinite(delta) || delta === 0) throw new Error("Offset must be a non-zero number");
+  var scale = 1000, paths = [];
+  outlines.forEach(function(pl) {
+    var closed = pl.length > 3 && Math.hypot(pl[0][0] - pl[pl.length - 1][0], pl[0][1] - pl[pl.length - 1][1]) < 1e-9;
+    if (!closed) throw new Error("Only closed outlines can be offset");
+    paths.push(pl.slice(0, -1).map(function(p) { return { X: Math.round(p[0] * scale), Y: Math.round(p[1] * scale) }; }));
+  });
+  var co = new Clipper.ClipperOffset(2, scale * 0.005), result = new Clipper.Paths();
+  co.AddPaths(paths, Clipper.JoinType.jtRound, Clipper.EndType.etClosedPolygon);
+  co.Execute(result, delta * scale);
+  return result.map(function(path) {
+    var pts = path.map(function(q) { return [q.X / scale, q.Y / scale]; });
+    pts.push([pts[0][0], pts[0][1]]);
+    return pts;
+  });
+}

@@ -76,8 +76,8 @@ function editorRead(id) {
   return v;
 }
 
-function editorToast(msg) {
-  if (typeof Metro !== "undefined" && Metro.toast) Metro.toast.create(msg, null, 4000, "bg-red"); else console.warn(msg);
+function editorToast(msg, cls) {
+  if (typeof Metro !== "undefined" && Metro.toast) Metro.toast.create(msg, null, 4000, cls || "bg-red"); else console.warn(msg);
 }
 
 function editorApplyPosition() {
@@ -168,6 +168,11 @@ function editorBuildPanel() {
     '<div class="ep-row"><label style="width:auto;flex:1" title="A locked object is not changed by the panel, handles, arrow keys or Move A-B"><input type="checkbox" id="epLocked"> <i class="fas fa-lock fa-fw"></i> Locked</label></div>' +
     '<hr><div class="ep-row"><button type="button" id="epMirrorX" style="flex:1" title="Flip left-right about the centre of the selection">Mirror left-right</button><button type="button" id="epMirrorY" style="flex:1" title="Flip up-down about the centre of the selection">Mirror up-down</button></div>' +
     '<div class="ep-row"><button type="button" id="epToZero" style="flex:1" title="Move the selection so its lower-left corner is at X0 Y0">Move to X0 Y0</button></div><hr>' +
+    '<b>Corners and offset</b>' +
+    '<div class="ep-row"><label for="epCornerSize">Size</label><input type="text" id="epCornerSize" value="3" autocomplete="off" title="Radius of the rounded corners, or the length cut off along both edges for a chamfer"></div>' +
+    '<div class="ep-row"><button type="button" id="epFillet" style="flex:1" title="Round every corner of the selected outlines">Round corners</button><button type="button" id="epChamfer" style="flex:1" title="Cut every corner of the selected outlines">Chamfer</button></div>' +
+    '<div class="ep-row"><label for="epOffset">Offset</label><input type="text" id="epOffset" value="2" autocomplete="off" title="Positive grows the outline, negative shrinks it"></div>' +
+    '<div class="ep-row"><button type="button" id="epOffsetCopy" style="flex:1" title="Add a parallel outline at this distance (closed outlines only)">Offset copy</button></div><hr>' +
     '<b>Copies</b>' +
     '<div class="ep-row"><label for="epCopyCount">Objects</label><input type="text" id="epCopyCount" value="3" autocomplete="off" title="Total number of objects, the original included"></div>' +
     '<div class="ep-row"><label for="epCopyDX">Step X</label><input type="text" id="epCopyDX" value="10" autocomplete="off"></div>' +
@@ -197,6 +202,9 @@ function editorBuildPanel() {
     editorRefresh(true);
   });
   document.getElementById("epLocked").addEventListener("change", function() { editorSetLocked(this.checked); });
+  document.getElementById("epFillet").addEventListener("click", function() { editorCorners("fillet"); });
+  document.getElementById("epChamfer").addEventListener("click", function() { editorCorners("chamfer"); });
+  document.getElementById("epOffsetCopy").addEventListener("click", editorOffsetCopy);
   document.getElementById("epMirrorX").addEventListener("click", function() { editorMirror("x"); });
   document.getElementById("epMirrorY").addEventListener("click", function() { editorMirror("y"); });
   document.getElementById("epToZero").addEventListener("click", editorToZero);
@@ -649,6 +657,62 @@ function editorEscape(e) {
   objectsInScene.forEach(function(o) { o.children.forEach(function(c) { c.userData.selected = false; }); });
   clearSceneFlag = true;
   editorRefresh(true);
+}
+
+// ---- 1.6.1: rounded corners, chamfers, offset ---------------------------------------------------------------------------
+function editorReplaceGeometry(line, pts) {
+  var g = new THREE.Geometry();
+  pts.forEach(function(p) { g.vertices.push(new THREE.Vector3(p[0], p[1], 0)); });
+  line.geometry.dispose();
+  line.geometry = g;
+}
+
+function editorCorners(mode) {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  if (editorLocked(lines).length) { editorToast("Locked objects are not changed - untick Locked first"); return; }
+  try {
+    var size = editorRead("epCornerSize");
+    var results = lines.map(function(l) { return editorCornerCut(editorLinePoints(l), mode, size); });
+    var corners = 0, clamped = 0;
+    results.forEach(function(r) { corners += r.corners; clamped += r.clamped; });
+    if (!corners) { editorToast("There is no corner to change in the selection"); return; }
+    storeUndo(true);
+    lines.forEach(function(l, i) { editorReplaceGeometry(l, results[i].points); delete l.userData.shape; });
+    if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+    clearSceneFlag = true;
+    editorState.snapCache = null;
+    editorRefresh(true);
+    if (clamped) editorToast("Some corners were too short for that size and got a smaller one", "bg-orange");
+  } catch (e) { editorToast(e.message); }
+}
+
+// a parallel outline at the typed distance; the original stays, the new outline becomes the selection
+function editorOffsetCopy() {
+  var lines = editorSelection();
+  if (!lines.length) return;
+  try {
+    var delta = editorRead("epOffset");
+    var result = editorOffsetOutlines(ClipperLib, lines.map(editorLinePoints), delta);
+    if (!result.length) { editorToast("Nothing is left after shrinking by that distance"); return; }
+    storeUndo(true);
+    var parent = lines[0].parent, created = [];
+    result.forEach(function(pts) {
+      var g = new THREE.Geometry();
+      pts.forEach(function(p) { g.vertices.push(new THREE.Vector3(p[0], p[1], 0)); });
+      var line = new THREE.Line(g, lines[0].material.clone());
+      line.name = "offset";
+      parent.add(line);
+      created.push(line);
+    });
+    lines.forEach(function(l) { l.userData.selected = false; });
+    created.forEach(function(c) { c.userData.selected = true; });
+    if (typeof fillTree === "function") fillTree();
+    if (typeof hoverShapesinScene !== "undefined") hoverShapesinScene.length = 0;
+    clearSceneFlag = true;
+    editorState.snapCache = null;
+    editorRefresh(true);
+  } catch (e) { editorToast(e.message); }
 }
 
 // ---- 1.6.0: measuring, typed coordinates ---------------------------------------------------------------------------------

@@ -386,3 +386,90 @@ test('dimensions mode cycles off -> overall -> each -> off', () => {
 	assert.equal(m.editorNextDimsMode(1), 2);
 	assert.equal(m.editorNextDimsMode(2), 0);
 });
+
+// ---- 1.6.1: corners and offset ----------------------------------------------------------------------------------------------
+const Clipper = require(path.join(__dirname, '..', '..', 'lib', 'clipperjs', 'clipper_unminified.js'));      // the library exports itself under node
+
+const RECT = [[0, 0], [0, 20], [40, 20], [40, 0], [0, 0]];
+const area = (pts) => { let a = 0; for (let i = 0; i < pts.length - 1; i++) a += pts[i][0] * pts[i + 1][1] - pts[i + 1][0] * pts[i][1]; return Math.abs(a) / 2; };
+
+test('fillet: every corner of a rectangle becomes an arc of the given radius; the box stays', () => {
+	const r = m.editorCornerCut(RECT, 'fillet', 5);
+	assert.equal(r.corners, 4); assert.equal(r.clamped, 0);
+	const b = m.editorBox(r.points);
+	near(b.minX, 0); near(b.maxX, 40); near(b.minY, 0); near(b.maxY, 20);
+	assert.deepEqual(Array.from(r.points[0]), Array.from(r.points[r.points.length - 1]));      // still closed
+	// area of a rectangle with rounded corners: w*h - (4 - pi) * r^2
+	near(area(r.points), 40 * 20 - (4 - Math.PI) * 25, 0.6);            // the arcs are polylines (8 chords per corner), so slightly smaller
+	// every arc point lies on a circle of radius 5 round one of the four centres (5,5) (5,15) (35,15) (35,5)
+	const centres = [[5, 5], [5, 15], [35, 15], [35, 5]];
+	const onArc = r.points.filter((p) => centres.some((c) => Math.abs(Math.hypot(p[0] - c[0], p[1] - c[1]) - 5) < 1e-9));
+	assert.ok(onArc.length >= 4 * 3);
+});
+
+test('chamfer: corners are cut at the given distance on both edges', () => {
+	const r = m.editorCornerCut(RECT, 'chamfer', 4);
+	assert.equal(r.corners, 4);
+	assert.equal(r.points.length, 9);                                   // 8 corner points + closing point
+	near(area(r.points), 40 * 20 - 4 * (4 * 4 / 2), 1e-9);
+	const b = m.editorBox(r.points);
+	near(b.maxX - b.minX, 40); near(b.maxY - b.minY, 20);
+});
+
+test('corner size is reduced when it does not fit and the count says so', () => {
+	const r = m.editorCornerCut(RECT, 'fillet', 50);                  // would need 50 mm on a 20 mm edge
+	assert.equal(r.clamped, 4);
+	const b = m.editorBox(r.points);
+	near(b.maxX - b.minX, 40); near(b.maxY - b.minY, 20);
+	for (let i = 0; i < r.points.length - 1; i++) assert.ok(isFinite(r.points[i][0]) && isFinite(r.points[i][1]));
+	const c = m.editorCornerCut(RECT, 'chamfer', 15);
+	assert.equal(c.clamped, 4);
+});
+
+test('open polylines keep their end points; straight vertices are left alone', () => {
+	const open = [[0, 0], [10, 0], [10, 10]];
+	const r = m.editorCornerCut(open, 'fillet', 2);
+	assert.deepEqual(Array.from(r.points[0]), [0, 0]);
+	assert.deepEqual(Array.from(r.points[r.points.length - 1]), [10, 10]);
+	assert.equal(r.corners, 1);
+	const straight = [[0, 0], [5, 0], [10, 0], [10, 10]];
+	assert.equal(m.editorCornerCut(straight, 'chamfer', 1).corners, 1);       // the vertex at (5,0) is straight
+	assert.equal(m.editorCornerCut([[0, 0], [5, 0], [10, 0]], 'fillet', 1).corners, 0);
+});
+
+test('corner cut: bad input', () => {
+	assert.throws(() => m.editorCornerCut(RECT, 'round', 2), /fillet or chamfer/);
+	assert.throws(() => m.editorCornerCut(RECT, 'fillet', 0), /positive/);
+	assert.throws(() => m.editorCornerCut(RECT, 'fillet', 'x'), /positive/);
+	assert.throws(() => m.editorCornerCut([[0, 0], [1, 1]], 'fillet', 1), /at least 3/);
+});
+
+test('offset: growing a rectangle by 2 mm gives 44 x 24 with rounded corners, shrinking gives 36 x 16', () => {
+	const grow = m.editorOffsetOutlines(Clipper, [RECT], 2);
+	assert.equal(grow.length, 1);
+	const g = m.editorBox(grow[0]);
+	near(g.minX, -2, 0.01); near(g.maxX, 42, 0.01); near(g.minY, -2, 0.01); near(g.maxY, 22, 0.01);
+	near(area(grow[0]), 40 * 20 + 2 * (40 + 20) * 2 + Math.PI * 4, 0.5);        // + edge strips + four quarter circles
+	const shrink = m.editorOffsetOutlines(Clipper, [RECT], -2);
+	const s = m.editorBox(shrink[0]);
+	near(s.minX, 2, 0.01); near(s.maxX, 38, 0.01); near(s.minY, 2, 0.01); near(s.maxY, 18, 0.01);
+	assert.deepEqual(Array.from(shrink[0][0]), Array.from(shrink[0][shrink[0].length - 1]));
+});
+
+test('offset: shrinking a thin outline away leaves nothing; orientation does not matter; bad input', () => {
+	assert.equal(m.editorOffsetOutlines(Clipper, [RECT], -12).length, 0);
+	const reversed = RECT.slice().reverse();
+	const a = m.editorBox(m.editorOffsetOutlines(Clipper, [reversed], 3)[0]);
+	near(a.maxX - a.minX, 46, 0.01);
+	assert.throws(() => m.editorOffsetOutlines(Clipper, [RECT], 0), /non-zero/);
+	assert.throws(() => m.editorOffsetOutlines(Clipper, [[[0, 0], [5, 5], [9, 0]]], 1), /closed/);
+});
+
+test('offset of a circle grows its radius by the distance', () => {
+	const c = m.editorBuildShape('circle', { radius: 10, segments: 96 }, 0, 0);
+	const o = m.editorOffsetOutlines(Clipper, [c], 3);
+	const b = m.editorBox(o[0]);
+	near((b.maxX - b.minX) / 2, 13, 0.05);
+	const fit = m.editorCircleFit(o[0], 0.01);
+	assert.ok(fit);
+});
