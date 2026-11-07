@@ -21,19 +21,19 @@ test('default UI is English, one theme button, language button switches to Czech
 	expect(await page.evaluate(() => window.swarflyLang)).toBe('en');
 	expect(await page.locator('#btnTheme').count()).toBe(1);
 	expect(await page.locator('#languageButtonCaption').textContent()).toBe('Česky');
-	expect(await page.locator('#section-workspace').textContent()).toContain('Redo');
+	expect(await page.locator('#toolPanel').textContent()).toContain('Redo');
 
 	await page.evaluate(() => swarflySwitchLanguage());
 	await reloaded(page, 2500, 'cs');
 	expect(await page.evaluate(() => window.swarflyLang)).toBe('cs');
 	expect(await page.locator('#languageButtonCaption').textContent()).toBe('English');
-	expect(await page.locator('#section-workspace').textContent()).toContain('Znovu');                 // Redo
+	expect(await page.locator('#toolPanel').textContent()).toContain('Znovu');                 // Redo
 	expect(await page.locator('#languageGroup').textContent()).toContain('Jazyk');     // Settings tab is not visible, read textContent
 
 	await page.evaluate(() => swarflySwitchLanguage());
 	await reloaded(page, 2000, 'en');
 	expect(await page.evaluate(() => window.swarflyLang)).toBe('en');
-	expect(await page.locator('#section-workspace').textContent()).toContain('Redo');
+	expect(await page.locator('#toolPanel').textContent()).toContain('Redo');
 });
 
 test('a default of "cs" from default-lang.js applies, but the saved choice wins', async ({ page }) => {

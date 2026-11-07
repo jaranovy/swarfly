@@ -65,7 +65,6 @@ test('the Shapes menu opens from the panel and makes a shape (no drop error)', a
 });
 
 test('Layout button moves everything back into the ribbon and forth again', async () => {
-	await page.click('text=Settings >> nth=0');
 	await page.evaluate(() => swarflyToggleLayout());
 	expect(await page.evaluate(() => document.body.classList.contains('sw-tools'))).toBe(false);
 	expect(await page.evaluate(() => !!document.getElementById('editorTrimButton').closest('nav[data-role="ribbonmenu"]'))).toBe(true);

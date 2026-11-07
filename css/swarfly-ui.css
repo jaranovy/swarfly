@@ -306,3 +306,23 @@ body.sw-tools #toolPanel { display: block; }
 #toolPanel .ribbon-icon-button:hover, #toolPanel .tbtn:hover { background: var(--sw-accent-soft); border-color: var(--sw-accent); }
 #toolPanel .ribbon-icon-button.active, #toolPanel .ribbon-icon-button.ed-on, #toolPanel .tbtnactive { background: var(--sw-accent-soft) !important; border-color: var(--sw-accent); }
 #toolPanel .ribbon-dropdown { left: 100% !important; top: 0 !important; z-index: 6000; }
+
+/* Swarfly 1.18.1: with the tool panel the ribbon becomes one plain toolbar: no tabs, file + settings + help side by side */
+body.sw-tools nav[data-role="ribbonmenu"] .tabs-holder { display: none !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder { display: flex !important; flex-wrap: wrap; align-items: center; height: auto !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder .section { display: flex !important; flex-wrap: wrap; align-items: center; position: static !important; width: auto !important; height: 52px !important; opacity: 1 !important; visibility: visible !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group { height: 48px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder { height: 40px !important; min-height: 0 !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder .section { height: 40px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group { height: 36px !important; padding: 0 2px !important; margin: 0 !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button { width: 34px !important; height: 34px !important; margin: 1px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button .icon { height: 30px !important; font-size: 17px; line-height: 30px !important; width: auto !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button { height: 17px !important; width: 30px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button .icon { height: 15px !important; line-height: 15px !important; font-size: 12px; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-group { height: 36px; display: flex; flex-direction: column; justify-content: center; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button { min-height: 0 !important; max-height: 34px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button svg { max-height: 20px; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-group { flex-direction: row; align-items: center; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-group br { display: none; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button { height: 30px !important; width: 32px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button .icon { height: 28px !important; line-height: 28px !important; font-size: 16px; }
