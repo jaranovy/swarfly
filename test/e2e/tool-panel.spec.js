@@ -79,3 +79,20 @@ test('Layout button moves everything back into the ribbon and forth again', asyn
 	// every id is still unique
 	expect(await page.evaluate(() => ['editorTrimButton', 'undoButton', 'viewJobButton'].map((i) => document.querySelectorAll('#' + i).length))).toEqual([1, 1, 1]);
 });
+
+test('toolbar: the placement button stays pressed and the grid button shows the step as a number; Ctrl+Alt+L switches layout', async () => {
+	await page.evaluate(() => { localStorage.setItem('swarflyPlaceMouse', '1'); editorShowPlaceButton(); editorState.gridStep = 1; editorShowGridButton(); });
+	expect(await page.evaluate(() => document.getElementById('editorPlaceBadge').closest('button').classList.contains('ed-on'))).toBe(true);
+	expect(await page.textContent('#editorPlaceBadge')).toBe('Mouse');
+	await page.evaluate(() => document.getElementById('editorPlaceBadge').closest('button').click());
+	expect(await page.evaluate(() => document.getElementById('editorPlaceBadge').closest('button').classList.contains('ed-on'))).toBe(false);
+	expect(await page.textContent('#editorPlaceBadge')).toBe('X0 Y0');
+	expect(await page.textContent('#editorGridBadge')).toMatch(/^\d+(\.\d+)? mm$/);
+	await page.evaluate(() => document.getElementById('editorGridBadge').closest('button').click());
+	expect(await page.textContent('#editorGridBadge')).not.toBe('');
+	expect(await page.evaluate(() => document.querySelectorAll('#layoutButton').length)).toBe(0);
+	await page.keyboard.press('Control+Alt+L');
+	expect(await page.evaluate(() => document.body.classList.contains('sw-tools'))).toBe(false);
+	await page.keyboard.press('Control+Alt+L');
+	expect(await page.evaluate(() => document.body.classList.contains('sw-tools'))).toBe(true);
+});

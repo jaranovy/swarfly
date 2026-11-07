@@ -538,5 +538,8 @@
  "Tool\nPanel": "Panel\nnástrojů",
  "Where the drawing tools are: in a panel on the left (new) or in the ribbon at the top (old)": "Kde jsou kreslicí nástroje: v panelu vlevo (nové) nebo v pásu karet nahoře (staré)",
  "Fit the whole machine area in the view": "Vejde celou pracovní plochu do pohledu",
- "Add text": "Přidat text"
+ "Add text": "Přidat text",
+ "Mouse": "Myš",
+ "Tool panel or ribbon": "Panel nástrojů nebo ribbon",
+ "Switch between the tool panel layout and the old ribbon": "Přepne mezi rozložením s panelem nástrojů a starým ribbonem"
 }

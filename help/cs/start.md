@@ -15,7 +15,7 @@ Program se uloží jako soubor `.nc` a na stroj se přenese SD kartou.
 
 ## Kde co je
 
-- **Panel nástrojů (vlevo od výkresu)**: kreslicí nástroje ve skupinách - *Výběr* (výběr, posun, mazání, transformace), *Tvoření* (text, tvary), *Skica* (měření, přichytávání, rozměry, panel vlastností), *Upravit* (posun A-B, ořez, rozdělení, tečna, oblouk, do rohu, zpět, znovu) a *Kamera* (zoom, okno, otáčení, ukázat úlohu, ukázat pracovní plochu). Když najedeš na tlačítko, uvidíš název a klávesu; kliknutím na název skupiny ji sbalíš. *Nastavení - Panel nástrojů* vrátí všechno do pásu karet (staré rozložení) a zase zpět.
+- **Panel nástrojů (vlevo od výkresu)**: kreslicí nástroje ve skupinách - *Výběr* (výběr, posun, mazání, transformace), *Tvoření* (text, tvary), *Skica* (měření, přichytávání, rozměry, panel vlastností), *Upravit* (posun A-B, ořez, rozdělení, tečna, oblouk, do rohu, zpět, znovu) a *Kamera* (zoom, okno, otáčení, ukázat úlohu, ukázat pracovní plochu). Když najedeš na tlačítko, uvidíš název a klávesu; kliknutím na název skupiny ji sbalíš. **Ctrl+Alt+L** vrátí všechno do pásu karet (staré rozložení) a zase zpět.
 - **Lišta nahoře** (ve starém rozložení záložky Projekt, Nastavení a Nápověda): otevřít, nový projekt, uložit/otevřít projekt, nastavení, jazyk, motiv, klávesové zkratky, nápověda.
 - **Záložka Nastavení**: nastavení, záloha, jazyk, vzhled.
 - **Záložka Nápověda**: tlačítko *Nápověda* a tlačítko *Verze* (co je nového).

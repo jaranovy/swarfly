@@ -684,6 +684,9 @@ function editorCycleGrid() {
 function editorShowGridButton() {
   var cap = document.getElementById("editorGridCaption");
   if (cap) cap.textContent = editorState.gridStep > 0 ? editorState.gridStep + " mm" : "Off";
+  var badge = document.getElementById("editorGridBadge"), btn = badge ? badge.closest("button") : null;
+  if (badge) badge.textContent = editorState.gridStep > 0 ? editorState.gridStep + " mm" : "Off";   // the number shown next to the icon
+  if (btn) btn.classList.toggle("ed-on", editorState.gridStep > 0);
 }
 
 // ---- 1.5.1: move from point A to point B ---------------------------------------------------------------------------------
@@ -1532,6 +1535,10 @@ function editorTogglePlace() {
 function editorShowPlaceButton() {
   var cap = document.getElementById("editorPlaceCaption");
   if (cap) cap.textContent = editorPlaceWithMouse() ? "With mouse" : "At X0 Y0";
+  // compact toolbar: the button stays pressed while a new shape follows the mouse, and a small label says where it will appear
+  var badge = document.getElementById("editorPlaceBadge"), btn = badge ? badge.closest("button") : null;
+  if (badge) badge.textContent = editorPlaceWithMouse() ? "Mouse" : "X0 Y0";
+  if (btn) btn.classList.toggle("ed-on", editorPlaceWithMouse());
 }
 
 // ---- placement mode --------------------------------------------------------------------------------------------------

@@ -34,6 +34,7 @@ var SHORTCUT_ACTIONS = [
   { id: "viewJob", group: "Camera", title: "Show the job", desc: "Fit the drawing in the view", keys: ["Home"] },
   { id: "viewMachine", group: "Camera", title: "Show the machine area", desc: "Fit the whole bed in the view", keys: ["Shift+Home"] },
 
+  { id: "layout", group: "Other", title: "Tool panel or ribbon", desc: "Switch between the tool panel layout and the old ribbon", keys: ["Ctrl+Alt+L"] },
   { id: "help", group: "Other", title: "Help", desc: "Open the help window", keys: ["F1"] }
 ];
 

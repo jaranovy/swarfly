@@ -6,7 +6,8 @@ Every release must have an entry here that matches the version in `package.json`
 ## [1.18.0] - 2026-11-07
 ### Changed
 - **New layout: a tool panel on the left of the drawing** instead of the tools in the ribbon. Groups *Select*, *Create*, *Sketch*, *Edit* and *Camera* (same groups as in the keyboard shortcuts); each button shows its name and key when pointed at, a click on a group name folds the group. The ribbon at the top becomes one plain toolbar without tabs (open, new, save, settings, backup, language, grid, tool panel, keys, theme, help, version); the properties bar stays under it. The buttons are the same ones as before (moved, not copied), so everything works as it did.
-- *Settings - Tool Panel* switches back to the old ribbon layout and forth again, without reloading (saved in the browser storage).
+- **Ctrl+Alt+L** (a keyboard shortcut, changeable in Settings) switches back to the old ribbon layout and forth again, without reloading (saved in the browser storage).
+- The *New shapes* (crosshair) button stays pressed while new shapes follow the mouse and shows *Mouse* or *X0 Y0*; the *Snap grid* button shows the step as a number (1 mm, 0.5 mm ... or Off).
 - The drawing area now starts to the right of the tool panel, so the panel no longer covers the left edge of the drawing (X0 Y0, new shapes, handles).
 - Distinct icons: *Move* (mouse, a hand) differs from *Move A-B*, *Transform* (a frame) differs from the measuring ruler; *Factory Reset* is red.
 ### Fixed

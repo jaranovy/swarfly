@@ -42,6 +42,7 @@ var SHORTCUT_RUN = {
   rotateView: function() { viewSetMode("orbit"); },
   viewJob: function() { resetView(); },
   viewMachine: function() { resetView(scene.getObjectByName("Grid")); },
+  layout: function() { swarflyToggleLayout(); },
   help: function() { openHelp(); }
 };
 
