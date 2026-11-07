@@ -96,3 +96,27 @@ test('toolbar: the placement button stays pressed and the grid button shows the 
 	await page.keyboard.press('Control+Alt+L');
 	expect(await page.evaluate(() => document.body.classList.contains('sw-tools'))).toBe(true);
 });
+
+test('the 3D canvas always has the size of the drawing area (the new-shape ghost sits on the origin)', async () => {
+	const sizes = () => page.evaluate(() => { const a = document.getElementById('renderArea'); return [renderer.domElement.width, a.offsetWidth, renderer.domElement.height, a.offsetHeight]; });
+	let z = await sizes();
+	expect(z[0]).toBe(z[1]); expect(z[2]).toBe(z[3]);
+	await page.evaluate(() => swarflyToggleLayout());
+	await page.waitForTimeout(300);
+	z = await sizes();
+	expect(z[0]).toBe(z[1]);
+	await page.evaluate(() => swarflyToggleLayout());
+	await page.waitForTimeout(300);
+	z = await sizes();
+	expect(z[0]).toBe(z[1]);
+	// the ghost of a new shape starts exactly where the origin is drawn
+	await page.evaluate(() => { editorState.draftParams = null; editorNewShape('rectangle'); });
+	await page.waitForTimeout(400);
+	const d = await page.evaluate(() => {
+		const o = editorToScreen(0, 0), v = new THREE.Vector3(0, 0, 0).project(camera), cv = renderer.domElement;
+		const pts = document.getElementById('editorDraftPreview').getAttribute('points').split(' ')[0].split(',').map(Number);
+		return [pts[0] - o[0], pts[1] - o[1], o[0] - (v.x + 1) / 2 * cv.width];
+	});
+	expect(Math.abs(d[0])).toBeLessThan(1); expect(Math.abs(d[1])).toBeLessThan(1); expect(Math.abs(d[2])).toBeLessThan(1);
+	await page.keyboard.press('Escape');
+});

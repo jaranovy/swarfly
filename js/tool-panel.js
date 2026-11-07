@@ -67,9 +67,24 @@ function toolPanelRestore() {
   toolPanelHideEmptyGroups(false);
 }
 
+// Sets the size of the 3D canvas and the camera to the drawing area (without touching the view). The canvas is created by init3D, so wait for it.
+function toolPanelFitCanvas(tries) {
+  var area = document.getElementById("renderArea");
+  if (typeof renderer === "undefined" || !renderer || typeof camera === "undefined" || !camera || !area) {
+    if (tries > 0) setTimeout(function() { toolPanelFitCanvas(tries - 1); }, 150);
+    return;
+  }
+  var w = area.offsetWidth, h = area.offsetHeight;
+  if (!(w > 0 && h > 0)) return;
+  renderer.setSize(w, h);
+  if (typeof sceneWidth !== "undefined") { sceneWidth = w; sceneHeight = h; }
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
 function toolPanelApply(layout, resize) {
   if (toolPanelLayout(layout) === "tools") toolPanelBuild(); else toolPanelRestore();
-  if (resize && typeof renderer !== "undefined" && renderer) setTimeout(function() { window.dispatchEvent(new Event("resize")); }, 50);   // the drawing area changed its width
+  toolPanelFitCanvas(resize ? 0 : 40);   // the drawing area changed its width: the 3D canvas must follow (it is created at load, maybe after this runs)
   var b = document.getElementById("layoutButton");
   if (b) b.classList.toggle("active", toolPanelState.applied);
 }
