@@ -33,6 +33,6 @@ Needs free Windows commit memory (the 7z step fails when it is exhausted: restar
 2. `package.json` version and the label in `index.html` (`appVersionNo`) bumped.
 3. `CHANGELOG.md` has the new version at the top (Added / Changed / Fixed); the unit test compares it with `package.json`.
 4. Help topics (EN and CS) updated for every new menu item, dialog or setting; Czech strings in `js/lang/cs.json`.
-5. Build, start the portable exe, check version, language and the new feature (debug port `--remote-debugging-port=9333`).
+5. `npm test` (it runs the syntax check of `electron/`, which no browser test covers). Build, start the **installed / unpacked exe** (not only the browser: a broken `electron/main.js` only shows there), check version, language and the new feature (debug port `--remote-debugging-port=9333`).
 6. Commit, tag `3018-v<version>`; never push without the owner's approval.
 7. Update `TODO.md` and `docs/editor-plan.md` in the project folder.

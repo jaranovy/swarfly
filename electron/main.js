@@ -206,8 +206,7 @@ app.whenReady().then(() => {
 	const defaults = readDefaults();
 	if (defaults.autoUpdate !== false) {
 		const logFile = path.join(app.getPath('userData'), 'update.log');
-		updater.start(app, dialog, mainWin, defaults.language, (m) => { try { fs.appendFileSync(logFile, new Date().toISOString() + ' ' + m + '
-'); } catch (e) { /* no log */ } });
+		updater.start(app, dialog, mainWin, defaults.language, (m) => { try { fs.appendFileSync(logFile, new Date().toISOString() + ' ' + m + '\n'); } catch (e) { /* no log */ } });
 	}
 
 	app.on('activate', () => {
