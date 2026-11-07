@@ -157,7 +157,7 @@ function updateGridLevels() {
   }
   set(gridLayers.g1, lv.a1, Theme.GRID_STEP_10_OPACITY * 0.8);
   set(gridLayers.g5, lv.a5, Theme.GRID_STEP_10_OPACITY * 1.6);
-  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 2.3 * lv.s10));      // light grey far away, dark when zoomed in
+  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 1.6 * lv.s10));      // light grey far away, dark when zoomed in
   if (gridLayers.g10) gridLayers.g10.material.color.setHex(lv.s10 > 0.5 ? Theme.GRID_STEP_100_COLOR : Theme.GRID_STEP_10_COLOR);
   set(gridLayers.g100, lv.a100, Theme.GRID_STEP_100_OPACITY * 2);
 }
