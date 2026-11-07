@@ -169,6 +169,7 @@ function saveExportWorkspace(filename) {
     type: "text/plain"
   });
   invokeSaveAsDialog(blob, filename);
+  if (typeof projectMarkSaved === "function") projectMarkSaved();
   // console.log(JSON.stringify(obspace));
 }
 
@@ -195,6 +196,7 @@ function loadWorkspace(f) {
       r.readAsText(f);
       r.onload = function(event) {
         parseLoadWorkspace(this.result)
+        setTimeout(function() { if (typeof projectMarkSaved === "function") projectMarkSaved(); }, 800);   // just opened: nothing to save yet
         //console.log(this.result)
       };
       $('.workspaceTitle').html(' - ' + f.name)

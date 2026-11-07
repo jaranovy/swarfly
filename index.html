@@ -153,7 +153,7 @@
 
 										<div class="group">
 											<div class="ribbon-group">
-												<button class="ribbon-icon-button" onclick="storeUndo(true); objectsInScene.length = 0; toolpathsInScene.length = 0; trashGcode(); fillTree(); $('.workspaceTitle').html('');">
+												<button class="ribbon-icon-button" onclick="projectNew()">
 													<span class="icon">
 														<span class="far fa-file"></span>
 													</span>
@@ -738,6 +738,8 @@
 	<script type="text/javascript" src="js/advanced-cam-workspace-export.js"></script>
 	<script type="text/javascript" src="js/advanced-cam-pretty-render.js"></script>
 	<script type="text/javascript" src="js/advanced-cam-sim.js"></script>
+	<script type="text/javascript" src="js/project-model.js"></script><!-- Swarfly: unsaved-work rule -->
+	<script type="text/javascript" src="js/project.js"></script><!-- Swarfly: New project asks to save -->
 	<script type="text/javascript" src="js/shortcuts-model.js"></script><!-- Swarfly: keyboard shortcuts (table, key maths) -->
 	<script type="text/javascript" src="js/shortcuts.js"></script>
 	<script type="text/javascript" src="js/tool-panel-model.js"></script><!-- Swarfly: tool panel groups (data) -->

@@ -542,5 +542,8 @@
  "Mouse": "Myš",
  "Tool panel or ribbon": "Panel nástrojů nebo ribbon",
  "Switch between the tool panel layout and the old ribbon": "Přepne mezi rozložením s panelem nástrojů a starým ribbonem",
- "Preview at true size (1:1 on screen = on the workpiece)": "Náhled ve skutečné velikosti (1:1 na obrazovce = na materiálu)"
+ "Preview at true size (1:1 on screen = on the workpiece)": "Náhled ve skutečné velikosti (1:1 na obrazovce = na materiálu)",
+ "Save the project?": "Uložit projekt?",
+ "The project has changes that are not saved. If you do not save them, they will be lost.": "Projekt má neuložené změny. Pokud je neuložíš, budou ztraceny.",
+ "Don't save": "Neukládat"
 }
