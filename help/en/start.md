@@ -27,9 +27,10 @@ The program is saved as a `.nc` file and carried to the machine on an SD card.
 |---|---|
 | Select | Left mouse button (click an object, or drag a window; **Ctrl** adds to the selection) |
 | Rotate / resize handles | Click the selected object again to switch between resize and rotate handles |
-| Orbit the view | **Alt** + left mouse drag, or middle mouse button |
+| Orbit the view | **Shift** (or **Alt**) + left mouse drag, the **Rotate** button (Zoom group), or the middle mouse button |
 | Pan | Right mouse button drag |
-| Zoom | Mouse wheel |
+| Zoom | Mouse wheel, the **Zoom +** / **Zoom -** buttons, **Ctrl + Shift** + left drag (up = closer) |
+| Zoom to an area | The **Window** button, then drag a rectangle with the left button (Esc cancels) |
 | Delete selected | **Del** |
 | Nudge selected | Arrow keys (1 mm; **Shift** 10 mm; **Alt** 0.1 mm) |
 | Cancel | **Esc** |

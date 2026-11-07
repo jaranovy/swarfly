@@ -73,8 +73,8 @@ function mouseDown(event) {
   if (mouseState == "select") {
     // helpoverlay.style.visibility = "visible";
     if (event.which == 1) { // only on left mousedown
-      if (event.altKey) {
-        // Alt + Left Mouse = orbit the workspace (handled by OrbitControls).
+      if (viewGestureOf(event)) {
+        // Alt / Shift + Left Mouse (or the Rotate tool) = orbit the workspace (handled by OrbitControls).
         // Do not start a selection / marquee in this case.
         return;
       }
@@ -272,7 +272,7 @@ function mouseMove(event) {
   // make sure we are in a select mode.
   // helpoverlay.style.visibility = "visible";
   if (mouseIsDown) { // only on left mousedown
-    if (mouseState == "select" && !event.altKey) { // Alt + drag = orbit, never marquee-select
+    if (mouseState == "select" && !viewGestureOf(event)) { // Alt + drag = orbit, never marquee-select
       // lets wait for mouse to move at least a few pixels, just to eliminate false "selections" if user is simply clicking on an object (hysteresys)
       if (delta(event.clientX, mousedowncoords.x) > 10 && delta(event.clientX, mousedowncoords.x) > 10 || delta(event.clientX, mousedowncoords.x) < -10 && delta(event.clientX, mousedowncoords.x) < -10) {
         offset = $('#renderArea').offset();

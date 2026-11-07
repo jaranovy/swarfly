@@ -212,6 +212,28 @@
 
 										<div class="group">
 											<div class="ribbon-group">
+												<button class="ribbon-icon-button" id="viewZoomInButton" onclick="viewZoomIn()" title="Zoom in (mouse wheel)">
+													<span class="icon"><span class="fa fa-search-plus"></span></span>
+													<span class="caption">Zoom +</span>
+												</button>
+												<br>
+												<button class="ribbon-icon-button" id="viewZoomOutButton" onclick="viewZoomOut()" title="Zoom out (mouse wheel)">
+													<span class="icon"><span class="fa fa-search-minus"></span></span>
+													<span class="caption">Zoom -</span>
+												</button>
+											</div>
+											<div class="ribbon-group">
+												<button class="ribbon-icon-button" id="viewWindowButton" onclick="viewSetMode('window')" title="Drag a window with the left mouse button - the view zooms to it">
+													<span class="icon"><span class="fa fa-expand"></span></span>
+													<span class="caption">Window</span>
+												</button>
+												<br>
+												<button class="ribbon-icon-button" id="viewRotateButton" onclick="viewSetMode('orbit')" title="Rotate the view with the left mouse button (also Shift + drag). Pan: right button. Zoom: Ctrl + Shift + drag">
+													<span class="icon"><span class="fa fa-sync-alt"></span></span>
+													<span class="caption">Rotate</span>
+												</button>
+											</div>
+											<div class="ribbon-group">
 												<button class="ribbon-icon-button" onclick="resetView();">
 													<span class="icon">
 														<span class="fa fa-eye"></span>
@@ -415,7 +437,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.14.0</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.15.0</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -688,6 +710,8 @@
 	<script type="text/javascript" src="lib/threejs/TweenMax.min.js"></script>
 	<script type="text/javascript" src="js/viewer.js"></script>
 	<script type="text/javascript" src="js/viewer-ruler.js"></script>
+	<script type="text/javascript" src="js/view-model.js"></script>
+	<script type="text/javascript" src="js/view-controls.js"></script>
 	<script type="text/javascript" src="js/viewer-pause.js"></script>
 	<script type="text/javascript" src="js/import-placement.js"></script>
 

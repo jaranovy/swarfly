@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.15.0] - 2026-11-07
+### Added
+- Camera for a mouse without wheel and middle button (a trackball): **Zoom +** and **Zoom -** buttons, a **Window** tool (drag a rectangle with the left button, the view zooms to it) and a **Rotate** tool (left button drags rotate the view) in the Zoom group. Also **Shift** + left drag rotates and **Ctrl + Shift** + left drag zooms (up = closer). Pan stays on the right button; Esc ends a tool.
+### Fixed
+- The installed application had an empty help: the `help` folder was not packed into the installer. It is now.
+
 ## [1.14.0] - 2026-11-06
 ### Changed
 - The properties bar is always open: with nothing selected it is greyed out instead of hidden (no jumping, nothing to look for).

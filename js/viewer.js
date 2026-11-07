@@ -327,7 +327,7 @@ function init3D() {
   // remapping is already in place when OrbitControls decides what to do.
   window.addEventListener('mousedown', function(e) {
     if (e.button === 0) {
-      controls.mouseButtons.ORBIT = e.altKey ? THREE.MOUSE.LEFT : THREE.MOUSE.MIDDLE;
+      controls.mouseButtons.ORBIT = viewGestureOf(e) === 'orbit' ? THREE.MOUSE.LEFT : THREE.MOUSE.MIDDLE;
     }
   }, true);
 

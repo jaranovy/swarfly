@@ -470,5 +470,12 @@
  "New shape:": "Nový tvar:",
  "Create the shape and place it (Enter)": "Vytvořit tvar a umístit ho (Enter)",
  "Cancel (Esc)": "Zrušit (Esc)",
- "New shape: set the values in the bar - Enter creates it, then place it with the mouse - Esc cancels": "Nový tvar: nastav hodnoty v liště - Enter ho vytvoří, pak ho umístíš myší - Esc zruší"
+ "New shape: set the values in the bar - Enter creates it, then place it with the mouse - Esc cancels": "Nový tvar: nastav hodnoty v liště - Enter ho vytvoří, pak ho umístíš myší - Esc zruší",
+ "Zoom +": "Zoom +",
+ "Zoom -": "Zoom -",
+ "Window": "Okno",
+ "Zoom in (mouse wheel)": "Přiblížit (kolečko myši)",
+ "Zoom out (mouse wheel)": "Oddálit (kolečko myši)",
+ "Drag a window with the left mouse button - the view zooms to it": "Natáhni levým tlačítkem obdélník - pohled se na něj přiblíží",
+ "Rotate the view with the left mouse button (also Shift + drag). Pan: right button. Zoom: Ctrl + Shift + drag": "Otáčení pohledu levým tlačítkem (také Shift + tažení). Posun: pravé tlačítko. Zoom: Ctrl + Shift + tažení"
 }

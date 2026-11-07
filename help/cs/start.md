@@ -27,9 +27,10 @@ Program se uloží jako soubor `.nc` a na stroj se přenese SD kartou.
 |---|---|
 | Výběr | Levé tlačítko myši (klik na objekt, nebo tažení okna; **Ctrl** přidá do výběru) |
 | Úchyty velikosti / otáčení | Dalším kliknutím na vybraný objekt se úchyty přepínají mezi velikostí a otáčením |
-| Otáčení pohledu | **Alt** + tažení levým tlačítkem, nebo prostřední tlačítko |
+| Otáčení pohledu | **Shift** (nebo **Alt**) + tažení levým tlačítkem, tlačítko **Otáčet** (skupina Přiblížení), nebo prostřední tlačítko |
 | Posun pohledu | Tažení pravým tlačítkem |
-| Zoom | Kolečko myši |
+| Zoom | Kolečko myši, tlačítka **Zoom +** / **Zoom -**, **Ctrl + Shift** + tažení levým tlačítkem (nahoru = blíž) |
+| Přiblížení oblasti | Tlačítko **Okno**, pak levým tlačítkem natáhni obdélník (Esc zruší) |
 | Smazat vybrané | **Del** |
 | Posunout vybrané | Šipky (1 mm; **Shift** 10 mm; **Alt** 0,1 mm) |
 | Zrušit | **Esc** |
