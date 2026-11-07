@@ -6,6 +6,7 @@
 		<script src="js/default-lang.js"></script>
 		<script src="js/lang.js"></script><!-- UI language: English default, Czech via js/lang/cs.json (Settings -> Language) -->
 		<meta charset="utf-8" />
+		<script>/* Swarfly: hide the toolbar and tool panel until js/tool-panel.js has arranged them (no flash of the old ribbon on F5) */try { if (localStorage.getItem("swarflyLayout") !== "ribbon") { document.documentElement.classList.add("sw-boot"); setTimeout(function() { document.documentElement.classList.remove("sw-boot"); }, 4000); } } catch (e) {}</script>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Swarfly</title>

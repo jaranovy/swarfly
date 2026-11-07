@@ -357,3 +357,6 @@ body.sw-tools nav[data-role="ribbonmenu"] #placeGroup .ribbon-button, body.sw-to
 body.sw-tools nav[data-role="ribbonmenu"] .sw-badge { display: inline; font-size: 11px; font-weight: 600; color: var(--sw-muted); white-space: nowrap; }
 body.sw-tools nav[data-role="ribbonmenu"] .ed-on { background: var(--sw-accent-soft) !important; border-color: var(--sw-accent) !important; }
 body.sw-tools nav[data-role="ribbonmenu"] .ed-on .sw-badge { color: var(--sw-accent); }
+
+/* until the layout is arranged (js/tool-panel.js removes the class) the toolbar, properties bar and tool panel are not shown */
+html.sw-boot nav[data-role="ribbonmenu"], html.sw-boot .sidemenu, html.sw-boot #editorBarSlot { visibility: hidden; }

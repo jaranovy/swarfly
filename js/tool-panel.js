@@ -85,6 +85,7 @@ function toolPanelFitCanvas(tries) {
 function toolPanelApply(layout, resize) {
   if (toolPanelLayout(layout) === "tools") toolPanelBuild(); else toolPanelRestore();
   toolPanelFitCanvas(resize ? 0 : 40);   // the drawing area changed its width: the 3D canvas must follow (it is created at load, maybe after this runs)
+  document.documentElement.classList.remove("sw-boot");
   var b = document.getElementById("layoutButton");
   if (b) b.classList.toggle("active", toolPanelState.applied);
 }
