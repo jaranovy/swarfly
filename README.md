@@ -30,7 +30,7 @@ Used and tested in the browser and in automated tests. A first real cut on the m
 
 ## Download
 
-Installers are built from this repository (`npm run dist:win`). Releases, when published, are on the [Releases](https://github.com/jaranovy/swarfly/releases) page.
+Download the installer (`Swarfly-Setup-<version>.exe`) or the portable `Swarfly-<version>.exe` from the [Releases](https://github.com/jaranovy/swarfly/releases) page. The installed program **updates itself** from there (only the changed parts are downloaded). Windows may show a SmartScreen warning because the files are not code-signed.
 
 ## Run from source
 

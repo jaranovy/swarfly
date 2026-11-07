@@ -5,10 +5,11 @@
  * file:// (which breaks Web Workers and fetch/XHR) we serve the repo root
  * through a custom `app://` protocol with standard-scheme privileges.
  */
-const { app, BrowserWindow, protocol, session } = require('electron');
+const { app, BrowserWindow, protocol, session, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { readDefaults, defaultLangScript } = require('./defaults');
+const updater = require('./updater');
 const { pathToFileURL } = require('url');
 
 const SCHEME = 'app';
@@ -200,7 +201,14 @@ app.whenReady().then(() => {
 	blockTelemetry();
 
 	createSplash();
-	createWindow();
+	const mainWin = createWindow();
+	// automatic updates from GitHub Releases (installed copy only); a note in <userData>/update.log tells what happened
+	const defaults = readDefaults();
+	if (defaults.autoUpdate !== false) {
+		const logFile = path.join(app.getPath('userData'), 'update.log');
+		updater.start(app, dialog, mainWin, defaults.language, (m) => { try { fs.appendFileSync(logFile, new Date().toISOString() + ' ' + m + '
+'); } catch (e) { /* no log */ } });
+	}
 
 	app.on('activate', () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow();

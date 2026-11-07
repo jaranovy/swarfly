@@ -8,12 +8,13 @@ const fs = require('fs');
 const path = require('path');
 
 function parseDefaults(text) {
-	let language = 'en';
+	let language = 'en', autoUpdate = true;
 	try {
 		const data = JSON.parse(text);
 		if (data && (data.language === 'cs' || data.language === 'en')) language = data.language;
+		if (data && data.autoUpdate === false) autoUpdate = false;
 	} catch (e) { /* broken or empty file: keep English */ }
-	return { language };
+	return { language, autoUpdate };
 }
 
 // where to look: next to the portable exe (a file the user put there wins), then next to the program itself (installer copy)
