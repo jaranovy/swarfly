@@ -15,6 +15,15 @@ It is a fork of [OpenBuilds CAM](https://github.com/OpenBuilds/OpenBuilds-CAM) (
 
 See [`CHANGELOG.md`](CHANGELOG.md) for the full list by version.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Overview](docs/img/01-overview.png) **Drawing area with the document tree and the four panels** | ![Properties](docs/img/02-properties.png) **Properties bar: position, size, rotation, pocket** |
+| ![New shape](docs/img/03-new-shape.png) **A new shape is set up in the bar** | ![Toolpath](docs/img/04-toolpath.png) **Toolpath preview** |
+| ![G-code](docs/img/05-gcode.png) **G-code with time estimate and statistics** | ![Help](docs/img/06-help.png) **Built-in help (F1)** |
+| ![Czech](docs/img/07-czech.png) **Czech user interface** | |
+
 ## Status
 
 Used and tested in the browser and in automated tests. A first real cut on the machine has **not** been made yet - check every program in the simulation and with an air cut (Z raised) before cutting material. You use it at your own risk.
@@ -42,6 +51,14 @@ npx playwright test test/e2e/<file>       # browser tests; the whole suite takes
 ```
 
 More in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+
+## Documentation
+
+- In the app: **Help** tab or **F1**. The same topics are Markdown files: [`help/en/`](help/en) and [`help/cs/`](help/cs).
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - how the project is built, what Swarfly added, data flow of a job.
+- [`docs/EXTENDING.md`](docs/EXTENDING.md) - how to add a **language**, a **skin**, a help topic, another machine or an editor tool.
+- [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) - running, testing, building, release checklist.
+- [`CHANGELOG.md`](CHANGELOG.md) - what changed in each version.
 
 ## Licence and credits
 

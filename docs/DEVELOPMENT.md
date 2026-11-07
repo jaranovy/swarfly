@@ -19,7 +19,7 @@
 ## Test
 
 - `npm test` - unit tests.
-- `E2E_PORT=8124 E2E_CHANNEL=chrome npx playwright test` - e2e (uses the installed Chrome; port 8123 belongs to the shared memory server, never use it).
+- `E2E_PORT=8124 E2E_CHANNEL=chrome npx playwright test` - e2e (uses the installed Chrome; pick a free port; the config default 8123 is only a fallback).
 - Both must pass before a release.
 
 ## Build
