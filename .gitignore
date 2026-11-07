@@ -3,3 +3,4 @@ dist/
 .drcode
 test-results/
 playwright-report/
+out/

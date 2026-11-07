@@ -680,7 +680,7 @@ function editorSplitPolyline(points, ts) {
   return pieces.filter(function(p) { return p.length >= 2; });
 }
 
-// ---- 1.12.0: tangent line under an angle, tangent arc between two elements (SAPS 8.3.14, 8.3.15) ----------------------------------
+// ---- 1.12.0: tangent line under an angle, tangent arc between two elements  ----------------------------------
 // An element is {type: "line", p, q} (a straight segment) or {type: "circle", cx, cy, r}.
 
 // Circle through three points, or null when they are (nearly) on one line.
@@ -832,7 +832,7 @@ function editorFilletJoin(pointsA, clickTA, fillet, pointsB, clickTB) {
   return clean;
 }
 
-// ---- 1.13.0: extend / trim two lines to their intersection (SAPS 8.3.9) ------------------------------------------------------------
+// ---- 1.13.0: extend / trim two lines to their intersection  ------------------------------------------------------------
 // Intersection of the infinite lines through ab and cd: {point, s, u} (s, u = distance along each, 0..1 inside the segment) or null.
 function editorLineHit(a, b, c, d) {
   var rx = b[0] - a[0], ry = b[1] - a[1], sx = d[0] - c[0], sy = d[1] - c[1], den = rx * sy - ry * sx;

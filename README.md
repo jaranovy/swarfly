@@ -1,10 +1,57 @@
 # Swarfly
 
-Swarfly is a personal fork of [OpenBuilds CAM](https://github.com/openbuilds/OpenBuilds-CAM) (AGPL-3.0), tuned for a CNC 3018 Pro (GRBL, offline SD controller): milling and laser G-code in the style of the known-good card programs. All credit for the original software goes to the OpenBuilds authors; the original license (`LICENSE`) applies to this fork.
+**Swarfly** is a CAM program for small hobby CNC machines, made for a **CNC 3018 Pro** (GRBL 1.1, offline controller with OLED and SD card). You draw or import a shape, choose what the machine should do, and get a G-code file for the SD card - with the same plain style as the programs the machine already runs well.
+
+It is a fork of [OpenBuilds CAM](https://github.com/OpenBuilds/OpenBuilds-CAM) (AGPL-3.0). All credit for the original software goes to the OpenBuilds authors; the original licence (`LICENSE`) applies to this fork too.
+
+## What Swarfly adds
+
+- **Drawing and editing** like in a simple CAD: shapes (circle, rectangle, rounded rectangle, ellipse, polygon, star, slot, text) set up in a properties bar; move, scale and rotate with handles; snap to points and grid; measuring; trim, split, corners (fillet, chamfer), tangent line and arc, extend to a corner, pockets, arrange and align.
+- **Import** of DXF, SVG, bitmaps (with tracing to outlines) and Gerber; DXF units are respected.
+- **G-code made for the 3018**: machine preset, a G-code check, program statistics and time estimate, 8.3 file names for the SD card, **one file per tool** when the bit has to be changed by hand.
+- **Czech and English** user interface and an in-app help (F1), with a "What's new" page.
+- **Camera for a mouse without wheel and middle button** (trackball): Zoom +/-, zoom to a window, Rotate tool, Shift = rotate, Ctrl+Shift = zoom.
+- A desktop app for Windows (installer and portable exe); nothing is sent anywhere.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for the full list by version.
+
+## Status
+
+Used and tested in the browser and in automated tests. A first real cut on the machine has **not** been made yet - check every program in the simulation and with an air cut (Z raised) before cutting material. You use it at your own risk.
+
+## Download
+
+Installers are built from this repository (`npm run dist:win`). Releases, when published, are on the [Releases](https://github.com/jaranovy/swarfly/releases) page.
+
+## Run from source
+
+```sh
+npm install
+npm start            # desktop app
+# or in a browser: serve the folder over HTTP (not file://) and open index.html
+python -m http.server 8100
+```
+
+`npm run dist:win` builds the Windows installer and the portable exe into `dist/` and copies them to `out/`.
+
+## Tests
+
+```sh
+npm test                                  # unit tests (node:test), about a second
+npx playwright test test/e2e/<file>       # browser tests; the whole suite takes several minutes
+```
+
+More in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+
+## Licence and credits
+
+AGPL-3.0, see [`LICENSE`](LICENSE). Swarfly is based on OpenBuilds CAM by the OpenBuilds team and on the DrMoriarty fork of it. Bundled libraries keep their own licences.
 
 ---
 
-# cam.openbuilds.com
+## About the original project (OpenBuilds CAM)
+
+cam.openbuilds.com
 OpenBuilds CAM - Cloud based software for converting DXF, SVG, Bitmap (BMP, JPG, PNG, GIF) and Gerber X274 to G-Code
 
 

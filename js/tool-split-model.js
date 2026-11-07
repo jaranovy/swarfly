@@ -1,5 +1,5 @@
 // Pure helpers for "one G-code file per tool" (release 1.11.0, node-testable, no DOM).
-// The offline controller cannot change a bit by itself, so the program is split where the tool changes: the father changes the bit
+// The offline controller cannot change a bit by itself, so the program is split where the tool changes: the operator changes the bit
 // and touches off Z between the files. GRBL has no tool length offset, so a pause alone would not be enough.
 
 var TOOL_KINDS = { Drill: { kind: "drill", letter: "d", name: "Drill" }, CNC: { kind: "mill", letter: "m", name: "Mill" }, Laser: { kind: "laser", letter: "l", name: "Laser" },

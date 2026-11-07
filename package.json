@@ -5,7 +5,10 @@
   "description": "Swarfly, a fork of OpenBuilds CAM (AGPL-3.0) — browser CAM tool that converts DXF/SVG/bitmap/Gerber to G-Code, packaged as a desktop app with Electron",
   "license": "AGPL-3.0",
   "main": "electron/main.js",
-  "author": "OpenBuilds",
+  "author": "Jaroslav Novy (Swarfly); original OpenBuilds CAM by the OpenBuilds authors",
+  "homepage": "https://github.com/jaranovy/swarfly",
+  "repository": { "type": "git", "url": "git+https://github.com/jaranovy/swarfly.git" },
+  "bugs": { "url": "https://github.com/jaranovy/swarfly/issues" },
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
