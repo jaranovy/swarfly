@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.16.0] - 2026-11-07
+### Added
+- Depth in the 3D view: a blue **Z axis** at the origin with marks every 1 mm (-20 to +10 mm) and a faint vertical grid (XZ and YZ planes, 5 mm steps down to -20 mm). Seen from above they are invisible; tilt the camera and they show how deep a cut goes.
+
 ## [1.15.2] - 2026-11-07
 ### Fixed
 - 1.15.1 did not start (a syntax error in `electron/main.js` in the update code: "JavaScript error occurred in the main process"). `npm test` now checks the syntax of `electron/`, `js/` and `workers/` first.

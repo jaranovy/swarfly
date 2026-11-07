@@ -211,6 +211,36 @@ function redrawGrid() {
   axesgrp.add(line1);
   axesgrp.add(line2);
 
+  // Swarfly 1.16.0: depth - a Z axis with marks every 1 mm and two faint vertical grids (XZ and YZ planes) down to -20 mm.
+  // Seen from above they are edge-on (invisible); when the camera is tilted they show how deep a cut goes.
+  var zDepth = 20, zUp = 10;
+  var materialZ = new THREE.LineBasicMaterial({ color: "#2a6fdb" });
+  var geometryZ = new THREE.Geometry();
+  geometryZ.vertices.push(new THREE.Vector3(-0.1, -0.1, -zDepth), new THREE.Vector3(-0.1, -0.1, zUp));
+  axesgrp.add(new THREE.Line(geometryZ, materialZ));
+  var tickGeo = new THREE.Geometry();
+  for (var zt = -zDepth; zt <= zUp; zt++) {
+    var tl = (zt % 5 === 0) ? 3 : 1.2;
+    tickGeo.vertices.push(new THREE.Vector3(-0.1, -0.1, zt), new THREE.Vector3(-0.1 + tl, -0.1, zt));
+  }
+  axesgrp.add(new THREE.LineSegments(tickGeo, materialZ));
+  [-5, -10, -15, -20].forEach(function(zv) {
+    axesgrp.add(this.makeSprite(this.scene, "webgl", { x: -7, y: -0.1, z: zv, text: String(zv), color: "#2a6fdb", size: 3 }));
+  }, this);
+  axesgrp.add(this.makeSprite(this.scene, "webgl", { x: -7, y: -0.1, z: zUp + 4, text: "Z", color: "#2a6fdb", size: 5 }));
+
+  var depthGeo = new THREE.Geometry();
+  var sx = parseInt(sizexmax), sy = parseInt(sizeymax);
+  for (var zd = 0; zd >= -zDepth; zd -= 5) {
+    depthGeo.vertices.push(new THREE.Vector3(0, 0, zd), new THREE.Vector3(sx, 0, zd));      // XZ plane (y = 0)
+    depthGeo.vertices.push(new THREE.Vector3(0, 0, zd), new THREE.Vector3(0, sy, zd));      // YZ plane (x = 0)
+  }
+  for (var xd = 0; xd <= sx; xd += 10) depthGeo.vertices.push(new THREE.Vector3(xd, 0, 0), new THREE.Vector3(xd, 0, -zDepth));
+  for (var yd = 0; yd <= sy; yd += 10) depthGeo.vertices.push(new THREE.Vector3(0, yd, 0), new THREE.Vector3(0, yd, -zDepth));
+  var depthGrid = new THREE.LineSegments(depthGeo, new THREE.LineBasicMaterial({ color: Theme.GRID_STEP_100_COLOR, transparent: true, opacity: 0.35 }));
+  depthGrid.name = "DepthGrid";
+  axesgrp.add(depthGrid);
+
   grid.add(axesgrp);
 
   helper = new THREE.GridHelper(sizexmax, sizeymax, 10, Theme.GRID_STEP_10_COLOR);
