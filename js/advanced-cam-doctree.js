@@ -195,7 +195,7 @@ function animateTree() {
         selectCount++
       } else if (child.type == "Line" && !child.userData.selected) {
         if (child.userData.hover) {
-          child.material.color.setRGB(0, 0.48, 1);
+          child.material.color.setRGB(1, 0.6, 0);        // 1.18.2: the objects are blue now, so the line under the mouse is orange
         } else {
           var defaultcolor = new THREE.Color(Theme.CAM_DOC_DEFAULT_COLOR);
           child.material.color = defaultcolor

@@ -88,7 +88,7 @@ test('window drawn right to left selects everything it touches', async () => {
 
 test('a crossing window that reaches nothing selects nothing; the window turns solid or dashed with the direction', async () => {
 	await refit();
-	await page.evaluate(() => viewZoomOut());   // the tool panel covers the left edge of the drawing area: keep the window start clear of it
+	await page.evaluate(() => { viewZoomOut(); viewZoomOut(); viewZoomOut(); });   // keep the window start (a little left of the drawing) inside the drawing area
 	await drag([100, 40], [90, 30]);
 	expect(await selectedStarts()).toEqual([]);
 	const a = await toClient(-5, 25), b = await toClient(70, -5);
