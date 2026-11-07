@@ -73,9 +73,10 @@ test('help is a free window (wide, not modal, movable, remembers its place, clos
 	await page.waitForSelector('#helpContent h1');
 	const box = await page.locator('#helpWindow').boundingBox();
 	expect(box.width).toBeGreaterThanOrEqual(700);
-	// not modal: the ribbon still answers while the help is open
-	await page.locator('a[href="#section-settings"]').click();
-	await expect(page.locator('#section-settings')).toBeVisible();
+	// not modal: the toolbar still answers while the help is open (a click on the Undo button reaches the application)
+	await page.evaluate(() => { window.__undoClicks = 0; document.getElementById('undoButton').addEventListener('click', () => { window.__undoClicks++; }); });
+	await page.locator('#undoButton').click();
+	expect(await page.evaluate(() => window.__undoClicks)).toBe(1);
 	await expect(page.locator('#helpWindow')).toBeVisible();
 	// theme: light and dark, live while open
 	const colors = async () => page.evaluate(() => {

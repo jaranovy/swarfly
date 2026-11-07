@@ -3,6 +3,11 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.18.1] - 2026-11-07
+### Changed
+- Tidy-up of the repository: pictures moved to `resources/images`, the favicon to `resources/icons`; removed what nothing used (the old Font Awesome 4 `fonts/`, the Font Awesome 5 SVG / sprite / CSS / SCSS sets and the unused OpenJSCAD copy in `lib/` - about 1 900 files; web-app icons and manifests of the original; unused pictures). `CHANGELOG.txt` (the old OpenBuilds history) is now `help/upstream-changelog.txt`. The installer is a little smaller.
+- **New project asks first** when there are unsaved changes (Save / Don't save / Cancel).
+
 ## [1.18.0] - 2026-11-07
 ### Changed
 - **New layout: a tool panel on the left of the drawing** instead of the tools in the ribbon. Groups *Select*, *Create*, *Sketch*, *Edit* and *Camera* (same groups as in the keyboard shortcuts); each button shows its name and key when pointed at, a click on a group name folds the group. The ribbon at the top becomes one plain toolbar without tabs (open, new, save, settings, backup, language, grid, tool panel, keys, theme, help, version); the properties bar stays under it. The buttons are the same ones as before (moved, not copied), so everything works as it did.
@@ -11,7 +16,6 @@ Every release must have an entry here that matches the version in `package.json`
 - The *Add Text* window is bigger (wider, a 180 px preview) and a text too big for the preview is scaled down to fit (the hint shows the percentage) instead of being clipped.
 - The drawing area now starts to the right of the tool panel, so the panel no longer covers the left edge of the drawing (X0 Y0, new shapes, handles).
 - Distinct icons: *Move* (mouse, a hand) differs from *Move A-B*, *Transform* (a frame) differs from the measuring ruler; *Factory Reset* is red.
-- **New project asks first**: when the project has changes that are not saved, a window asks *Save* / *Don't save* / *Cancel* (the usual way). Saving writes the `.obc` file and then clears. An empty or just-saved project is cleared at once.
 ### Fixed
 - The 3D canvas now has the size of the drawing area with the tool panel (it was 82 px too wide), so the ghost of a new shape sits exactly on X0 Y0 and clicks / drags hit what is drawn.
 - Opening a menu inside the drawing area no longer raises "Cannot read properties of undefined (reading 'files')" (Metro dropdowns fire a `drop` event that the file drop handler took for a dropped file).

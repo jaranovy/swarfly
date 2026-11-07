@@ -334,7 +334,7 @@ function setupJob(i) {
         <td>Endmill / Pen Diameter</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/endmilldia.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/endmilldia.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="6.35" id="ttooldia` + i + `"  objectseq="` + i + `" min="0" step="any">
             <span class="input-addon-label-right active-border">mm</span>
           </div>
@@ -344,7 +344,7 @@ function setupJob(i) {
         <td>Stepover</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/endmilldia.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/endmilldia.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="40" id="tstepover` + i + `"  objectseq="` + i + `" min="0" step="any">
             <span class="input-addon-label-right active-border">%</span>
           </div>
@@ -364,7 +364,7 @@ function setupJob(i) {
         <td>Drag Knife: Center Offset</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/dragoffset.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/dragoffset.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="1" id="tdragoffset` + i + `"  objectseq="` + i + `" min="0" step="any">
             <span class="input-addon-label-right active-border">mm</span>
           </div>
@@ -394,7 +394,7 @@ function setupJob(i) {
         <td>Laser: Kerf / Line Spacing</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/kerf.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/kerf.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="0.1" id="tspotsize` + i + `" objectseq="` + i + `" min="0.1" max="5" step="any">
             <span class="input-addon-label-right active-border">mm</span>
           </div>
@@ -404,7 +404,7 @@ function setupJob(i) {
         <td>Fill: Angle</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/protractor.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/protractor.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="0" id="tfillAngle` + i + `" objectseq="` + i + `" min="0.1" max="5" step="any">
             <span class="input-addon-label-right active-border">deg</span>
           </div>
@@ -454,7 +454,7 @@ function setupJob(i) {
         <td>Plasma: Kerf</td>
         <td>
           <div class="input-addon">
-            <span class="input-addon-label-left active-border"><img class="fa-fw" src="images/kerf.svg" width="16px" height="16px"></img></span>
+            <span class="input-addon-label-left active-border"><img class="fa-fw" src="resources/images/kerf.svg" width="16px" height="16px"></img></span>
             <input data-role="input" data-clear-button="false" type="number" class="cam-form-field active-border" value="1.2" id="tplasmakerf` + i + `" objectseq="` + i + `" min="0" step="any">
             <span class="input-addon-label-right active-border">mm</span>
           </div>

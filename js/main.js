@@ -493,7 +493,7 @@ function getChangelog() {
   $("#changelog").empty()
   var template2 = `<ul>`
   // Load the local CHANGELOG.txt bundled with the app instead of fetching it from GitHub.
-  $.get("CHANGELOG.txt?date=" + new Date().getTime(), function(data) {
+  $.get("help/upstream-changelog.txt?date=" + new Date().getTime(), function(data) {
     var lines = data.split('\n');
 
     for (var line = 0; line < lines.length - 1; line++) {

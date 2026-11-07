@@ -12,7 +12,8 @@ js/                   application code (global functions and variables)
 workers/              Web Workers: toolpath generation, bitmap and Gerber processing
 lib/                  third-party libraries (three.js, jQuery, Metro UI, ...), each with its own licence
 css/                  styles; css/swarfly-ui.css is the Swarfly layer (tokens, dock, status bar, light/dark)
-help/                 the in-app help as Markdown: help/en, help/cs, help/index.json
+help/                 the in-app help as Markdown: help/en, help/cs, help/index.json (+ upstream-changelog.txt, the old OpenBuilds history)
+resources/            pictures and icons: resources/images (machine and dialog pictures), resources/icons (favicon)
 electron/             desktop shell: main.js (window, app:// protocol), defaults.js, splash
 build/                icons, splash image, swarfly-defaults.json (shipped with the installer)
 scripts/              static-server.js (tests), copy-installers.js, make-screenshots.js
