@@ -3,7 +3,7 @@ let ThemeData = {
     "light": {
       DESCRIPTION: 'Light Mode',
       ICON: 'sun',
-      CAM_DOC_DEFAULT_COLOR: 0x0d47c9,   // 1.18.2: drawing lines are blue, so they stand out from the grey grid
+      CAM_DOC_DEFAULT_COLOR: 0x0022ff,   // 1.18.2: drawing lines are blue, so they stand out from the grey grid
       SPRITE_OPACITY: 0.6,
       SKY_TOP_COLOR: 0x0077ff,
       SKY_BOTTOM_COLOR: 0xffffff,
@@ -49,7 +49,7 @@ let ThemeData = {
     "dark": {
       DESCRIPTION: 'Dark Mode',
       ICON: 'moon',
-      CAM_DOC_DEFAULT_COLOR: 0x6fb3ff,
+      CAM_DOC_DEFAULT_COLOR: 0x4aa0ff,
       SPRITE_OPACITY: 0.8,
       SKY_TOP_COLOR: 0x333333,
       SKY_BOTTOM_COLOR: 0x222222,

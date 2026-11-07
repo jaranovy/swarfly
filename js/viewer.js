@@ -155,9 +155,9 @@ function updateGridLevels() {
     layer.visible = strength > 0.01;
     layer.material.opacity = strength * baseOpacity;
   }
-  set(gridLayers.g1, lv.a1, Theme.GRID_STEP_10_OPACITY * 0.8);
-  set(gridLayers.g5, lv.a5, Theme.GRID_STEP_10_OPACITY * 1.6);
-  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 1.6 * lv.s10));      // light grey far away, dark when zoomed in
+  set(gridLayers.g1, lv.a1, Theme.GRID_STEP_10_OPACITY * 0.6);
+  set(gridLayers.g5, lv.a5, Theme.GRID_STEP_10_OPACITY * 1.1);
+  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 0.9 * lv.s10));      // light grey far away, dark when zoomed in
   if (gridLayers.g10) gridLayers.g10.material.color.setHex(lv.s10 > 0.5 ? Theme.GRID_STEP_100_COLOR : Theme.GRID_STEP_10_COLOR);
   set(gridLayers.g100, lv.a100, Theme.GRID_STEP_100_OPACITY * 2);
 }
@@ -513,7 +513,35 @@ function animate() {
     }, 60);
 
     renderer.render(scene, camera);
+    renderThickLines();
   }
+}
+
+// Swarfly 1.18.2: WebGL draws every line 1 pixel thin, so the drawing is drawn three more times, each shifted by one pixel (a 2 x 2 pixel line),
+// only the Documents and Hover groups, on top of the normal picture. Skipped for very big drawings (the extra passes cost time).
+var thickLinesLimit = 60000;   // vertices in the drawing; above it the lines stay thin
+function renderThickLines() {
+  try { if (localStorage.getItem("swarflyThickLines") === "0") return; } catch (e) {}
+  var docs = scene.getObjectByName("Documents");
+  if (!docs || !docs.visible) return;
+  var n = 0;
+  for (var i = 0; i < docs.children.length; i++) { var c = docs.children[i]; n += (c.children && c.children.length ? c.children.length * 50 : 50); }
+  if (n > thickLinesLimit) return;
+  var keep = [];
+  scene.children.forEach(function(ch) {
+    keep.push(ch.visible);
+    if (ch.name !== "Documents" && ch.name !== "Hover") ch.visible = false;
+  });
+  var w = renderer.domElement.width, h = renderer.domElement.height;
+  var before = renderer.autoClear;
+  renderer.autoClear = false;
+  [[1, 0], [0, 1], [1, 1]].forEach(function(o) {
+    camera.setViewOffset(w, h, -o[0], -o[1], w, h);
+    renderer.render(scene, camera);
+  });
+  camera.clearViewOffset();
+  renderer.autoClear = before;
+  scene.children.forEach(function(ch, i) { ch.visible = keep[i]; });
 }
 
 

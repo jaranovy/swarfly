@@ -7,7 +7,7 @@ Every release must have an entry here that matches the version in `package.json`
 ### Added
 - **Grid that follows the zoom**: far away you see the 10 mm lines (light); coming closer they turn darker, then 5 mm lines fade in (grey), and zoomed in a lot the faint 1 mm lines appear as well. A level shows when its lines are far enough apart on the screen, so the grid never becomes a grey wash.
 ### Changed
-- **Drawing lines are blue** (light blue in the dark theme) instead of black / white, so they stand apart from the grey grid. The line under the mouse is orange now (it was blue), a selected line stays red.
+- **Drawing lines are blue** (a saturated blue; light blue in the dark theme) instead of black / white, so they stand apart from the grey grid, and **2 pixels thick** (WebGL draws only 1 pixel lines, so the drawing is drawn three more times shifted by a pixel; very big drawings stay thin). Switch off: `localStorage.swarflyThickLines = "0"`. The grid lines are lighter. The line under the mouse is orange now (it was blue), a selected line stays red.
 ### Fixed
 - A drawing line that lay on a 10 mm grid line (e.g. the edge of a 30 x 20 rectangle) could not be seen: the grid sits a hair below the drawing plane now and the 10 mm lines are mid-grey instead of nearly black, so the drawing always wins.
 - No flash of the old ribbon layout on F5: the toolbar and the tool panel stay hidden until they are arranged.
