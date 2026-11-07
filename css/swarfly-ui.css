@@ -288,7 +288,7 @@ nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }
 #shortcutWindow #shortcutMsg { flex: 1; color: #c0392b; }
 
 /* Swarfly 1.18.0: left tool panel (js/tool-panel.js moves the ribbon buttons into it) */
-body.sw-tools .sidemenu { height: calc(100% - 62px); width: 82px; padding: 2px 4px; background: var(--sw-surface); border-right: 1px solid var(--sw-border); z-index: 20; overflow: visible; }
+body.sw-tools .sidemenu { left: -82px !important; height: calc(100% - 62px); width: 82px; padding: 2px 4px; background: var(--sw-surface); border-right: 1px solid var(--sw-border); z-index: 20; overflow: visible; }
 body.sw-tools #toolPanel { display: block; }
 #toolPanel .tp-title { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sw-muted); padding: 5px 2px 2px; cursor: pointer; user-select: none; border-top: 1px solid var(--sw-border); }
 #toolPanel .tp-group:first-child .tp-title { border-top: 0; }
@@ -342,3 +342,11 @@ body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button, body.sw-tools nav[data
 body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button:hover, body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button:hover { background: var(--sw-accent-soft) !important; border-color: var(--sw-accent); }
 body.sw-tools #editorPanel { box-shadow: none !important; background: var(--sw-surface); border-bottom: 1px solid var(--sw-border); }
 body.sw-tools .ribbon-logo-box { display: none; }   /* the rotated logo strip is unreadable at toolbar height */
+
+/* the drawing starts to the right of the tool panel (the panel sits in the margin), so nothing of the drawing is hidden under it */
+body.sw-tools #renderArea { margin-left: 82px; width: calc(100% - 82px) !important; }
+
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group { border-bottom: 0 !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group::after { display: none !important; }
+body.sw-tools nav[data-role="ribbonmenu"] button[onclick*="ConfirmDelete"] .icon { color: #c0392b; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder .section { border-bottom: 0 !important; border-top: 0 !important; }

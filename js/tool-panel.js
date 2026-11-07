@@ -67,8 +67,9 @@ function toolPanelRestore() {
   toolPanelHideEmptyGroups(false);
 }
 
-function toolPanelApply(layout) {
+function toolPanelApply(layout, resize) {
   if (toolPanelLayout(layout) === "tools") toolPanelBuild(); else toolPanelRestore();
+  if (resize && typeof renderer !== "undefined" && renderer) setTimeout(function() { window.dispatchEvent(new Event("resize")); }, 50);   // the drawing area changed its width
   var b = document.getElementById("layoutButton");
   if (b) b.classList.toggle("active", toolPanelState.applied);
 }
@@ -78,7 +79,7 @@ function swarflyToggleLayout() {
   try { cur = toolPanelLayout(localStorage.getItem("swarflyLayout")); } catch (e) {}
   var next = toolPanelNextLayout(cur);
   try { localStorage.setItem("swarflyLayout", next); } catch (e) {}
-  toolPanelApply(next);
+  toolPanelApply(next, true);
 }
 
 if (typeof document !== "undefined" && typeof window !== "undefined") {
