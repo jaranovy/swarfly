@@ -326,3 +326,19 @@ body.sw-tools nav[data-role="ribbonmenu"] .ribbon-group { flex-direction: row; a
 body.sw-tools nav[data-role="ribbonmenu"] .ribbon-group br { display: none; }
 body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button { height: 30px !important; width: 32px !important; }
 body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button .icon { height: 28px !important; line-height: 28px !important; font-size: 16px; }
+
+/* 1.18.0: toolbar and properties bar are one block: same surface, one separator line, no shadow between them */
+body.sw-tools nav[data-role="ribbonmenu"],
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-row,
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-main,
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder,
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder .section,
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group { background: var(--sw-surface) !important; color: var(--sw-text); border-color: var(--sw-border) !important; box-shadow: none !important; }
+body.sw-tools nav[data-role="ribbonmenu"] { border-bottom: 1px solid var(--sw-border); padding: 2px 0; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder { height: 44px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .content-holder .section { height: 44px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .section > .group { height: 40px !important; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button, body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button { color: var(--sw-text); background: transparent; border: 1px solid transparent; border-radius: 4px; }
+body.sw-tools nav[data-role="ribbonmenu"] .ribbon-button:hover, body.sw-tools nav[data-role="ribbonmenu"] .ribbon-icon-button:hover { background: var(--sw-accent-soft) !important; border-color: var(--sw-accent); }
+body.sw-tools #editorPanel { box-shadow: none !important; background: var(--sw-surface); border-bottom: 1px solid var(--sw-border); }
+body.sw-tools .ribbon-logo-box { display: none; }   /* the rotated logo strip is unreadable at toolbar height */
