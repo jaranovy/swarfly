@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.18.2] - 2026-11-07
+### Added
+- **Grid that follows the zoom**: far away you see the 10 mm lines (light); coming closer they turn darker, then 5 mm lines fade in (grey), and zoomed in a lot the faint 1 mm lines appear as well. A level shows when its lines are far enough apart on the screen, so the grid never becomes a grey wash.
+### Fixed
+- No flash of the old ribbon layout on F5: the toolbar and the tool panel stay hidden until they are arranged.
+
 ## [1.18.1] - 2026-11-07
 ### Changed
 - Tidy-up of the repository: pictures moved to `resources/images`, the favicon to `resources/icons`; removed what nothing used (the old Font Awesome 4 `fonts/`, the Font Awesome 5 SVG / sprite / CSS / SCSS sets and the unused OpenJSCAD copy in `lib/` - about 1 900 files; web-app icons and manifests of the original; unused pictures). `CHANGELOG.txt` (the old OpenBuilds history) is now `help/upstream-changelog.txt`. The installer is a little smaller.

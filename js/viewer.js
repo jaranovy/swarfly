@@ -141,6 +141,26 @@ function drawWorkspace() {
 }
 
 var depthAxisGroup = null;
+var gridLayers = {};
+
+// Fades the grid levels with the zoom (maths: js/grid-model.js)
+function updateGridLevels() {
+  if (!gridLayers.g10 || typeof camera === "undefined" || typeof controls === "undefined") return;
+  var area = document.getElementById("renderArea");
+  var h = area ? area.offsetHeight : 0;
+  var px = gridPxPerMm(camera.fov, camera.position.distanceTo(controls.target), h);
+  var lv = gridLevels(px);
+  function set(layer, strength, baseOpacity) {
+    if (!layer) return;
+    layer.visible = strength > 0.01;
+    layer.material.opacity = strength * baseOpacity;
+  }
+  set(gridLayers.g1, lv.a1, Theme.GRID_STEP_10_OPACITY * 0.8);
+  set(gridLayers.g5, lv.a5, Theme.GRID_STEP_10_OPACITY * 1.6);
+  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 4.7 * lv.s10));      // light grey far away, dark when zoomed in
+  if (gridLayers.g10) gridLayers.g10.material.color.setHex(lv.s10 > 0.5 ? Theme.GRID_STEP_100_COLOR : Theme.GRID_STEP_10_COLOR);
+  set(gridLayers.g100, lv.a100, Theme.GRID_STEP_100_OPACITY * 2);
+}
 
 function redrawGrid() {
   gridsystem.children.length = 0
@@ -252,7 +272,20 @@ function redrawGrid() {
 
   grid.add(axesgrp);
 
+  // Swarfly 1.18.2: zoom-dependent grid. 1 mm and 5 mm lines are added; updateGridLevels() (called every frame) fades each level in and out.
+  gridLayers = {};
+  [[1, "g1"], [5, "g5"]].forEach(function(lv) {
+    var fine = new THREE.GridHelper(sizexmax, sizeymax, lv[0], Theme.GRID_STEP_10_COLOR);
+    fine.material.transparent = true;
+    fine.material.opacity = 0;
+    fine.visible = false;
+    fine.receiveShadow = false;
+    fine.name = "GridHelper" + lv[0] + "mm";
+    grid.add(fine);
+    gridLayers[lv[1]] = fine;
+  });
   helper = new THREE.GridHelper(sizexmax, sizeymax, 10, Theme.GRID_STEP_10_COLOR);
+  gridLayers.g10 = helper;
   helper.position.y = 0;
   helper.position.x = 0;
   helper.position.z = 0;
@@ -269,6 +302,7 @@ function redrawGrid() {
   helper.material.transparent = true;
   helper.receiveShadow = false;
   helper.name = "GridHelper50mm"
+  gridLayers.g100 = helper;
   grid.add(helper);
   grid.name = "Grid"
   gridsystem.add(grid);
@@ -388,6 +422,7 @@ function init3D() {
 function animate() {
   if (!pauseAnimation) {
     camera.updateMatrixWorld();
+    updateGridLevels();
     if (depthAxisGroup) {   // Z axis and depth grid only when the view is not straight from above
       var vd = camera.position.clone().sub(controls.target);
       depthAxisGroup.visible = viewIsTilted(vd.x, vd.y, vd.z);
