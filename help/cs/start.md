@@ -32,5 +32,6 @@ Program se uloží jako soubor `.nc` a na stroj se přenese SD kartou.
 | Zoom | Kolečko myši, tlačítka **Zoom +** / **Zoom -**, **Ctrl + Shift** + tažení levým tlačítkem (nahoru = blíž) |
 | Přiblížení oblasti | Tlačítko **Okno**, pak levým tlačítkem natáhni obdélník (Esc zruší) |
 | Smazat vybrané | **Del** |
+| Ostatní akce | Většina nástrojů má klávesu (V výběr, M posun, X ořez, + / - zoom ...). Celý seznam s popisem je v *Nastavení - Klávesové zkratky*, kde můžeš každou klávesu změnit |
 | Posunout vybrané | Šipky (1 mm; **Shift** 10 mm; **Alt** 0,1 mm) |
 | Zrušit | **Esc** |

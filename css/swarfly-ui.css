@@ -264,3 +264,25 @@ nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }
 #gcodesavebtn2 { margin: 4px 0 8px 0; }
 #gcodesavetoolbtn, #gcodeviewbtn2, #gcodetrashbtn2 { margin: 0 3px 6px 3px; }
 #gcodetimeestimate { margin-bottom: 6px; }
+
+/* Swarfly 1.17.0: keyboard shortcuts window (Settings) */
+#shortcutWindow { display: none; position: fixed; z-index: 5200; left: 50%; top: 8%; transform: translateX(-50%); width: min(820px, 94vw); max-height: 82vh;
+  flex-direction: column; background: var(--sw-surface); color: var(--sw-text); border: 1px solid var(--sw-border); border-radius: var(--sw-radius);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .4); font-size: 14px; }
+#shortcutWindow .sc-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--sw-surface-2); border-bottom: 1px solid var(--sw-border); }
+#shortcutWindow .sc-bar b { flex: 1; }
+#shortcutWindow .sc-bar button { background: none; border: 0; color: inherit; font-size: 20px; line-height: 1; cursor: pointer; }
+#shortcutWindow .sc-note { padding: 8px 12px; color: var(--sw-muted); }
+#shortcutWindow .sc-body { overflow: auto; padding: 0 12px 8px; }
+#shortcutWindow table { width: 100%; border-collapse: collapse; }
+#shortcutWindow td, #shortcutWindow th { padding: 4px 6px; border-bottom: 1px solid var(--sw-border); text-align: left; vertical-align: middle; }
+#shortcutWindow tr.sc-group th { background: var(--sw-accent-soft); color: var(--sw-accent); padding-top: 6px; }
+#shortcutWindow .sc-title { font-weight: 600; white-space: nowrap; }
+#shortcutWindow .sc-desc { color: var(--sw-muted); }
+#shortcutWindow .sc-keys { white-space: nowrap; }
+#shortcutWindow kbd { background: var(--sw-surface-2); border: 1px solid var(--sw-border); border-radius: 4px; padding: 1px 6px; font-family: inherit; color: var(--sw-text); }
+#shortcutWindow .sc-btn { white-space: nowrap; text-align: right; }
+#shortcutWindow button { background: var(--sw-surface-2); color: var(--sw-text); border: 1px solid var(--sw-border); border-radius: 4px; padding: 2px 8px; cursor: pointer; margin-left: 4px; }
+#shortcutWindow button:hover { border-color: var(--sw-accent); }
+#shortcutWindow .sc-foot { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--sw-border); }
+#shortcutWindow #shortcutMsg { flex: 1; color: #c0392b; }

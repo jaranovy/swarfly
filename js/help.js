@@ -193,8 +193,6 @@ if (typeof document !== "undefined" && typeof window !== "undefined") {
       var a = e.target.closest ? e.target.closest("a.help-link") : null;
       if (a && a.closest("#helpTopicList, #helpContent")) { e.preventDefault(); helpOpenTopic(a.getAttribute("data-topic")); }
     }, true);
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "F1") { e.preventDefault(); openHelp(); }
-    });
+    // F1 is handled by js/shortcuts.js (the key can be changed in Settings)
   });
 }

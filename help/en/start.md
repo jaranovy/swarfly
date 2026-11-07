@@ -32,5 +32,6 @@ The program is saved as a `.nc` file and carried to the machine on an SD card.
 | Zoom | Mouse wheel, the **Zoom +** / **Zoom -** buttons, **Ctrl + Shift** + left drag (up = closer) |
 | Zoom to an area | The **Window** button, then drag a rectangle with the left button (Esc cancels) |
 | Delete selected | **Del** |
+| Other actions | Most tools have a key (V select, M move, X trim, + / - zoom ...). The full list, with descriptions, is in *Settings - Keyboard Shortcuts*, where you can change every key |
 | Nudge selected | Arrow keys (1 mm; **Shift** 10 mm; **Alt** 0.1 mm) |
 | Cancel | **Esc** |

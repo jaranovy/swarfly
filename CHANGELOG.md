@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.17.0] - 2026-11-07
+### Added
+- **Keyboard shortcuts** in Settings (*Keys* group, button *Keyboard Shortcuts*): a list of all actions with a description and their keys, in groups Select, Sketch, Edit, Camera, Other. *Change* + press a new key (with Ctrl / Alt / Shift if you like), *Clear* removes a key, *Restore defaults* resets all. A key already used by another action is refused. Your choices are kept in the browser storage.
+- New default keys: V select, M move, E erase, T transform, D measure distance, S snapping, P properties panel, Shift+M move A to B, X trim, C split, + / - zoom, W zoom window, O rotate, Home / Shift+Home show the job / the machine area. The old keys (Ctrl+Z, Ctrl+Y, Ctrl+A, Ctrl+Shift+A, Del, F1) stay. Plain keys do not fire while you type into a field.
+### Changed
+- The key handling is now in `js/shortcuts-model.js` (pure, tested) and `js/shortcuts.js`; the old `js/advanced-cam-keyboard-bindings.js` is gone.
+
 ## [1.16.0] - 2026-11-07
 ### Added
 - Depth in the 3D view: a blue **Z axis** at the origin with marks every 1 mm (-20 to +10 mm) and a faint vertical grid (XZ and YZ planes, 5 mm steps down to -20 mm). They appear only when the camera is tilted (not in the plain 2D view from above) and show how deep a cut goes.
