@@ -157,7 +157,7 @@ function updateGridLevels() {
   }
   set(gridLayers.g1, lv.a1, Theme.GRID_STEP_10_OPACITY * 0.8);
   set(gridLayers.g5, lv.a5, Theme.GRID_STEP_10_OPACITY * 1.6);
-  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 4.7 * lv.s10));      // light grey far away, dark when zoomed in
+  set(gridLayers.g10, lv.a10, Theme.GRID_STEP_10_OPACITY * (1 + 2.3 * lv.s10));      // light grey far away, dark when zoomed in
   if (gridLayers.g10) gridLayers.g10.material.color.setHex(lv.s10 > 0.5 ? Theme.GRID_STEP_100_COLOR : Theme.GRID_STEP_10_COLOR);
   set(gridLayers.g100, lv.a100, Theme.GRID_STEP_100_OPACITY * 2);
 }
@@ -279,6 +279,7 @@ function redrawGrid() {
     fine.material.transparent = true;
     fine.material.opacity = 0;
     fine.visible = false;
+    fine.position.z = -0.05;   // a hair below the drawing plane: the lines of the drawing always win over the grid lines
     fine.receiveShadow = false;
     fine.name = "GridHelper" + lv[0] + "mm";
     grid.add(fine);
@@ -288,7 +289,7 @@ function redrawGrid() {
   gridLayers.g10 = helper;
   helper.position.y = 0;
   helper.position.x = 0;
-  helper.position.z = 0;
+  helper.position.z = -0.05;
   helper.material.opacity = Theme.GRID_STEP_10_OPACITY;
   helper.material.transparent = true;
   helper.receiveShadow = false;
@@ -302,6 +303,7 @@ function redrawGrid() {
   helper.material.transparent = true;
   helper.receiveShadow = false;
   helper.name = "GridHelper50mm"
+  helper.position.z = -0.05;
   gridLayers.g100 = helper;
   grid.add(helper);
   grid.name = "Grid"
