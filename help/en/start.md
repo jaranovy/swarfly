@@ -15,7 +15,8 @@ The program is saved as a `.nc` file and carried to the machine on an SD card.
 
 ## Where things are
 
-- **Project tab**: open, new project, save/open project, text, shapes, undo/redo.
+- **Tool panel (left of the drawing)**: the drawing tools in groups - *Select* (select, move, erase, transform), *Create* (text, shapes), *Sketch* (measure, snapping, dimensions, properties bar), *Edit* (move A-B, trim, split, tangent, arc, to corner, undo, redo) and *Camera* (zoom, window, rotate, show job, show machine area). Point at a button to see its name and key; click a group name to fold it. *Settings - Tool Panel* moves all of them back into the ribbon (the old look) and forth again.
+- **Project tab**: open, new project, save/open project.
 - **Settings tab**: settings, backup, language, theme.
 - **Help tab**: the *Help* button and the *Version* button (what is new).
 - **Panels on the right**: 1 drawing, 2 toolpaths, 3 create G-code (with time and statistics), 4 export G-code.

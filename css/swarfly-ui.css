@@ -286,3 +286,23 @@ nav[data-role="ribbonmenu"] .ribbon-button { background: transparent; }
 #shortcutWindow button:hover { border-color: var(--sw-accent); }
 #shortcutWindow .sc-foot { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--sw-border); }
 #shortcutWindow #shortcutMsg { flex: 1; color: #c0392b; }
+
+/* Swarfly 1.18.0: left tool panel (js/tool-panel.js moves the ribbon buttons into it) */
+body.sw-tools .sidemenu { height: calc(100% - 62px); width: 82px; padding: 2px 4px; background: var(--sw-surface); border-right: 1px solid var(--sw-border); z-index: 20; overflow: visible; }
+body.sw-tools #toolPanel { display: block; }
+#toolPanel .tp-title { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sw-muted); padding: 5px 2px 2px; cursor: pointer; user-select: none; border-top: 1px solid var(--sw-border); }
+#toolPanel .tp-group:first-child .tp-title { border-top: 0; }
+#toolPanel .tp-title::after { content: " \25BE"; }
+#toolPanel .tp-collapsed .tp-title::after { content: " \25B8"; }
+#toolPanel .tp-collapsed .tp-grid { display: none; }
+#toolPanel .tp-grid { display: flex; flex-wrap: wrap; gap: 2px; }
+#toolPanel .tp-grid > .tbtn, #toolPanel .tp-grid > .ribbon-icon-button,
+#toolPanel .tp-grid > div > .ribbon-icon-button { width: 34px !important; height: 32px !important; min-height: 0 !important; padding: 0; margin: 0; box-sizing: border-box; }
+#toolPanel .tp-grid > div { position: relative; }
+#toolPanel .caption { display: none !important; }
+#toolPanel .ribbon-icon-button { display: flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--sw-text); }
+#toolPanel .ribbon-icon-button .icon { height: auto !important; line-height: 1 !important; font-size: 15px; margin: 0; }
+#toolPanel .tbtn { color: var(--sw-text); padding-top: 0; align-items: center; border-radius: 4px; }
+#toolPanel .ribbon-icon-button:hover, #toolPanel .tbtn:hover { background: var(--sw-accent-soft); border-color: var(--sw-accent); }
+#toolPanel .ribbon-icon-button.active, #toolPanel .ribbon-icon-button.ed-on, #toolPanel .tbtnactive { background: var(--sw-accent-soft) !important; border-color: var(--sw-accent); }
+#toolPanel .ribbon-dropdown { left: 100% !important; top: 0 !important; z-index: 6000; }

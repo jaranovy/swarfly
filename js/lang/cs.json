@@ -533,5 +533,10 @@
  "Fit the drawing in the view": "Vejde výkres do pohledu",
  "Show the machine area": "Ukázat pracovní plochu",
  "Fit the whole bed in the view": "Vejde celý stůl do pohledu",
- "Open the help window": "Otevře okno nápovědy"
+ "Open the help window": "Otevře okno nápovědy",
+ "Layout": "Rozložení",
+ "Tool\nPanel": "Panel\nnástrojů",
+ "Where the drawing tools are: in a panel on the left (new) or in the ribbon at the top (old)": "Kde jsou kreslicí nástroje: v panelu vlevo (nové) nebo v pásu karet nahoře (staré)",
+ "Fit the whole machine area in the view": "Vejde celou pracovní plochu do pohledu",
+ "Add text": "Přidat text"
 }

@@ -134,6 +134,7 @@ function initDragDrop() {
   };
 
   var onDrop = function(e) {
+    if (!e.dataTransfer) return; // Metro dropdowns fire a custom "drop" event when they open (the tool panel sits inside the drop area)
     e.preventDefault();
     $('#draganddrop').hide();
     console.log(e)

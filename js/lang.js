@@ -74,6 +74,9 @@
     if (!t) return null;
     // Return null when nothing changes: writing an identical nodeValue still fires the MutationObserver -> endless loop
     if (D.hasOwnProperty(t)) return D[t] === t ? null : s.replace(t, D[t]);
+    // a tooltip with a key appended by js/shortcuts.js, e.g. "Undo (Ctrl+Z)": translate the text, keep the key
+    var km = t.match(/^(.+) \(((?:Ctrl\+|Alt\+|Shift\+)*[A-Za-z0-9+=-]{1,8}|F\d+)\)$/);
+    if (km && D.hasOwnProperty(km[1])) return s.replace(t, D[km[1]] + " (" + km[2] + ")");
     var o = t;
     RULES.forEach(function (r) { o = o.replace(r[0], r[1]); });
     OPS.forEach(function (k) { if (o.indexOf(k) >= 0) o = o.split(k).join(D[k]); });

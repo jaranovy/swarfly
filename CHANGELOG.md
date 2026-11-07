@@ -3,6 +3,14 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.18.0] - 2026-11-07
+### Changed
+- **New layout: a tool panel on the left of the drawing** instead of the tools in the ribbon. Groups *Select*, *Create*, *Sketch*, *Edit* and *Camera* (same groups as in the keyboard shortcuts); each button shows its name and key when pointed at, a click on a group name folds the group. The ribbon at the top keeps file, project, settings and help; the properties bar stays under it. The buttons are the same ones as before (moved, not copied), so everything works as it did.
+- *Settings - Tool Panel* switches back to the old ribbon layout and forth again, without reloading (saved in the browser storage).
+### Fixed
+- Opening a menu inside the drawing area no longer raises "Cannot read properties of undefined (reading 'files')" (Metro dropdowns fire a `drop` event that the file drop handler took for a dropped file).
+- Tooltips with a key, e.g. "Undo (Ctrl+Z)", are translated in Czech.
+
 ## [1.17.0] - 2026-11-07
 ### Added
 - **Keyboard shortcuts** in Settings (*Keys* group, button *Keyboard Shortcuts*): a list of all actions with a description and their keys, in groups Select, Sketch, Edit, Camera, Other. *Change* + press a new key (with Ctrl / Alt / Shift if you like), *Clear* removes a key, *Restore defaults* resets all. A key already used by another action is refused. Your choices are kept in the browser storage.

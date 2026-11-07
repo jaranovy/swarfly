@@ -46,6 +46,11 @@ The chosen theme is stored in `localStorage.themeId`.
 3. The first topic (`start`) is the landing page. The "What's new" page is `CHANGELOG.md` itself.
 4. Every release must update the help for each new menu item, dialog or setting (see the checklist in [DEVELOPMENT.md](DEVELOPMENT.md)).
 
+## Add a keyboard shortcut / a tool-panel button
+
+1. Add the action to `SHORTCUT_ACTIONS` in `js/shortcuts-model.js` (id, group, English title and description, default keys; keep every default key unique - a unit test checks it) and what it does to `SHORTCUT_RUN` in `js/shortcuts.js`. Add the Czech texts to `js/lang/cs.json`.
+2. To put a ribbon button into the tool panel give the button an `id` in `index.html` and add `{ sel: "#myButton", action: "<id>" }` to a group in `js/tool-panel-model.js`; the panel moves the button, so its id, onclick and active class keep working.
+
 ## Change the machine defaults (another CNC)
 
 Machine size, spindle, start / end G-code, feeds and depths are in `js/preset-3018.js` (`DEFAULTS`). After editing bump `PRESET_VERSION`

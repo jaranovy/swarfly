@@ -32,6 +32,8 @@ object). Toolpaths are generated in a worker from those lines and drawn as extra
 | `js/trace-model.js`, `js/potrace.js` | picture tracing (threshold, outline, size) and its dialog. |
 | `js/tool-split-model.js` | one G-code file per tool (grouping, file names). |
 | `js/view-model.js`, `js/view-controls.js` | camera for a mouse without wheel: Zoom +/-, window, rotate, Shift / Ctrl+Shift gestures. |
+| `js/shortcuts-model.js`, `js/shortcuts.js` | keyboard shortcuts: the table of actions and key maths (pure, tested), one key handler, the Settings window to change keys. |
+| `js/tool-panel-model.js`, `js/tool-panel.js` | the left tool panel: groups as data; the code moves the existing ribbon buttons into it and back. |
 | `js/gcode-validate.js`, `js/gcode-stats.js` | checks the generated program; statistics and time estimate; 8.3 file names. |
 | `js/preset-3018.js` | machine defaults (bed size, spindle, start/end G-code) seeded into `localStorage`. |
 | `js/lang.js`, `js/lang/cs.json` | UI language (see [EXTENDING.md](EXTENDING.md)). |
