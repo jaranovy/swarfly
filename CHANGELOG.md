@@ -5,7 +5,7 @@ Every release must have an entry here that matches the version in `package.json`
 
 ## [1.16.0] - 2026-11-07
 ### Added
-- Depth in the 3D view: a blue **Z axis** at the origin with marks every 1 mm (-20 to +10 mm) and a faint vertical grid (XZ and YZ planes, 5 mm steps down to -20 mm). Seen from above they are invisible; tilt the camera and they show how deep a cut goes.
+- Depth in the 3D view: a blue **Z axis** at the origin with marks every 1 mm (-20 to +10 mm) and a faint vertical grid (XZ and YZ planes, 5 mm steps down to -20 mm). They appear only when the camera is tilted (not in the plain 2D view from above) and show how deep a cut goes.
 
 ## [1.15.2] - 2026-11-07
 ### Fixed

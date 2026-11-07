@@ -20,3 +20,11 @@ function viewWindowPlan(rect, w, h) {
   if (!(w > 0 && h > 0) || rw < 6 || rh < 6) return null;
   return { cx: (rect.x0 + rect.x1) / 2 / w, cy: (rect.y0 + rect.y1) / 2 / h, factor: Math.max(rw / w, rh / h) };
 }
+
+// Swarfly 1.16.1: is the camera looking from the side (so the depth axis and grid are worth drawing)? (dx, dy, dz) = camera position minus the
+// target. From straight above (a plain 2D view, within about 3 degrees) it is false. Z is up in the scene.
+function viewIsTilted(dx, dy, dz) {
+  var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  if (!(len > 0)) return false;
+  return Math.abs(dz) / len < 0.9986;
+}

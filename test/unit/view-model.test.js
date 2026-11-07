@@ -37,3 +37,11 @@ test('viewWindowPlan: centre and fill factor; a click is no window', () => {
 	assert.equal(q.factor, 0.2);
 	assert.equal(m.viewWindowPlan({ x0: 10, y0: 10, x1: 12, y1: 12 }, 1000, 500), null);
 });
+
+test('viewIsTilted: false from straight above, true once the camera leans', () => {
+	assert.equal(m.viewIsTilted(0, 0, 300), false);
+	assert.equal(m.viewIsTilted(2, 3, 300), false);     // under 3 degrees
+	assert.equal(m.viewIsTilted(0, -40, 300), true);    // about 7.6 degrees
+	assert.equal(m.viewIsTilted(0, -300, 10), true);    // from the front
+	assert.equal(m.viewIsTilted(0, 0, 0), false);
+});
