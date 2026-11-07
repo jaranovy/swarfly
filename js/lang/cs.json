@@ -434,6 +434,7 @@
  "Threshold": "Práh",
  "auto": "automaticky",
  "Invert (light is ink)": "Obrátit (světlé je kresba)",
+ "Centre line (one path per stroke)": "Středová čára (jedna cesta na tah)",
  "Smoothing": "Vyhlazení",
  "Sharp corners": "Ostré rohy",
  "Normal": "Normální",

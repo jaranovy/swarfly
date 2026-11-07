@@ -59,6 +59,7 @@
     [/^Drawing (\d+)$/, "Výkres $1"],
     [/^Trace picture: (.+)$/, "Vektorizace obrázku: $1"],
     [/^(\d+) outlines$/, "Obrysů: $1"],
+    [/^(d+) centre lines$/, "Středových čar: $1"],
     [/^Nothing was traced from (.+)$/, "Z $1 se nic nevektorizovalo"],
     [/^The picture (.+) could not be read$/, "Obrázek $1 se nepodařilo přečíst"],
     [/^(\d+) toolpaths$/, "$1 drah"],

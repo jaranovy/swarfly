@@ -22,7 +22,7 @@ test.afterAll(async () => { await page.close(); });
 const png = () => page.evaluate(() => { const c = document.createElement('canvas'); c.width = 200; c.height = 100; const x = c.getContext('2d'); x.fillStyle = '#444'; x.fillRect(50, 25, 100, 50); return c.toDataURL('image/png'); });
 
 async function open(dataUrl) {
-	await page.evaluate(() => { parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); });
+	await page.evaluate(() => { document.querySelectorAll('.dialog').forEach((d) => d.remove()); parseLoadWorkspace('{"objects":{},"toolpaths":{}}', false); });
 	await page.evaluate(async (u) => { const b = await (await fetch(u)).blob(); loadFile(new File([b], 'logo.png', { type: 'image/png' })); }, dataUrl);
 	await page.waitForSelector('#traceBox');
 	await page.waitForTimeout(700);
@@ -59,4 +59,29 @@ test('invert and a threshold below the ink give "nothing to trace"; Cancel impor
 	await page.evaluate(() => [...document.querySelectorAll('.dialog button')].filter((b) => /Cancel|Zrušit|Storno/.test(b.textContent))[0].click());
 	await page.waitForTimeout(500);
 	expect(await page.evaluate(() => objectsInScene.length)).toBe(0);
+});
+
+// 1.19.0: a black circle line is ONE centre line by default (not an inner and an outer edge); the switch gives the two outlines back
+const circlePng = () => page.evaluate(() => { const c = document.createElement('canvas'); c.width = 300; c.height = 300; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 300, 300); x.strokeStyle = '#000'; x.lineWidth = 8; x.beginPath(); x.arc(150, 150, 100, 0, Math.PI * 2); x.stroke(); return c.toDataURL('image/png'); });
+
+test('circle line: centre line is on by default and gives one closed path in the middle of the stroke', async () => {
+	await open(await circlePng());
+	expect(await page.evaluate(() => document.getElementById('traceCenter').checked)).toBe(true);
+	expect(await page.evaluate(() => document.getElementById('traceInfo').textContent)).toBe('1 centre lines');
+	await page.fill('#traceWidth', '60');                     // 300 px -> 60 mm; the circle diameter 200 px -> 40 mm
+	await page.waitForTimeout(500);
+	await importIt();
+	await page.waitForTimeout(2500);
+	const s = await size();
+	expect(s.lines).toBe(1);
+	expect(Math.abs(s.w - 40)).toBeLessThan(0.6);
+	expect(Math.abs(s.h - 40)).toBeLessThan(0.6);
+});
+
+test('circle line: switching the centre line off gives the two outlines', async () => {
+	await open(await circlePng());
+	await page.evaluate(() => { document.getElementById('traceCenter').click(); });
+	await page.waitForTimeout(600);
+	expect(await page.evaluate(() => document.getElementById('traceInfo').textContent)).toBe('2 outlines');
+	await page.evaluate(() => [...document.querySelectorAll('.dialog button')].filter((b) => /Cancel|Zrušit|Storno/.test(b.textContent))[0].click());
 });

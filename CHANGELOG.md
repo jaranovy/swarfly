@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.19.0] - 2026-11-08
+### Added
+- **Centre line tracing of pictures**: the Trace picture window has a new switch *Centre line (one path per stroke)*. A black circle line used to give two circles (the inner and the outer edge of the stroke); with the switch on you get ONE path along the middle of the stroke, open for a line and closed for a ring, crossings split the drawing into pieces. It is switched on by itself when the picture looks like thin lines (a line drawing, handwriting) and off for filled shapes (a logo); you can change it any time. *Smoothing* and *Ignore specks* work for it too.
+
 ## [1.18.2] - 2026-11-07
 ### Added
 - **Grid that follows the zoom**: far away you see the 10 mm lines (light); coming closer they turn darker, then 5 mm lines fade in (grey), and zoomed in a lot the faint 1 mm lines appear as well. A level shows when its lines are far enough apart on the screen, so the grid never becomes a grey wash.

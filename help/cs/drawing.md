@@ -22,7 +22,7 @@ Nový tvar ve výchozím stavu visí na myši, dokud neklikneš (viz [Posun, mě
 
 - **DXF** se podle nastavení `$INSUNITS` převede na milimetry (palce, stopy, centimetry, metry); zpráva ti řekne, že k tomu došlo. Soubor bez jednotek se bere jako milimetry.
 - **SVG** s rozměry v `px` se čte při 96 dpi (400 px = 105,83 mm). Pro přesné rozměry nastav v kreslicím programu skutečné jednotky (mm).
-- **Obrázky** (PNG, JPG, BMP, GIF) otevřou okno **Vektorizace obrázku**: náhled ukazuje blednoucí obrázek a přes něj obrysy. *Práh* určuje, co je kresba (začíná na automatické hodnotě; *automaticky* se k ní vrátí), *Obrátit* je pro bílé kresby na tmavém podkladu, *Vyhlazení* přepíná mezi ostrými rohy a hladkými křivkami, *Ignorovat tečky* zahodí prach a šum a *Šířka výsledku* nastaví skutečnou velikost v mm (výška se dopočítá). Průhledné plochy se berou jako papír. Tlačítkem *Importovat* obrysy načteš.
+- **Obrázky** (PNG, JPG, BMP, GIF) otevřou okno **Vektorizace obrázku**: náhled ukazuje blednoucí obrázek a přes něj obrysy. *Práh* určuje, co je kresba (začíná na automatické hodnotě; *automaticky* se k ní vrátí), *Obrátit* je pro bílé kresby na tmavém podkladu, *Středová čára* vytvoří JEDNU cestu uprostřed každého tahu místo dvou obrysů (vnitřního a vnějšího okraje; u tenkých čárových kreseb se zapne sama), *Vyhlazení* přepíná mezi ostrými rohy a hladkými křivkami, *Ignorovat tečky* zahodí prach a šum a *Šířka výsledku* nastaví skutečnou velikost v mm (výška se dopočítá). Průhledné plochy se berou jako papír. Tlačítkem *Importovat* obrysy načteš.
 - **Text** uvnitř DXF nebo SVG nelze řezat a nenačte se - objeví se zpráva. Nejdřív ho převeď na křivky/cesty, nebo použij nástroj *Text*.
 
 Viz také [Posun, měřítko, otočení](topic:edit).
