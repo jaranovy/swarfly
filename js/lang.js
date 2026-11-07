@@ -52,6 +52,7 @@
     [/^Ellipse (\d[\d.]*×\d[\d.]*)$/, "Elipsa $1"],
     [/^Polygon (\d[\d.]*×\d[\d.]*)$/, "Mnohoúhelník $1"],
     [/^Star (\d[\d.]*×\d[\d.]*)$/, "Hvězda $1"],
+    [/^Preview scaled to (\d+) % to fit \(the real text is larger\)$/, "Náhled zmenšen na $1 % (skutečný text je větší)"],
     [/^Slot (\d[\d.]*×\d[\d.]*)$/, "Drážka $1"],
     [/^Line (\d[\d.]*×\d[\d.]*)$/, "Čára $1"],
     [/^Outline (\d[\d.]*×\d[\d.]*)$/, "Obrys $1"],

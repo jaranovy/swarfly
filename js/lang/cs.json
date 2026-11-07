@@ -541,5 +541,6 @@
  "Add text": "Přidat text",
  "Mouse": "Myš",
  "Tool panel or ribbon": "Panel nástrojů nebo ribbon",
- "Switch between the tool panel layout and the old ribbon": "Přepne mezi rozložením s panelem nástrojů a starým ribbonem"
+ "Switch between the tool panel layout and the old ribbon": "Přepne mezi rozložením s panelem nástrojů a starým ribbonem",
+ "Preview at true size (1:1 on screen = on the workpiece)": "Náhled ve skutečné velikosti (1:1 na obrazovce = na materiálu)"
 }

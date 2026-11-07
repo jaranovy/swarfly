@@ -231,7 +231,13 @@ function updateTextPreview() {
   $('#textpreview')
     .css('font-family', family)
     .css('font-size', csspx.toFixed(2) + 'px')
+    .css('transform', 'none')
     .text($('#texttorender').val() || 'Type Here');
+  // 1.18.2: a big text that does not fit the box is scaled down to fit (and the hint says so), instead of being clipped
+  var box = $('#textpreviewbox'), el = $('#textpreview');
+  var k = Math.min(1, (box.width() - 16) / Math.max(el.outerWidth(), 1), (box.height() - 12) / Math.max(el.outerHeight(), 1));
+  if (k < 1) el.css({ 'transform-origin': 'left bottom', 'transform': 'scale(' + k.toFixed(3) + ')' });
+  $('#textpreviewhint').text(k < 1 ? 'Preview scaled to ' + Math.round(k * 100) + ' % to fit (the real text is larger)' : 'Preview at true size (1:1 on screen = on the workpiece)');
 }
 
 $(document).ready(function() {
@@ -240,7 +246,7 @@ $(document).ready(function() {
     #textpreviewbox {
       position: relative;
       width: 100%;
-      height: 80px;
+      height: 180px;
       margin-top: 8px;
       overflow: hidden;
       background: #ffffff;
@@ -254,6 +260,8 @@ $(document).ready(function() {
       white-space: nowrap;
       color: #111111;
     }
+    #addShapeText { width: 720px !important; max-width: 95vw; }
+    #addShapeText #texttorender { font-size: 16px; padding: 4px 6px; }
     #textpreviewhint {
       margin-top: 4px;
       font-size: 11px;
@@ -299,7 +307,7 @@ $(document).ready(function() {
     <div id="textpreviewbox" title="Preview at true size: what you see here is the size the text will be cut/engraved on the workpiece (1:1 on a standard 96dpi display at 100% browser zoom). Oversized text is clipped to the preview area.">
       <div id="textpreview"></div>
     </div>
-    <div id="textpreviewhint">Preview at true size (1:1 on screen = on the workpiece) &middot; oversized text is clipped</div>
+    <div id="textpreviewhint">Preview at true size (1:1 on screen = on the workpiece)</div>
     </div>
     <div class="dialog-actions" id="statusFooter">
       <button class="button js-dialog-close">Cancel</button>
