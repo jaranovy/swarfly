@@ -3,6 +3,10 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.22.1] - 2026-11-08
+### Changed
+- **Centre line tracing closes small gaps**: a hand drawn loop whose ends miss each other by a hair (up to about 2 % of the picture plus the stroke width) is now ONE closed ring, so it can be milled with *path inside / outside*. A long open arc stays open. Tried on two hand drawn PNGs: a blob with a gap became one closed outline, a drawing of four strokes gave four lines (two of them closed).
+
 ## [1.22.0] - 2026-11-08
 ### Added
 - **Line thickness button** in the toolbar (*Lines: 2 px*): click to cycle 1, 2 and 3 pixels; the choice is remembered. 3 px is for big monitors / poor eyesight. Measured on a drawing with 30 000 vertices: 1 px 8.5 ms, 2 px 18 ms, 3 px 29 ms per frame (software rendering, a real graphics card is faster); very big drawings stay thin as before. The old switch `swarflyThickLines = "0"` still means 1 px.

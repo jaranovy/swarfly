@@ -93,3 +93,14 @@ test('traceLooksLikeLines: a thin ring yes, a filled disc no', () => {
 	for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (Math.hypot(x - 100, y - 100) < 70) disc[y * w + x] = 1;
 	assert.equal(m.traceLooksLikeLines(disc, w, h), false);
 });
+
+test('a ring with a small gap becomes one closed centre line; a long open arc stays open', () => {
+	const w = 160, h = 160;
+	const arc = (gapDeg) => { const mk = new Uint8Array(w * h); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const d = Math.hypot(x - 80, y - 80), a = (Math.atan2(y - 80, x - 80) * 180 / Math.PI + 360) % 360; if (d >= 56 && d <= 62 && a > gapDeg) mk[y * w + x] = 1; } return mk; };
+	let lines = m.traceCenterlines(arc(3), w, h, 'normal', 5);
+	assert.equal(lines.length, 1);
+	assert.equal(lines[0].closed, true);
+	lines = m.traceCenterlines(arc(120), w, h, 'normal', 5);
+	assert.equal(lines.length, 1);
+	assert.equal(lines[0].closed, false);
+});

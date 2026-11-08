@@ -233,7 +233,10 @@ var TRACE_CENTER_SMOOTHING = { sharp: [0, 0.7], normal: [2, 1], smooth: [4, 1.6]
 // Centre lines of a mask: [{ pts, closed }] in pixel coordinates (pixel centres + 0.5). noise = shortest path (in pixels) that is kept.
 function traceCenterlines(mask, w, h, smoothing, noise) {
   var sm = TRACE_CENTER_SMOOTHING[smoothing] || TRACE_CENTER_SMOOTHING.normal;
-  var paths = traceSkeletonPaths(traceThin(mask, w, h), w, h), out = [];
+  var skel = traceThin(mask, w, h), ink = 0, bone = 0, i;
+  for (i = 0; i < mask.length; i++) { if (mask[i]) ink++; if (skel[i]) bone++; }
+  var thick = bone ? ink / bone : 0;                                 // stroke width in pixels; thinning shortens every end by about half of it
+  var paths = traceSkeletonPaths(skel, w, h), out = [];
   paths.forEach(function(p) {
     if (p.pts.length < Math.max(2, Number(noise) || 0)) return;
     var pts = p.pts.map(function(q) { return [q[0] + 0.5, q[1] + 0.5]; });
@@ -245,6 +248,11 @@ function traceCenterlines(mask, w, h, smoothing, noise) {
       if (pts.length < 3) return;
     } else {
       pts = traceSimplify(pts, sm[1]);
+      // a hand drawn loop that does not quite meet: ends closer than ~2 % of the picture on a long enough path become a closed ring
+      var gap = Math.max(4, 0.02 * Math.max(w, h)) + thick, len = 0;
+      for (var k = 1; k < pts.length; k++) len += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+      var ends = Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]);
+      if (pts.length >= 4 && ends <= gap && len > 5 * gap) { out.push({ pts: pts, closed: true, joined: true }); return; }
     }
     out.push({ pts: pts, closed: p.closed });
   });
