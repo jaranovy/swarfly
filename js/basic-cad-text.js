@@ -65,65 +65,7 @@ function addText() {
 // Locally bundled fonts (see lib/fonts/ and css/fonts.css).
 // The app makes no external requests: vector outlines for the Text tool are
 // generated from these TTF files via opentype.js.
-// Keep this list in sync with the fonts array in lib/jquery/fontselect/jquery.fontselect.js
-var localFonts = [{
-    family: "Bowlby One SC",
-    file: "lib/fonts/BowlbyOneSC-Regular.ttf"
-  }, {
-    family: "Anton",
-    file: "lib/fonts/Anton-Regular.ttf"
-  }, {
-    family: "Arvo",
-    file: "lib/fonts/Arvo-Regular.ttf"
-  }, {
-    family: "Bangers",
-    file: "lib/fonts/Bangers-Regular.ttf"
-  }, {
-    family: "Bevan",
-    file: "lib/fonts/Bevan-Regular.ttf"
-  }, {
-    family: "Dancing Script",
-    file: "lib/fonts/DancingScript.ttf"
-  }, {
-    family: "Lato",
-    file: "lib/fonts/Lato-Regular.ttf"
-  }, {
-    family: "Lobster",
-    file: "lib/fonts/Lobster-Regular.ttf"
-  }, {
-    family: "Merriweather",
-    file: "lib/fonts/Merriweather-Regular.ttf"
-  }, {
-    family: "Open Sans",
-    file: "lib/fonts/OpenSans-Regular.ttf"
-  }, {
-    family: "Orbitron",
-    file: "lib/fonts/Orbitron.ttf"
-  }, {
-    family: "Oswald",
-    file: "lib/fonts/Oswald.ttf"
-  }, {
-    family: "Pacifico",
-    file: "lib/fonts/Pacifico-Regular.ttf"
-  }, {
-    family: "Permanent Marker",
-    file: "lib/fonts/PermanentMarker-Regular.ttf"
-  }, {
-    family: "Playfair Display",
-    file: "lib/fonts/PlayfairDisplay.ttf"
-  }, {
-    family: "Raleway",
-    file: "lib/fonts/Raleway.ttf"
-  }, {
-    family: "Special Elite",
-    file: "lib/fonts/SpecialElite-Regular.ttf"
-  }, {
-    family: "Ubuntu",
-    file: "lib/fonts/Ubuntu-Regular.ttf"
-  }, {
-    family: "VT323",
-    file: "lib/fonts/VT323-Regular.ttf"
-  }];
+var localFonts = SWARFLY_FONTS.map(function(f) { return { family: f[0], file: "lib/fonts/" + f[1] }; });   // the list lives in js/font-list.js
 
 // from https://github.com/nraynaud/webgcode/blob/66e2662fcb72219024976610a6c66d307af84882/webapp/cnc/cam/text.js
 var getFont = function(url) {

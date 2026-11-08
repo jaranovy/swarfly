@@ -14,7 +14,7 @@ Nový tvar ve výchozím stavu visí na myši, dokud neklikneš (viz [Posun, mě
 
 ## Text
 
-*Text* ve skupině Vložit vytvoří řezné obrysy z písma; nastav výšku a před vložením se ukáže náhled ve skutečné velikosti.
+*Text* ve skupině Vložit vytvoří řezné obrysy z písma; nastav výšku a před vložením se ukáže náhled ve skutečné velikosti. K výběru je 68 písem (všechna s českými znaky kromě tří starších ozdobných); **Noto Emoji**, **Noto Sans Symbols** a **Noto Sans Symbols 2** jsou obrázková písma - do textového pole napiš nebo vlož symboly jako ✂ ★ ☺ → (ve Windows otevře výběr symbolů Win + .).
 
 ## Import
 

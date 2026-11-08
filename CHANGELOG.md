@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.21.0] - 2026-11-08
+### Added
+- **68 fonts for the Text tool** (was 19): sans, serif, display, handwriting, monospace, stencil (Saira Stencil One), and three **picture fonts** - Noto Emoji, Noto Sans Symbols and Noto Sans Symbols 2 (scissors, stars, arrows, chess, smileys: type or paste the symbol into the text). All new fonts have the Czech letters and are in the regular weight (variable fonts were cut to weight 400, the thin default is no use for milling). Free fonts (SIL Open Font License, one Apache 2.0), bundled, no internet needed.
+### Changed
+- One list of fonts, `js/font-list.js`: the Text tool, the font drop-down and the @font-face rules are all built from it (before the list was repeated in three places). A unit test checks that every font file exists, parses, has the Czech letters and that no file is missing from the list.
+
 ## [1.20.0] - 2026-11-08
 ### Added
 - **Suggest toolpaths**: a button under the Toolpaths list (and an item in its menu) creates the toolpaths for the selected lines, or for the whole drawing when nothing is selected. You enter the material thickness, the cutter diameter and the engraving depth; the drawing decides the rest: tiny circles (up to 1.2 x the cutter) are drilled, closed shapes inside another shape are cut as holes (*path inside*), open lines are engraved (*no offset*, shallow), and the outer shapes are cut out (*path outside*) **last**, so the part stays held in the sheet until the end. Feeds, step down, spindle speed come from the last used operation. The toolpaths are only pre-filled - open each one, check it and press Generate.

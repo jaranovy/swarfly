@@ -14,7 +14,7 @@ By default a new shape hangs on the mouse until you click (see [Move, scale, rot
 
 ## Text
 
-*Text* in the Insert group creates cut outlines from a font; set the height and see the true-size preview before inserting.
+*Text* in the Insert group creates cut outlines from a font; set the height and see the true-size preview before inserting. There are 68 fonts to choose from (all with the Czech letters, except three old display fonts); **Noto Emoji**, **Noto Sans Symbols** and **Noto Sans Symbols 2** are picture fonts - type or paste symbols such as ✂ ★ ☺ → into the text box (on Windows: Win + . opens the symbol picker).
 
 ## Import
 
