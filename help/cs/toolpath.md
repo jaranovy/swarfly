@@ -10,6 +10,10 @@
 - **Laser: vektor (po čáře / uvnitř / vně)** a *rastrová výplň (beta)*: viz [Laser](topic:laser).
 - **Plazma**, **Tažný nůž**, **Plotr s perem**: další nástroje původního programu, na tomto stroji nezkoušené.
 
+## Navrhnout dráhy
+
+Pod seznamem Dráhy je tlačítko **Navrhnout dráhy**. Vyber čáry (nebo nevybírej nic pro celý výkres), zadej **tloušťku materiálu**, **průměr frézy** a **hloubku rytiny** pro otevřené čáry a stiskni *Vytvořit dráhy*. Operace určí podle výkresu: drobné kružnice se vrtají, uzavřené tvary uvnitř jiného tvaru se vyřežou jako otvory (uvnitř čáry), otevřené čáry se vyrývají (po čáře) a vnější tvary se vyříznou (vně čáry) **nakonec**, aby díl držel v plechu až do konce. Posuvy a hloubka na průchod se vezmou z poslední použité operace. Je to jen návrh: každou dráhu otevři, zkontroluj hodnoty a stiskni Vytvořit G-kód.
+
 ## Hlavní hodnoty
 
 - **Průměr frézy** a **Boční přesah**: velikost nástroje a vzdálenost průchodů v kapse.

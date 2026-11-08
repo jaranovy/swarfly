@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.20.0] - 2026-11-08
+### Added
+- **Suggest toolpaths**: a button under the Toolpaths list (and an item in its menu) creates the toolpaths for the selected lines, or for the whole drawing when nothing is selected. You enter the material thickness, the cutter diameter and the engraving depth; the drawing decides the rest: tiny circles (up to 1.2 x the cutter) are drilled, closed shapes inside another shape are cut as holes (*path inside*), open lines are engraved (*no offset*, shallow), and the outer shapes are cut out (*path outside*) **last**, so the part stays held in the sheet until the end. Feeds, step down, spindle speed come from the last used operation. The toolpaths are only pre-filled - open each one, check it and press Generate.
+### Fixed
+- The Czech text of the new "N centre lines" message did not match (typo in the translation rule).
+
 ## [1.19.0] - 2026-11-08
 ### Added
 - **Centre line tracing of pictures**: the Trace picture window has a new switch *Centre line (one path per stroke)*. A black circle line used to give two circles (the inner and the outer edge of the stroke); with the switch on you get ONE path along the middle of the stroke, open for a line and closed for a ring, crossings split the drawing into pieces. It is switched on by itself when the picture looks like thin lines (a line drawing, handwriting) and off for filled shapes (a logo); you can change it any time. *Smoothing* and *Ignore specks* work for it too.

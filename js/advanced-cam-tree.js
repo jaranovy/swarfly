@@ -27,6 +27,7 @@ function fillTree() {
   // Default Menu
   var menuitem = `<li><a  href="#" onclick="addJob(-1);"><span class="fa fa-fw fa-plus"></span>Create a new operation...</a></li>`;
   $('#toolpathsmenu').append(menuitem);
+  $('#toolpathsmenu').append(`<li><a  href="#" onclick="autoToolpaths();"><span class="fa fa-fw fa-magic"></span>Suggest toolpaths...</a></li>`);
 
   clearSceneFlag = true;
 

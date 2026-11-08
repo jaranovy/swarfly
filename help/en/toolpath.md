@@ -10,6 +10,10 @@ A **toolpath** is one operation applied to the selected lines. You can have seve
 - **Laser: Vector (no offset / inside / outside)** and *raster fill (Beta)*: see [Laser](topic:laser).
 - **Plasma**, **Drag Knife**, **Pen Plotter**: other tools of the original program, not tested on this machine.
 
+## Suggest toolpaths
+
+Under the Toolpaths list is the button **Suggest toolpaths**. Select the lines (or select nothing for the whole drawing), enter the **material thickness**, the **cutter diameter** and the **engraving depth** for open lines, and press *Create toolpaths*. The drawing decides the operations: tiny circles are drilled, closed shapes inside another shape are cut as holes (path inside), open lines are engraved (no offset), and the outer shapes are cut out (path outside) last, so the part stays held in the sheet until the end. Feeds and step down come from the last operation you used. It is only a proposal: open each toolpath, check the values and press Generate G-Code.
+
 ## Main values
 
 - **Endmill diameter** and **Stepover**: size of the tool and distance between passes in a pocket.
