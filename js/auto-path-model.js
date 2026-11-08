@@ -67,3 +67,12 @@ function autoPlan(shapes, opts) {
   });
   return out;
 }
+
+// The values the Suggest toolpaths window starts with: what was used last time (JSON text from localStorage), else 3 mm material, the cutter of the
+// last operation and 0.5 mm engraving. Bad or missing numbers fall back one by one.
+function autoSettings(raw, lastToolDia) {
+  var saved = {};
+  try { saved = JSON.parse(raw) || {}; } catch (e) { saved = {}; }
+  var pos = function(v, d) { v = Number(v); return v > 0 && isFinite(v) ? v : d; };
+  return { thickness: pos(saved.thickness, 3), toolDia: pos(saved.toolDia, pos(lastToolDia, 3.175)), engraveDepth: pos(saved.engraveDepth, 0.5) };
+}

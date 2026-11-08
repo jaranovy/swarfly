@@ -28,3 +28,24 @@ function viewIsTilted(dx, dy, dz) {
   if (!(len > 0)) return false;
   return Math.abs(dz) / len < 0.9986;
 }
+
+// Swarfly 1.22.0: how thick the drawing lines are drawn (WebGL lines are 1 px, so thicker ones are the same lines drawn again shifted).
+// raw = the stored value ("1", "2", "3"); the old switch swarflyThickLines = "0" means 1 px. Default 2.
+function viewLineWidth(raw, legacyOff) {
+  var n = Math.round(Number(raw));
+  if (n >= 1 && n <= 3) return n;
+  return legacyOff === "0" ? 1 : 2;
+}
+
+// Pixel shifts of the extra passes for a line width: 1 -> none, 2 -> three passes, 3 -> eight (a 3 x 3 block around the line).
+function viewLineOffsets(width) {
+  if (width <= 1) return [];
+  if (width === 2) return [[1, 0], [0, 1], [1, 1]];
+  var out = [];
+  for (var dx = -1; dx <= 1; dx++) for (var dy = -1; dy <= 1; dy++) if (dx || dy) out.push([dx, dy]);
+  return out;
+}
+
+function viewNextLineWidth(width) {
+  return width >= 3 ? 1 : width + 1;
+}

@@ -45,3 +45,27 @@ test('viewIsTilted: false from straight above, true once the camera leans', () =
 	assert.equal(m.viewIsTilted(0, -300, 10), true);    // from the front
 	assert.equal(m.viewIsTilted(0, 0, 0), false);
 });
+
+test('viewLineWidth: stored 1-3, old switch off = 1, default 2, junk falls back', () => {
+	assert.equal(m.viewLineWidth('1'), 1);
+	assert.equal(m.viewLineWidth('3'), 3);
+	assert.equal(m.viewLineWidth(null), 2);
+	assert.equal(m.viewLineWidth(null, '0'), 1);
+	assert.equal(m.viewLineWidth('7'), 2);
+	assert.equal(m.viewLineWidth('abc', '0'), 1);
+	assert.equal(m.viewLineWidth('3', '0'), 3);
+});
+
+test('viewLineOffsets: 1 px none, 2 px three passes, 3 px eight passes around the line', () => {
+	assert.equal(m.viewLineOffsets(1).length, 0);
+	assert.equal(JSON.stringify(m.viewLineOffsets(2)), JSON.stringify([[1, 0], [0, 1], [1, 1]]));
+	const o = m.viewLineOffsets(3);
+	assert.equal(o.length, 8);
+	assert.ok(!o.some((p) => p[0] === 0 && p[1] === 0));
+});
+
+test('viewNextLineWidth cycles 1 -> 2 -> 3 -> 1', () => {
+	assert.equal(m.viewNextLineWidth(1), 2);
+	assert.equal(m.viewNextLineWidth(2), 3);
+	assert.equal(m.viewNextLineWidth(3), 1);
+});

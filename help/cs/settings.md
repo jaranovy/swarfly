@@ -8,7 +8,7 @@ Když jsi nikdy nevybral, jazyk se vezme ze souboru `swarfly-defaults.json` vedl
 
 ## Vzhled
 
-*Tmavý režim / Světlý režim* v záložce Nastavení.
+*Tmavý režim / Světlý režim* v záložce Nastavení. Tlačítko **Čáry** na liště nastavuje, jak tlusté jsou čáry výkresu na obrazovce (1, 2 nebo 3 pixely); mění jen vzhled, ne hoření.
 
 ## Nastavení
 

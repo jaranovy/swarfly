@@ -3,6 +3,13 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.22.0] - 2026-11-08
+### Added
+- **Line thickness button** in the toolbar (*Lines: 2 px*): click to cycle 1, 2 and 3 pixels; the choice is remembered. 3 px is for big monitors / poor eyesight. Measured on a drawing with 30 000 vertices: 1 px 8.5 ms, 2 px 18 ms, 3 px 29 ms per frame (software rendering, a real graphics card is faster); very big drawings stay thin as before. The old switch `swarflyThickLines = "0"` still means 1 px.
+- **Suggest toolpaths remembers** the material thickness, the cutter diameter and the engraving depth from the last time.
+### Checked
+- Dark theme with the new toolbar and the light blue lines: fine, lines clearly stand out from the grid.
+
 ## [1.21.0] - 2026-11-08
 ### Added
 - **68 fonts for the Text tool** (was 19): sans, serif, display, handwriting, monospace, stencil (Saira Stencil One), and three **picture fonts** - Noto Emoji, Noto Sans Symbols and Noto Sans Symbols 2 (scissors, stars, arrows, chess, smileys: type or paste the symbol into the text). All new fonts have the Czech letters and are in the regular weight (variable fonts were cut to weight 400, the thin default is no use for milling). Free fonts (SIL Open Font License, one Apache 2.0), bundled, no internet needed.

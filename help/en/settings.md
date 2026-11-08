@@ -8,7 +8,7 @@ If you have never chosen, the language comes from the file `swarfly-defaults.jso
 
 ## Theme
 
-*Dark mode / Light mode* in the Settings tab.
+*Dark mode / Light mode* in the Settings tab. The **Lines** button in the toolbar sets how thick the drawing lines look on the screen (1, 2 or 3 pixels); it changes only the view, not the cut.
 
 ## Settings
 

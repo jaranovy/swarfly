@@ -50,3 +50,10 @@ test('autoPlan: only the groups that exist; engraving never deeper than the mate
 	assert.equal(m.autoPlan([{ closed: false, pts: [[0, 0], [5, 5]] }], { thickness: 0.3, engraveDepth: 2 })[0].zDepth, 0.3);
 	assert.deepEqual(Array.from(m.autoPlan([], {})), []);
 });
+
+test('autoSettings: remembered values, then the last cutter, then defaults; junk is ignored', () => {
+	assert.deepEqual(JSON.parse(JSON.stringify(m.autoSettings('{"thickness":6,"toolDia":2,"engraveDepth":0.2}', 3.175))), { thickness: 6, toolDia: 2, engraveDepth: 0.2 });
+	assert.deepEqual(JSON.parse(JSON.stringify(m.autoSettings(null, 1.5))), { thickness: 3, toolDia: 1.5, engraveDepth: 0.5 });
+	assert.deepEqual(JSON.parse(JSON.stringify(m.autoSettings('not json', undefined))), { thickness: 3, toolDia: 3.175, engraveDepth: 0.5 });
+	assert.deepEqual(JSON.parse(JSON.stringify(m.autoSettings('{"thickness":-1,"toolDia":"x"}', 2))), { thickness: 3, toolDia: 2, engraveDepth: 0.5 });
+});

@@ -14,19 +14,23 @@ function autoLastOperation() {
   try { return JSON.parse(localStorage.getItem("lastCamOperation")) || {}; } catch (e) { return {}; }
 }
 
+function autoStored() {
+  try { return localStorage.getItem("swarflyAutoPath"); } catch (e) { return null; }
+}
+
 function autoToolpaths() {
   var lines = editorSelection();
   var whole = !lines.length;
   if (whole) lines = editorAllLines();
   if (!lines.length) { editorToast("Draw or import something first"); return; }
   var last = autoLastOperation();
-  var tool = Number(last.camToolDia) > 0 ? Number(last.camToolDia) : 3.175;
+  var saved = autoSettings(autoStored(), last.camToolDia);
   var content =
     '<div id="autoBox"><div style="margin-bottom:8px">' + lines.length + (whole ? ' lines in the drawing' : ' selected lines') + '</div>' +
     '<table style="width:100%;font-size:13px">' +
-    '<tr><td style="width:55%">Material thickness (mm)</td><td><input type="number" id="autoThick" min="0.1" step="any" value="3" style="width:90px"></td></tr>' +
-    '<tr><td>Cutter diameter (mm)</td><td><input type="number" id="autoTool" min="0.1" step="any" value="' + tool + '" style="width:90px"></td></tr>' +
-    '<tr><td>Engraving depth for open lines (mm)</td><td><input type="number" id="autoEngrave" min="0.05" step="any" value="0.5" style="width:90px"></td></tr>' +
+    '<tr><td style="width:55%">Material thickness (mm)</td><td><input type="number" id="autoThick" min="0.1" step="any" value="' + saved.thickness + '" style="width:90px"></td></tr>' +
+    '<tr><td>Cutter diameter (mm)</td><td><input type="number" id="autoTool" min="0.1" step="any" value="' + saved.toolDia + '" style="width:90px"></td></tr>' +
+    '<tr><td>Engraving depth for open lines (mm)</td><td><input type="number" id="autoEngrave" min="0.05" step="any" value="' + saved.engraveDepth + '" style="width:90px"></td></tr>' +
     '</table><div id="autoInfo" style="margin-top:8px;font-size:12px;color:#777"></div></div>';
   var refresh = function() {
     var el = document.getElementById("autoInfo");
@@ -60,7 +64,7 @@ function autoCreate(lines) {
   var opts = autoOptions();
   var plan = autoPlan(autoShapes(lines), opts);
   if (!plan.length) return;
-  var last = autoLastOperation();
+  try { localStorage.setItem("swarflyAutoPath", JSON.stringify({ thickness: opts.thickness, toolDia: opts.toolDia, engraveDepth: opts.engraveDepth })); } catch (e) { /* storage blocked */ }  var last = autoLastOperation();
   storeUndo(true);
   var firstNew = toolpathsInScene.length;
   plan.forEach(function(g) {

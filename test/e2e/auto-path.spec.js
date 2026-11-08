@@ -81,3 +81,23 @@ test('Suggest toolpaths: the whole proposal generates valid G-code', async ({ pa
 	expect(result.stats.moves).toBeGreaterThan(20);
 	expect(result.stats.minZ).toBeLessThan(0);
 });
+
+test('Suggest toolpaths: the values are remembered for the next time', async ({ page }) => {
+	await page.goto('/index.html?reset3018&en');
+	await page.waitForLoadState('load');
+	await page.waitForTimeout(2500);
+	await page.evaluate(() => {
+		const g = new THREE.Group(); g.name = 'mem';
+		const geo = new THREE.Geometry();
+		[[0, 0], [40, 0], [40, 20], [0, 20], [0, 0]].forEach((p) => geo.vertices.push(new THREE.Vector3(p[0], p[1], 0)));
+		g.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0xffff00 })));
+		objectsInScene.push(g); fillTree(); autoToolpaths();
+	});
+	await page.waitForSelector('#autoBox');
+	await page.fill('#autoThick', '8'); await page.fill('#autoTool', '2'); await page.fill('#autoEngrave', '0.3');
+	await page.evaluate(() => [...document.querySelectorAll('.dialog button')].filter((b) => /Create toolpaths/.test(b.textContent))[0].click());
+	await page.waitForTimeout(500);
+	await page.evaluate(() => { document.querySelectorAll('.dialog').forEach((d) => d.remove()); autoToolpaths(); });
+	await page.waitForSelector('#autoBox');
+	expect(await page.evaluate(() => [document.getElementById('autoThick').value, document.getElementById('autoTool').value, document.getElementById('autoEngrave').value])).toEqual(['8', '2', '0.3']);
+});

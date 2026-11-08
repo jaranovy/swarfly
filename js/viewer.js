@@ -520,8 +520,30 @@ function animate() {
 // Swarfly 1.18.2: WebGL draws every line 1 pixel thin, so the drawing is drawn three more times, each shifted by one pixel (a 2 x 2 pixel line),
 // only the Documents and Hover groups, on top of the normal picture. Skipped for very big drawings (the extra passes cost time).
 var thickLinesLimit = 60000;   // vertices in the drawing; above it the lines stay thin
+function viewCurrentLineWidth() {
+  try { return viewLineWidth(localStorage.getItem("swarflyLineWidth"), localStorage.getItem("swarflyThickLines")); } catch (e) { return 2; }
+}
+
+// The toolbar button: cycles 1 -> 2 -> 3 px, remembered in localStorage.swarflyLineWidth.
+function viewCycleLineWidth() {
+  var next = viewNextLineWidth(viewCurrentLineWidth());
+  try { localStorage.setItem("swarflyLineWidth", String(next)); } catch (e) { /* storage blocked */ }
+  viewShowLineWidth();
+}
+
+function viewShowLineWidth() {
+  var w = viewCurrentLineWidth();
+  var cap = document.getElementById("viewLineCaption");
+  if (cap) cap.textContent = w + " px";
+  var badge = document.getElementById("viewLineBadge");
+  if (badge) badge.textContent = w + " px";
+}
+
+if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded", viewShowLineWidth);
+
 function renderThickLines() {
-  try { if (localStorage.getItem("swarflyThickLines") === "0") return; } catch (e) {}
+  var width = viewCurrentLineWidth();
+  if (width < 2) return;
   var docs = scene.getObjectByName("Documents");
   if (!docs || !docs.visible) return;
   var n = 0;
@@ -535,7 +557,7 @@ function renderThickLines() {
   var w = renderer.domElement.width, h = renderer.domElement.height;
   var before = renderer.autoClear;
   renderer.autoClear = false;
-  [[1, 0], [0, 1], [1, 1]].forEach(function(o) {
+  viewLineOffsets(width).forEach(function(o) {
     camera.setViewOffset(w, h, -o[0], -o[1], w, h);
     renderer.render(scene, camera);
   });
