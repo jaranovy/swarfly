@@ -3,6 +3,12 @@
 All notable changes to Swarfly (a fork of OpenBuilds CAM) are listed here, newest first. Format after "Keep a Changelog".
 Every release must have an entry here that matches the version in `package.json` (a unit test checks it).
 
+## [1.22.2] - 2026-11-09
+### Fixed
+- The start of the desktop app no longer prints `MaxListenersExceededWarning` (the splash window was sent status texts while it was still loading, and each one queued a listener).
+### Checked
+- Centre line tracing on drawn samples: a spiral gives 1 line, an X inside a circle 12 pieces (cut at every crossing), a five point star 20 pieces, a filled letter stays in outline mode.
+
 ## [1.22.1] - 2026-11-08
 ### Changed
 - **Centre line tracing closes small gaps**: a hand drawn loop whose ends miss each other by a hair (up to about 2 % of the picture plus the stroke width) is now ONE closed ring, so it can be milled with *path inside / outside*. A long open arc stays open. Tried on two hand drawn PNGs: a blob with a gap became one closed outline, a drawing of four strokes gave four lines (two of them closed).

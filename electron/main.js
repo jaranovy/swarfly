@@ -118,6 +118,8 @@ let splashLast = 0;
 
 function splashStatus(text) {
 	if (!splash || splash.isDestroyed()) return;
+	// executeJavaScript on a page that is still loading queues a did-stop-loading listener each time (MaxListenersExceededWarning), so skip until splash.html is loaded
+	if (splash.webContents.isLoading()) return;
 	splash.webContents.executeJavaScript('setStatus(' + JSON.stringify(text) + ')').catch(() => {});
 }
 
