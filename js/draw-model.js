@@ -185,3 +185,42 @@ function drawDeleteNodes(nodes, closed, indexes) {
   }
   return out.length < (closed ? 3 : 2) ? null : out;
 }
+
+// ---- 1.24.0: soft move, smoothing --------------------------------------------------------------------------------------------
+// How much each node follows when node `grab` is dragged: 1 for the grabbed node, falling off smoothly (cosine) to 0 at `radius` mm
+// measured ALONG THE LINE (so a thin part does not drag the other side of the shape along). An open line stops at its ends.
+function drawSoftWeights(nodes, closed, grab, radius) {
+  var n = nodes.length, w = [], seg = [], i, d, step, from, to;
+  for (i = 0; i < n; i++) { var a = nodes[i], b = nodes[(i + 1) % n]; seg.push(Math.hypot(b.x - a.x, b.y - a.y)); w.push(0); }
+  w[grab] = 1;
+  if (!(radius > 0)) return w;
+  var f = function(dist) { return 0.5 * (1 + Math.cos(Math.PI * dist / radius)); };
+  d = 0;
+  for (step = 1; step < n; step++) {                                          // forwards
+    from = (grab + step - 1) % n; to = (grab + step) % n;
+    if (!closed && from === n - 1) break;
+    d += seg[from];
+    if (d >= radius) break;
+    w[to] = Math.max(w[to], f(d));
+  }
+  d = 0;
+  for (step = 1; step < n; step++) {                                          // backwards
+    from = (grab - step + 1 + n) % n; to = (grab - step + n) % n;
+    if (!closed && from === 0) break;
+    d += seg[to];
+    if (d >= radius) break;
+    w[to] = Math.max(w[to], f(d));
+  }
+  return w;
+}
+
+// A hand drawn stroke with the jitter taken out: every inner point becomes the mean of its neighbours (k on each side); the ends stay where they are.
+function drawSmoothStroke(points, k) {
+  var n = points.length, out = [];
+  for (var i = 0; i < n; i++) {
+    var r = Math.min(k, i, n - 1 - i), sx = 0, sy = 0;
+    for (var j = i - r; j <= i + r; j++) { sx += points[j][0]; sy += points[j][1]; }
+    out.push([sx / (2 * r + 1), sy / (2 * r + 1)]);
+  }
+  return out;
+}

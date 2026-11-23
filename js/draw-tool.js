@@ -11,6 +11,9 @@ var DRAW_HINTS = {
   nodes: "Nodes: click a line, then click a point to select it (Shift adds, drag a window to select several) and drag it; drag the diamond of a segment to bend it into an arc (double-click it = straight); double-click the line = new point; Delete = remove; arrows nudge; Esc = end"
 };
 var DRAW_MAX_NODES = 5000;
+var drawSettings = { soft: false, radius: 20, tol: 0.1 };           // remembered in localStorage.swarflyDraw
+try { var drawSaved = JSON.parse(localStorage.getItem("swarflyDraw") || "{}"); if (drawSaved.radius > 0) drawSettings.radius = Number(drawSaved.radius); if (drawSaved.tol > 0) drawSettings.tol = Number(drawSaved.tol); drawSettings.soft = !!drawSaved.soft; } catch (e) { /* storage blocked */ }
+function drawSaveSettings() { try { localStorage.setItem("swarflyDraw", JSON.stringify(drawSettings)); } catch (e) { /* storage blocked */ } }
 
 function drawActive() { return !!drawState.mode; }
 function drawPx(n) { return n * editorMmPerPixel(); }
@@ -40,6 +43,21 @@ function drawOverlay() {
   hint.id = "drawHint";
   hint.style.cssText = "position:absolute;left:50%;top:6px;transform:translateX(-50%);max-width:92%;z-index:6;pointer-events:none;display:none;padding:4px 10px;border-radius:4px;background:rgba(20,30,45,.82);color:#fff;font:12px 'Segoe UI',Arial,sans-serif;text-align:center";
   area.appendChild(hint);
+  var box = document.createElement("div");
+  box.id = "drawBox";
+  box.style.cssText = "position:absolute;right:12px;bottom:12px;z-index:7;display:none;padding:6px 10px;border-radius:4px;background:rgba(20,30,45,.88);color:#fff;font:12px 'Segoe UI',Arial,sans-serif;line-height:28px;white-space:nowrap;width:max-content;max-width:92%";
+  box.innerHTML = '<span>Nodes</span>: <b id="drawCount">0</b> &nbsp;|&nbsp; ' +
+    '<label title="Dragging a point also pulls the points near it along the line, less and less with the distance"><input type="checkbox" id="drawSoft" style="vertical-align:middle"> Soft move</label> ' +
+    '<input type="number" id="drawSoftR" min="1" step="5" style="width:60px;height:24px;min-height:0;padding:0 4px;margin:0;display:inline-block;vertical-align:middle"> <span>mm</span> &nbsp;|&nbsp; ' +
+    '<button type="button" id="drawSimplifyBtn" class="button small" style="height:24px;min-height:0;padding:0 10px;margin:0" title="Remove the points that lie within this distance of the straight line between their neighbours (arcs become short straight pieces)">Simplify</button> ' +
+    '<input type="number" id="drawSimplifyTol" min="0.01" step="0.05" style="width:60px;height:24px;min-height:0;padding:0 4px;margin:0;display:inline-block;vertical-align:middle"> <span>mm</span>';
+  area.appendChild(box);
+  var soft = box.querySelector("#drawSoft"), rad = box.querySelector("#drawSoftR"), tol = box.querySelector("#drawSimplifyTol");
+  soft.checked = drawSettings.soft; rad.value = drawSettings.radius; tol.value = drawSettings.tol;
+  soft.addEventListener("change", function() { drawSettings.soft = soft.checked; drawSaveSettings(); });
+  rad.addEventListener("change", function() { if (Number(rad.value) > 0) drawSettings.radius = Number(rad.value); rad.value = drawSettings.radius; drawSaveSettings(); });
+  tol.addEventListener("change", function() { if (Number(tol.value) > 0) drawSettings.tol = Number(tol.value); tol.value = drawSettings.tol; drawSaveSettings(); });
+  box.querySelector("#drawSimplifyBtn").addEventListener("click", drawNodesSimplify);
   return svg;
 }
 
@@ -49,6 +67,8 @@ function drawShowHint() {
   var text = drawState.mode ? DRAW_HINTS[drawState.mode] : "";
   h.style.display = text ? "block" : "none";
   if (text && h.getAttribute("data-en") !== text) { h.setAttribute("data-en", text); h.textContent = text; }   // rewritten only when it changes (the translator replaces the text)
+  var b = document.getElementById("drawBox");
+  if (b) b.style.display = drawState.mode === "nodes" ? "block" : "none";
 }
 
 // ---- start / end ------------------------------------------------------------------------------------------------------------
@@ -90,6 +110,7 @@ function drawToggleNodes() {
   var lines = editorSelection();
   drawBegin("nodes");
   if (lines.length === 1) drawNodesLoad(lines[0]);
+  drawRender();
 }
 
 function drawEscape() {
@@ -159,7 +180,7 @@ function drawLineUp() {
   st.press = null;
   if (!pr) return;
   if (!pr.moved) { drawLineAdd(pr.p); drawRender(); return; }
-  var s = drawSimplify(st.stroke, drawPx(1.5));
+  var s = drawSimplify(drawSmoothStroke(st.stroke, 2), drawPx(1));         // the jitter of the hand is averaged out, then the stroke is cut to a few points
   st.stroke = null;
   if (st.pts.length) s.shift();                                                 // its first point is the last one already in the line
   s.forEach(function(q) {
@@ -212,9 +233,9 @@ function drawNodesLoad(line) {
   if (typeof changePositionToGeoTranslate === "function") changePositionToGeoTranslate();      // the points are then in world coordinates
   var pts = editorLinePoints(line), sk = line.userData.sketch, info;
   if (pts.length < 2) return false;
-  if (pts.length > DRAW_MAX_NODES) { editorToast("This line has too many points to edit one by one (over " + DRAW_MAX_NODES + ")"); return false; }
   info = sk && sk.sig === drawSignature(pts) ? { nodes: drawClone(sk.nodes), closed: !!sk.closed } : drawPointsToNodes(pts);
-  drawState.ns = { line: line, nodes: info.nodes, closed: info.closed, sel: {}, drag: null, undone: false };
+  drawState.ns = { line: line, nodes: info.nodes, closed: info.closed, sel: {}, drag: null, undone: false, frozen: info.nodes.length > DRAW_MAX_NODES };
+  if (drawState.ns.frozen) editorToast("This line has too many points to edit one by one (over 5000) - press Simplify first");
   return true;
 }
 
@@ -262,6 +283,11 @@ function drawPickLine(p, tol, except) {
 
 function drawNodesDown(e) {
   var ns = drawState.ns, p = drawWorld(e), tol = drawPx(9);
+  if (ns && ns.frozen) {                                                          // too many points: only another line can be picked
+    var oth = drawPickLine(p, tol * 1.2, ns.line);
+    if (oth) { drawSelectOnly(oth); drawState.ns = null; drawNodesLoad(oth); drawRender(); }
+    return;
+  }
   if (ns) {
     var i = drawNearestNode(ns.nodes, p, tol);
     if (i >= 0) {
@@ -299,7 +325,12 @@ function drawNodesMove(e) {
     if (sp) target = sp.point;
     editorShowSnap(sp ? sp.point : null, sp ? sp.kind : null);
     var dx = target[0] - g.x, dy = target[1] - g.y;
-    Object.keys(ns.sel).forEach(function(k) { ns.nodes[k].x = d.orig[k].x + dx; ns.nodes[k].y = d.orig[k].y + dy; });
+    if (drawSettings.soft) {                                                      // soft move: the neighbours follow, less and less with the distance along the line
+      if (!d.weights) d.weights = drawSoftWeights(d.orig, ns.closed, d.grab, drawSettings.radius);
+      d.weights.forEach(function(wt, k) { if (wt > 0) { ns.nodes[k].x = d.orig[k].x + dx * wt; ns.nodes[k].y = d.orig[k].y + dy * wt; } });
+    } else {
+      Object.keys(ns.sel).forEach(function(k) { ns.nodes[k].x = d.orig[k].x + dx; ns.nodes[k].y = d.orig[k].y + dy; });
+    }
   } else if (d.type === "bulge") {
     var a = d.orig[d.seg], b = d.orig[(d.seg + 1) % d.orig.length], A = [a.x, a.y], B = [b.x, b.y], len = drawDist(A, B);
     var off = len < 1e-9 ? 0 : Math.abs((B[0] - A[0]) * (w[1] - A[1]) - (B[1] - A[1]) * (w[0] - A[0])) / len;
@@ -329,7 +360,7 @@ function drawNodesUp() {
 
 function drawNodesDouble(e) {
   var ns = drawState.ns;
-  if (!ns) return;
+  if (!ns || ns.frozen) return;
   var p = drawWorld(e), tol = drawPx(9);
   if (drawNearestNode(ns.nodes, p, tol) >= 0) return;
   var s = drawNearestMid(ns.nodes, ns.closed, p, tol);
@@ -350,7 +381,7 @@ function drawNodesDouble(e) {
 
 function drawNodesDelete() {
   var ns = drawState.ns;
-  if (!ns) return;
+  if (!ns || ns.frozen) return;
   var idx = Object.keys(ns.sel).map(Number);
   if (!idx.length) return;
   var left = drawDeleteNodes(ns.nodes, ns.closed, idx);
@@ -362,7 +393,7 @@ function drawNodesDelete() {
 }
 
 function drawNodesNudge(key, shift, alt) {
-  var ns = drawState.ns, idx = ns ? Object.keys(ns.sel) : [];
+  var ns = drawState.ns, idx = ns && !ns.frozen ? Object.keys(ns.sel) : [];
   if (!idx.length) return false;
   var step = shift ? 10 : alt ? 0.1 : 1, d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, step], ArrowDown: [0, -step] }[key];
   if (!d) return false;
@@ -371,6 +402,18 @@ function drawNodesNudge(key, shift, alt) {
   drawNodesApply(); drawNodesStore(); editorRefresh(true);
   drawRender();
   return true;
+}
+
+// Simplify (button in the box): removes the points that lie within the tolerance of the line between their neighbours. Arcs become short straight pieces.
+function drawNodesSimplify() {
+  var ns = drawState.ns;
+  if (!ns) { editorToast("Select a line first"); return; }
+  var pts = drawNodesToPoints(ns.nodes, ns.closed), res = drawSimplify(pts, drawSettings.tol), info = drawPointsToNodes(res);
+  if (info.nodes.length >= ns.nodes.length) { editorToast("Nothing to remove at this tolerance"); return; }
+  drawNodesUndoPoint();
+  ns.nodes = info.nodes; ns.closed = info.closed; ns.sel = {}; ns.frozen = ns.nodes.length > DRAW_MAX_NODES;
+  drawNodesApply(); drawNodesStore(); editorRefresh(true);
+  drawRender();
 }
 
 // ---- the picture on top of the drawing ---------------------------------------------------------------------------------------
@@ -397,11 +440,12 @@ function drawRender() {
     }
   } else if (st.ns) {
     var ns = st.ns, sq = [], sel = [], dia = [], diaFull = [];
-    ns.nodes.forEach(function(n, k) {
+    var shown = ns.frozen ? [] : ns.nodes;
+    shown.forEach(function(n, k) {
       var q = editorToScreen(n.x, n.y), s = 'M' + (q[0] - 4.5).toFixed(1) + ' ' + (q[1] - 4.5).toFixed(1) + 'h9v9h-9z';
       (ns.sel[k] ? sel : sq).push(s);
     });
-    if (ns.nodes.length <= 600) {
+    if (!ns.frozen && ns.nodes.length <= 600) {
       for (i = 0; i < drawSegmentCount(ns.nodes, ns.closed); i++) {
         var m = drawSegmentMid(ns.nodes, ns.closed, i), q2 = editorToScreen(m[0], m[1]), s2 = 'M' + q2[0].toFixed(1) + ' ' + (q2[1] - 5.5).toFixed(1) + 'l5.5 5.5-5.5 5.5-5.5-5.5z';
         (ns.nodes[i].b ? diaFull : dia).push(s2);
@@ -418,6 +462,8 @@ function drawRender() {
   }
   svg.innerHTML = h.join("");
   svg.style.display = "block";
+  var cnt = document.getElementById("drawCount");
+  if (cnt) { var txt = st.mode === "nodes" && st.ns ? String(st.ns.nodes.length) : "-"; if (cnt.textContent !== txt) cnt.textContent = txt; }
 }
 
 // ---- events -------------------------------------------------------------------------------------------------------------------
@@ -445,7 +491,7 @@ document.addEventListener("keydown", function(e) {
 if (typeof document !== "undefined" && typeof window !== "undefined") {
   document.addEventListener("DOMContentLoaded", function() {
     if (!document.getElementById("renderArea")) return;
-    var KEEP = "#drawLineButton, #nodeEditButton, #editorSnapButton, #gridGroup, #editorCoordBox, #drawHint";
+    var KEEP = "#drawLineButton, #nodeEditButton, #editorSnapButton, #gridGroup, #editorCoordBox, #drawHint, #drawBox";
 
     document.addEventListener("mousedown", function(e) {
       var st = drawState;

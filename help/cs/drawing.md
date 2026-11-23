@@ -14,14 +14,16 @@ Nový tvar ve výchozím stavu visí na myši, dokud neklikneš (viz [Posun, mě
 
 ## Kreslení čar a úprava bodů
 
-**Čára** (klávesa *L*, skupina Vytvořit): klikni na první bod a pak na další; každý klik přidá rovný úsek. **Tažením** s podrženým tlačítkem kreslíš volnou rukou - tah se vyhladí na pár bodů. S *Shiftem* jdou kroky po 15 stupních. Klik na první bod (nebo tah, který na něm skončí) čáru **uzavře**, otevřenou dokončíš *Enterem*, dvojklikem nebo pravým tlačítkem, *Backspace* vrátí poslední bod, *Esc* zruší. Při kreslení se u kurzoru ukazuje délka a úhel úseku, body se přichytávají na výkres a mřížku a bod můžeš zadat z klávesnice (`x,y`, `@dx,dy`, `@délka<úhel`) do pole vlevo dole. Nástroj zůstane zapnutý pro další čáru, dokud znovu nezmáčkneš Esc.
+**Čára** (klávesa *L*, skupina Vytvořit): klikni na první bod a pak na další; každý klik přidá rovný úsek. **Tažením** s podrženým tlačítkem kreslíš volnou rukou - chvění ruky se zprůměruje a tah se zredukuje na pár bodů. S *Shiftem* jdou kroky po 15 stupních. Klik na první bod (nebo tah, který na něm skončí) čáru **uzavře**, otevřenou dokončíš *Enterem*, dvojklikem nebo pravým tlačítkem, *Backspace* vrátí poslední bod, *Esc* zruší. Při kreslení se u kurzoru ukazuje délka a úhel úseku, body se přichytávají na výkres a mřížku a bod můžeš zadat z klávesnice (`x,y`, `@dx,dy`, `@délka<úhel`) do pole vlevo dole. Nástroj zůstane zapnutý pro další čáru, dokud znovu nezmáčkneš Esc.
 
 **Uzly** (klávesa *N*, skupina Úpravy) ukážou body vybrané čáry (nebo nejdřív na čáru klikni):
 
 - **Posun**: klikni na bod a táhni (přichytává se na body a mřížku, *Shift* přichytávání vypne). *Shift*+klik přidá do výběru, okno tažené na prázdném místě vybere všechny body uvnitř, šipky posunou vybrané body (1 mm, *Shift* 10 mm, *Alt* 0,1 mm).
 - **Ohnutí**: kosočtverec uprostřed úseku táhni do strany a úsek se stane obloukem přes kurzor. Dvojklik na kosočtverec ho zase narovná.
 - **Přidat / smazat**: dvojklik na čáru tam přidá bod (na oblouku oblouk zůstane), *Delete* smaže vybrané body. Čára si nechá aspoň 2 body (uzavřená 3).
-- Každá změna je jeden krok zpět. Posunutím bodu tvaru (obdélník, kruh ...) se z něj stane obyčejná čára, jeho parametry zmizí. Čáry s víc než 5000 body jsou na takovou úpravu příliš těžké.
+- **Měkký posun** (zaškrtávátko v rámečku vpravo dole, s *poloměrem* v mm): tažený bod táhne za sebou sousedy po čáře, čím dál tím méně (měří se po čáře, takže druhá strana tenkého tvaru zůstane na místě). Hodí se na plynulé vytlačení boule v obrysu.
+- **Zjednodušit** (tlačítko ve stejném rámečku, s *tolerancí* v mm): odstraní body, které leží do dané vzdálenosti od přímky mezi sousedy (oblouky se změní na krátké rovné kousky). Hodí se pro vektorizovaný obrázek s tisíci body; čáru s víc než 5000 body lze nejdřív jen zjednodušit. Rámeček ukazuje i počet bodů čáry. Obě hodnoty se pamatují.
+- Každá změna je jeden krok zpět. Posunutím bodu tvaru (obdélník, kruh ...) se z něj stane obyčejná čára, jeho parametry zmizí.
 
 ## Text
 

@@ -125,3 +125,42 @@ test('Points tool: a window selects several points, the arrow keys nudge them, a
 	expect((await lines(page))[0]).toEqual([[20, 20], [60, 20], [60, 62], [20, 62], [20, 20]]);
 	expect(await page.evaluate(() => objectsInScene[0].children[0].userData.shape)).toBeUndefined();
 });
+
+test('Points tool: soft move drags the neighbours along the line, less with the distance; the setting is remembered', async ({ page }) => {
+	await open(page);
+	await page.evaluate(() => { const g = new THREE.Geometry(); for (let i = 0; i <= 10; i++) g.vertices.push(new THREE.Vector3(20 + i * 10, 40, 0)); const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xffff00 })); l.name = 'row'; const grp = new THREE.Group(); grp.add(l); objectsInScene.push(grp); fillTree(); l.userData.selected = true; fillTree(); });
+	await page.evaluate(() => resetView(scene.getObjectByName('Grid')));
+	await page.waitForTimeout(300);
+	await page.evaluate(() => drawToggleNodes());
+	await expect(page.locator('#drawBox')).toBeVisible();
+	await page.check('#drawSoft');
+	await page.fill('#drawSoftR', '30');
+	await page.locator('#drawSoftR').press('Tab');
+	const [x1, y1] = await at(page, 70, 40), [x2, y2] = await at(page, 70, 50);
+	await page.mouse.move(x1, y1); await page.mouse.down(); await page.mouse.move(x1, (y1 + y2) / 2); await page.mouse.move(x2, y2); await page.mouse.up();
+	const ys = (await lines(page))[0].map((p) => p[1]);
+	expect(ys[5]).toBe(50);                                              // the grabbed point
+	expect(ys[4]).toBeCloseTo(47.5, 1); expect(ys[6]).toBeCloseTo(47.5, 1);   // 10 mm of a 30 mm radius: 75 %
+	expect(ys[3]).toBeGreaterThan(40); expect(ys[3]).toBeLessThan(ys[4]);
+	expect(ys[2]).toBe(40);                                              // 30 mm away: not moved
+	expect(ys[0]).toBe(40); expect(ys[10]).toBe(40);
+	expect(await page.evaluate(() => JSON.parse(localStorage.getItem('swarflyDraw')))).toMatchObject({ soft: true, radius: 30 });
+});
+
+test('Points tool: Simplify removes points on straight parts (undo brings them back); a line with too many points can still be simplified', async ({ page }) => {
+	await open(page);
+	await page.evaluate(() => { const g = new THREE.Geometry(); for (let i = 0; i <= 6000; i++) g.vertices.push(new THREE.Vector3(20 + i * 0.03, 40 + (i < 3000 ? 0 : (i - 3000) * 0.03), 0)); const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xffff00 })); l.name = 'dense'; const grp = new THREE.Group(); grp.add(l); objectsInScene.push(grp); fillTree(); l.userData.selected = true; fillTree(); });
+	await page.evaluate(() => resetView(scene.getObjectByName('Grid')));
+	await page.waitForTimeout(300);
+	await page.evaluate(() => drawToggleNodes());
+	expect(await page.evaluate(() => drawState.ns.frozen)).toBe(true);      // 6001 points: no single points to grab
+	expect(await page.locator('#drawCount').textContent()).toBe('6001');
+	await page.click('#drawSimplifyBtn');
+	expect(await page.evaluate(() => drawState.ns.frozen)).toBe(false);
+	const after = (await lines(page))[0];
+	expect(after.length).toBe(3);                                        // an L shape: start, corner, end
+	expect(await page.locator('#drawCount').textContent()).toBe('3');
+	await page.evaluate(() => undo());
+	await page.waitForTimeout(500);
+	expect((await lines(page))[0].length).toBe(6001);
+});

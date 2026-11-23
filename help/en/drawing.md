@@ -14,14 +14,16 @@ By default a new shape hangs on the mouse until you click (see [Move, scale, rot
 
 ## Drawing lines and editing points
 
-**Line** (key *L*, in the Create group): click the first point, then click the next points; each click adds a straight segment. Press and **drag** to draw freehand - the stroke is smoothed into a few points. Hold *Shift* for steps of 15 degrees. A click on the first point (or a stroke that ends on it) **closes** the line, *Enter*, a double-click or a right click finishes an open one, *Backspace* takes the last point back, *Esc* cancels. While you draw, the length and the angle of the segment are shown at the pointer, the points snap to the drawing and the grid, and you can type a point (`x,y`, `@dx,dy`, `@length<angle`) into the field at the bottom left. The tool stays on for the next line until you press Esc again.
+**Line** (key *L*, in the Create group): click the first point, then click the next points; each click adds a straight segment. Press and **drag** to draw freehand - the jitter of the hand is averaged out and the stroke is cut to a few points. Hold *Shift* for steps of 15 degrees. A click on the first point (or a stroke that ends on it) **closes** the line, *Enter*, a double-click or a right click finishes an open one, *Backspace* takes the last point back, *Esc* cancels. While you draw, the length and the angle of the segment are shown at the pointer, the points snap to the drawing and the grid, and you can type a point (`x,y`, `@dx,dy`, `@length<angle`) into the field at the bottom left. The tool stays on for the next line until you press Esc again.
 
 **Nodes** (key *N*, in the Edit group) shows the points of the selected line (or click a line first):
 
 - **Move**: click a point and drag it (it snaps to points and the grid, *Shift* switches the snapping off). *Shift*+click adds to the selection, a window dragged on empty ground selects every point inside, the arrow keys nudge the selected points (1 mm, *Shift* 10 mm, *Alt* 0.1 mm).
 - **Bend**: the diamond in the middle of a segment is dragged sideways and the segment becomes an arc through the pointer. A double-click on the diamond makes it straight again.
 - **Add / delete**: a double-click on the line adds a point there (on an arc it keeps the arc), *Delete* removes the selected points. A line keeps at least 2 points (a closed one 3).
-- Every change is one undo step. Moving a point of a shape (rectangle, circle ...) turns it into an ordinary line; its parameters are gone. Lines with more than 5000 points are too heavy to edit this way.
+- **Soft move** (tick in the box at the bottom right, with a *radius* in mm): the dragged point pulls its neighbours along the line, less and less with the distance (measured along the line, so the other side of a thin shape stays put). Use it to push a smooth bulge into an outline.
+- **Simplify** (button in the same box, with a *tolerance* in mm): removes the points that lie within the tolerance of the line between their neighbours (arcs become short straight pieces). Good for a traced picture with thousands of points; a line with more than 5000 points can only be simplified first. The box also shows how many points the line has. Both settings are remembered.
+- Every change is one undo step. Moving a point of a shape (rectangle, circle ...) turns it into an ordinary line; its parameters are gone.
 
 ## Text
 

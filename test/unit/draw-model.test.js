@@ -116,3 +116,36 @@ test('drawSignature changes when a point moves', () => {
 	assert.equal(m.drawSignature(a), m.drawSignature(a.map((p) => p.slice())));
 	assert.notEqual(m.drawSignature(a), m.drawSignature([[0, 0], [1, 1.01], [2, 0]]));
 });
+
+test('drawSoftWeights: 1 at the grabbed node, falls off along the line, 0 beyond the radius; an open line stops at its ends', () => {
+	const line = []; for (let i = 0; i <= 10; i++) line.push({ x: i * 10, y: 0, b: 0 });
+	const w = J(m.drawSoftWeights(line, false, 5, 30));
+	assert.equal(w[5], 1);
+	assert.ok(near(w[4], 0.75, 1e-9) && near(w[6], 0.75, 1e-9), 'cos falloff: 10 of 30 mm is 0.75');
+	assert.ok(w[4] > w[3] && w[3] > w[2]);
+	assert.equal(w[2], 0);                                    // 30 mm away = the radius
+	assert.equal(w[8], 0);
+	const e = J(m.drawSoftWeights(line, false, 0, 25));
+	assert.equal(e[0], 1);
+	assert.ok(e[1] > 0 && e[2] > 0 && e[3] === 0);
+	assert.equal(e[10], 0, 'an open line does not wrap round to the other end');
+});
+
+test('drawSoftWeights: a closed line wraps round, the distance is measured along the line, radius 0 moves only the node', () => {
+	const sq = [{ x: 0, y: 0, b: 0 }, { x: 10, y: 0, b: 0 }, { x: 10, y: 10, b: 0 }, { x: 0, y: 10, b: 0 }];
+	const w = J(m.drawSoftWeights(sq, true, 0, 15));
+	assert.equal(w[0], 1);
+	assert.ok(w[1] > 0 && w[3] > 0 && near(w[1], w[3]), 'both neighbours, one on each side of the wrap');
+	assert.ok(w[2] === 0, 'the opposite corner is 20 mm along the line');
+	const z = J(m.drawSoftWeights(sq, true, 2, 0));
+	assert.deepEqual(z, [0, 0, 1, 0]);
+});
+
+test('drawSmoothStroke keeps the ends and flattens the jitter', () => {
+	const pts = []; for (let i = 0; i <= 20; i++) pts.push([i, i % 2 ? 0.5 : -0.5]);
+	const s = J(m.drawSmoothStroke(pts, 2));
+	assert.deepEqual(s[0], pts[0]);
+	assert.deepEqual(s[20], pts[20]);
+	for (let i = 3; i < 18; i++) assert.ok(Math.abs(s[i][1]) < 0.15, 'jitter reduced at ' + i);
+	assert.equal(s.length, pts.length);
+});

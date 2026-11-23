@@ -7,6 +7,8 @@ Every release must have an entry here that matches the version in `package.json`
 ### Added
 - **Line tool** (key *L*, button *Line*): click points to draw straight segments, press and drag to draw freehand (the stroke is simplified), *Shift* locks 15 degree steps, a click on the first point closes the line, *Enter* / double-click / right click finishes, *Backspace* takes the last point back. Length and angle show at the pointer, points snap to the drawing and the grid, and typed points (`x,y`, `@dx,dy`, `@length<angle`) work.
 - **Nodes tool** (key *N*, button *Nodes*): the points of a line show up; drag a point (several with *Shift* or a window), nudge with the arrows, drag the diamond in the middle of a segment to bend it into an arc (a double-click makes it straight), double-click the line to add a point, *Delete* removes points. One undo step per change; a shape that is edited this way becomes an ordinary line. The arcs are remembered on the line, so they can be bent again later.
+- **Soft move** in the Nodes tool (box at the bottom right, radius in mm): the dragged point pulls its neighbours along the line with a smooth falloff. **Simplify** (tolerance in mm) removes the points on straight parts - also the way to edit a traced picture, since a line with more than 5000 points can only be simplified first. The box shows the number of points; the settings are remembered.
+- Freehand strokes are smoothed (the jitter of the hand is averaged out) before they are cut down to a few points.
 - Unit tests of the arc and node maths (`js/draw-model.js`) and e2e tests of both tools.
 
 ## [1.22.2] - 2026-11-09
