@@ -16,8 +16,10 @@ var SHORTCUT_ACTIONS = [
   { id: "measureAngle", group: "Sketch", title: "Measure angle", desc: "Angle between three points", keys: [] },
   { id: "snap", group: "Sketch", title: "Snapping", desc: "Switch snapping to points and grid on or off", keys: ["S"] },
   { id: "dims", group: "Sketch", title: "Dimensions", desc: "Show the overall size of the selection", keys: [] },
+  { id: "drawLine", group: "Sketch", title: "Draw line", desc: "Draw a line: click the points, drag for freehand", keys: ["L"] },
   { id: "panel", group: "Sketch", title: "Properties panel", desc: "Show or hide the properties of the selection", keys: ["P"] },
 
+  { id: "nodeEdit", group: "Edit", title: "Edit points", desc: "Move, add or delete the points of a line, bend a segment into an arc", keys: ["N"] },
   { id: "moveAB", group: "Edit", title: "Move A to B", desc: "Move the selection from one point to another", keys: ["Shift+M"] },
   { id: "trim", group: "Edit", title: "Trim", desc: "Remove the part of a line between two crossings", keys: ["X"] },
   { id: "split", group: "Edit", title: "Split", desc: "Cut a line or circle into two parts", keys: ["C"] },

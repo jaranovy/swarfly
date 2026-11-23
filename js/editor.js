@@ -517,7 +517,7 @@ var EDITOR_SIZE_STEP = 1;                 // resizing with the handles goes in w
 function editorDrawHandles() {
   var hs = document.getElementById("editorHandles");
   if (!hs) return;
-  var lines = (editorState.placing || editorState.mv || editorState.me) ? [] : editorSelection();      // no handles in the way while a point is being picked
+  var lines = (editorState.placing || editorState.mv || editorState.me || (typeof drawActive === "function" && drawActive())) ? [] : editorSelection();      // no handles in the way while a point is being picked
   var box = lines.length ? editorSelectionBox(lines) : null;
   if (!box || (box.maxX - box.minX <= 0 && box.maxY - box.minY <= 0)) { hs.style.display = "none"; editorState.rotKey = ""; editorState.rotate = false; return; }
   hs.style.display = "block";
@@ -615,7 +615,7 @@ function editorHandleUp() {
 // arrow keys nudge the selection: 1 mm, Shift 10 mm, Alt 0.1 mm
 function editorArrowKey(e) {
   var t = e.target && e.target.nodeName ? e.target.nodeName.toLowerCase() : "";
-  if (t === "input" || t === "textarea" || t === "select" || editorState.placing) return;
+  if (t === "input" || t === "textarea" || t === "select" || editorState.placing || (typeof drawActive === "function" && drawActive())) return;
   var d = editorArrowDelta(e.key, e.shiftKey, e.altKey);
   if (!d) return;
   var lines = editorSelection();
@@ -691,6 +691,7 @@ function editorShowGridButton() {
 
 // ---- 1.5.1: move from point A to point B ---------------------------------------------------------------------------------
 function editorStartMoveAB() {
+  if (typeof drawEnd === "function") drawEnd();
   editorEndPlacement();
   var lines = editorSelection();
   if (!lines.length) { editorToast("Select the objects to move first"); return; }
@@ -1010,6 +1011,7 @@ function editorCutDone() {
 // Tools like SAPS "erase part of a section" and "divide a section". The click picks the line under the pointer (any unlocked line of
 // the drawing); the crossings with all other lines decide where the cut goes.
 function editorStartCut(mode) {
+  if (typeof drawEnd === "function") drawEnd();
   if (editorState.draft) editorDraftCancel();
   editorEndPlacement();
   editorCancelMoveAB(true);
@@ -1334,6 +1336,7 @@ function editorOffsetCopy() {
 
 // ---- 1.6.0: measuring, typed coordinates ---------------------------------------------------------------------------------
 function editorStartMeasure(mode) {
+  if (typeof drawEnd === "function") drawEnd();
   editorEndPlacement();
   editorCancelMoveAB(true);
   if (mode === "circle") { editorMeasureCircles(); return; }
@@ -1418,6 +1421,7 @@ function editorCoordSubmit() {
     input.value = "";
     if (editorState.me) editorMeasureAccept(p);
     else if (editorState.mv) editorMoveABAccept(p);
+    else if (typeof drawActive === "function" && drawActive()) drawLineTyped(p);
   } catch (e) { editorToast(e.message); }
 }
 

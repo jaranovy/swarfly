@@ -28,6 +28,8 @@ var SHORTCUT_RUN = {
   snap: function() { editorToggleSnap(); },
   dims: function() { editorToggleDims(); },
   panel: function() { editorTogglePanel(); },
+  drawLine: function() { drawToggleLine(); },
+  nodeEdit: function() { drawToggleNodes(); },
   moveAB: function() { editorStartMoveAB(); },
   trim: function() { editorStartCut("trim"); },
   split: function() { editorStartCut("split"); },

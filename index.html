@@ -268,6 +268,21 @@
 												</button>
 											</div>
 											<div class="ribbon-group">
+												<button class="ribbon-icon-button" id="drawLineButton" onclick="drawToggleLine()" title="Draw a line: click the points, drag for freehand (L)">
+													<span class="icon">
+														<span class="fas fa-pencil-alt"></span>
+													</span>
+													<span class="caption">Line</span>
+												</button>
+												<br>
+												<button class="ribbon-icon-button" id="nodeEditButton" onclick="drawToggleNodes()" title="Edit points: move, add or delete the points of a line, bend a segment into an arc (N)">
+													<span class="icon">
+														<span class="fas fa-draw-polygon"></span>
+													</span>
+													<span class="caption">Nodes</span>
+												</button>
+											</div>
+											<div class="ribbon-group">
 												<button class="ribbon-icon-button" id="editorMoveButton" onclick="editorStartMoveAB()" title="Move the selection: click the point to move from, then the point to move to">
 													<span class="icon">
 														<span class="fas fa-long-arrow-alt-right"></span>
@@ -441,7 +456,7 @@
 
 									</div>
 										<div class="section" id="section-help">
-											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.22.2</span></span></button></div><span class="title">Help</span></div>
+											<div class="group" id="helpGroup"><div class="ribbon-group"><button class="ribbon-button" onclick="openHelp()" title="Help (F1)"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="caption">Help</span></button><button class="ribbon-button" onclick="openHelp('changelog')" title="Version and what's new" id="versionButton3018"><span class="icon"><i class="fas fa-cog"></i></span><span class="caption">Swarfly<br><span id="appVersionNo">v1.23.0</span></span></button></div><span class="title">Help</span></div>
 										</div>
 									</div> <!-- /.ribbon-main -->
 								</div> <!-- /.ribbon-row -->
@@ -733,6 +748,8 @@
 	<script type="text/javascript" src="js/advanced-cam-gcode.js"></script>
 	<script type="text/javascript" src="js/gcode-validate.js"></script><!-- 3018: G-code validator -->
 	<script type="text/javascript" src="js/help.js"></script><!-- Swarfly: in-app help (F1) -->
+	<script type="text/javascript" src="js/draw-model.js"></script><!-- Swarfly: maths of the line tool and the point editor -->
+	<script type="text/javascript" src="js/draw-tool.js"></script><!-- Swarfly: draw lines, edit points -->
 	<script type="text/javascript" src="js/editor.js"></script><!-- Swarfly: properties panel, placement mode, dimensions, status line -->
 	<script type="text/javascript" src="js/gcode-stats.js"></script><!-- 3018: path / material / time statistics -->
 	<script type="text/javascript" src="js/advanced-cam-doctree.js"></script>

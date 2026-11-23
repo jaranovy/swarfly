@@ -29,6 +29,7 @@ object). Toolpaths are generated in a worker from those lines and drawn as extra
 |---|---|
 | `js/editor-model.js` | **pure maths** of the editor (no DOM): handles, snapping, trim/split, fillets, tangents, polygon positions. Tested in node. |
 | `js/editor.js` | DOM glue of the editor: properties bar, placement mode, tools (trim, split, tangent, arc, to-corner, measure, move A-B), status line. |
+| `js/draw-model.js`, `js/draw-tool.js` | line drawing and the point (node) editor: pure maths (arcs by bulge, nodes, simplify) tested in node, and the DOM part (mouse, overlay, keys). |
 | `js/shape-generators.js`, `js/basic-cad-shapes.js` | geometry of the shapes and the old shape dialogs. |
 | `js/trace-model.js`, `js/potrace.js` | picture tracing (threshold, outline, size) and its dialog. |
 | `js/tool-split-model.js` | one G-code file per tool (grouping, file names). |

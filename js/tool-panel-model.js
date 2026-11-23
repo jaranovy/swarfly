@@ -7,12 +7,12 @@ var TOOL_PANEL_GROUPS = [
     { sel: ".mouseSelectBtn", action: "toolSelect" }, { sel: ".mouseMoveBtn", action: "toolMove" },
     { sel: ".mouseDelBtn", action: "toolErase" }, { sel: ".mouseScaleBtn", action: "toolTransform" } ] },
   { title: "Create", items: [
-    { sel: "#textButton", action: null }, { sel: "#shapesMenu", action: null } ] },
+    { sel: "#textButton", action: null }, { sel: "#shapesMenu", action: null }, { sel: "#drawLineButton", action: "drawLine" } ] },
   { title: "Sketch", items: [
     { sel: "#editorMeasureMenu", action: "measureDist" }, { sel: "#editorSnapButton", action: "snap" },
     { sel: "#editorDimsButton", action: "dims" }, { sel: "#editorPanelButton", action: "panel" } ] },
   { title: "Edit", items: [
-    { sel: "#editorMoveButton", action: "moveAB" }, { sel: "#editorTrimButton", action: "trim" }, { sel: "#editorSplitButton", action: "split" },
+    { sel: "#nodeEditButton", action: "nodeEdit" }, { sel: "#editorMoveButton", action: "moveAB" }, { sel: "#editorTrimButton", action: "trim" }, { sel: "#editorSplitButton", action: "split" },
     { sel: "#editorTangentButton", action: "tangent" }, { sel: "#editorArcButton", action: "arc" }, { sel: "#editorReachButton", action: "reach" },
     { sel: "#undoButton", action: "undo" }, { sel: "#redoButton", action: "redo" } ] },
   { title: "Camera", items: [
